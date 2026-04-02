@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-
 // Interne couponcodes — werken altijd zonder Stripe
 const INTERNE_COUPONS: Record<string, number> = {
   VRIEND2026: 100,
@@ -19,6 +17,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
     const codes = await stripe.promotionCodes.list({ code: code.toUpperCase(), limit: 1, active: true });
 
     if (codes.data.length === 0) {
