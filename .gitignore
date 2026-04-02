@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build
+.next/
+out/
+build/
+
+# Env (NOOIT committen!)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor
+.DS_Store
+*.pem
+.idea/
+.vscode/
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Drizzle migrations (optioneel)
+lib/db/migrations/
+
+# clerk configuration (can include secrets)
+/.clerk/
