@@ -109,9 +109,20 @@ export default function HomePage() {
                 {bezig ? "Sessie wordt aangemaakt..." : "Begin mijn sessie →"}
               </button>
             ) : (
-              <Link href="/sign-in" className="btn-primary w-full text-center text-lg py-4 block">
-                Inloggen om te beginnen →
-              </Link>
+              <div className="space-y-3">
+                <Link
+                  href={`/sign-up?callbackUrl=/betalen?thema=${geselecteerd}`}
+                  className="btn-primary w-full text-center text-lg py-4 block"
+                >
+                  Account aanmaken →
+                </Link>
+                <Link
+                  href={`/sign-in?callbackUrl=/betalen?thema=${geselecteerd}`}
+                  className="block text-center text-sm text-muted hover:text-bricktext transition-colors py-2"
+                >
+                  Al een account? Inloggen
+                </Link>
+              </div>
             )}
             <p className="text-center text-xs text-muted mt-3">
               Een sessie duurt 30–45 minuten. Je hebt blokken of huishoudspullen nodig.

@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 
-export default function SignUpPage() {
+function SignUpForm() {
   const router = useRouter();
+  const params = useSearchParams();
+  const callbackUrl = params.get("callbackUrl") || "/start";
+
   const [naam, setNaam] = useState("");
   const [email, setEmail] = useState("");
   const [wachtwoord, setWachtwoord] = useState("");
@@ -46,7 +49,7 @@ export default function SignUpPage() {
       setFout("Registratie gelukt, maar inloggen mislukt. Probeer opnieuw.");
       setBezig(false);
     } else {
-      router.push("/start");
+      router.push(callbackUrl);
     }
   }
 
@@ -110,11 +113,19 @@ export default function SignUpPage() {
 
         <p className="text-center text-sm text-muted mt-6">
           Al een account?{" "}
-          <Link href="/sign-in" className="text-primary hover:underline">
+          <Link href={`/sign-in?callbackUrl=${encodeURIComponent(callbackUrl)}`} className="text-primary hover:underline">
             Inloggen
           </Link>
         </p>
       </div>
     </main>
+  );
+}
+
+export default function SignUpPage() {
+  return (
+    <Suspense fallback={<div className="min-h-dvh bg-secondary" />}>
+      <SignUpForm />
+    </Suspense>
   );
 }
