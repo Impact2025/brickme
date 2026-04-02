@@ -25,6 +25,7 @@ export default function BouwenPage() {
   const [foto, setFoto] = useState<string | null>(null);
   const [beschrijving, setBeschrijving] = useState("");
   const [bezig, setBezig] = useState(false);
+  const [fout, setFout] = useState("");
   const [laden, setLaden] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -69,11 +70,12 @@ export default function BouwenPage() {
   async function slaFaseOp() {
     if (!foto || !beschrijving.trim() || bezig) return;
     setBezig(true);
+    setFout("");
     if (timerRef.current) clearInterval(timerRef.current);
 
     try {
       const fase = fases[huidigeFase];
-      await fetch(`/api/reflectie`, {
+      const res = await fetch(`/api/reflectie`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -84,7 +86,16 @@ export default function BouwenPage() {
         }),
       });
 
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Fout bij opslaan");
+      }
+
       router.push(`/sessie/${id}/reflectie?fase=${huidigeFase + 1}`);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Er ging iets mis.";
+      setFout(`${msg} Probeer opnieuw.`);
+      startTimer();
     } finally {
       setBezig(false);
     }
@@ -227,6 +238,10 @@ export default function BouwenPage() {
               }
             </p>
           </div>
+        )}
+
+        {fout && (
+          <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-2xl px-4 py-3">{fout}</p>
         )}
 
         {/* Doorgaan knop */}

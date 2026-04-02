@@ -111,13 +111,13 @@ export default function HomePage() {
             ) : (
               <div className="space-y-3">
                 <Link
-                  href={`/sign-up?callbackUrl=/betalen?thema=${geselecteerd}`}
+                  href={`/sign-up?callbackUrl=${encodeURIComponent(`/betalen?thema=${geselecteerd}`)}`}
                   className="btn-primary w-full text-center text-lg py-4 block"
                 >
                   Account aanmaken →
                 </Link>
                 <Link
-                  href={`/sign-in?callbackUrl=/betalen?thema=${geselecteerd}`}
+                  href={`/sign-in?callbackUrl=${encodeURIComponent(`/betalen?thema=${geselecteerd}`)}`}
                   className="block text-center text-sm text-muted hover:text-bricktext transition-colors py-2"
                 >
                   Al een account? Inloggen

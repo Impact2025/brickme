@@ -45,7 +45,10 @@ function NieuweSessieInner() {
         body: JSON.stringify({ themaId, berichten: [], fase: "start" }),
       });
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Fout");
       setBerichten([{ rol: "ai", inhoud: data.bericht }]);
+    } catch {
+      setBerichten([{ rol: "ai", inhoud: "Er ging iets mis bij het starten. Ververs de pagina." }]);
     } finally {
       setBezig(false);
     }
@@ -66,6 +69,7 @@ function NieuweSessieInner() {
         body: JSON.stringify({ themaId, berichten: bijgewerkt, fase: "gesprek" }),
       });
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Fout");
 
       if (data.klaar && data.sessieId) {
         setSessieId(data.sessieId);
@@ -74,6 +78,8 @@ function NieuweSessieInner() {
       } else {
         setBerichten((prev) => [...prev, { rol: "ai", inhoud: data.bericht }]);
       }
+    } catch {
+      setBerichten((prev) => [...prev, { rol: "ai", inhoud: "Verbinding even weg. Probeer opnieuw." }]);
     } finally {
       setBezig(false);
     }

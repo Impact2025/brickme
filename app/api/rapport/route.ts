@@ -35,13 +35,18 @@ export async function POST(req: NextRequest) {
     fasesVoorPrompt
   );
 
-  const response = await openai.chat.completions.create({
-    model: AI_MODEL,
-    max_tokens: 800,
-    messages: [{ role: "user", content: prompt }],
-  });
-
-  const tekst = response.choices[0]?.message?.content ?? "{}";
+  let tekst = "{}";
+  try {
+    const response = await openai.chat.completions.create({
+      model: AI_MODEL,
+      max_tokens: 800,
+      messages: [{ role: "user", content: prompt }],
+    });
+    tekst = response.choices[0]?.message?.content ?? "{}";
+  } catch (err) {
+    console.error("[rapport] AI call mislukt:", err);
+    return NextResponse.json({ error: "AI tijdelijk niet beschikbaar. Probeer opnieuw." }, { status: 503 });
+  }
 
   let parsed = { samenvatting: "", inzichten: [], eersteStap: "" };
   try {
@@ -49,7 +54,6 @@ export async function POST(req: NextRequest) {
     if (jsonMatch) parsed = JSON.parse(jsonMatch[0]);
   } catch {}
 
-  // Sla rapport op
   const [rapport] = await db
     .insert(rapporten)
     .values({
@@ -68,7 +72,8 @@ export async function POST(req: NextRequest) {
     })
     .returning();
 
-  // Update sessie status
+  void rapport;
+
   await db
     .update(sessies)
     .set({ status: "voltooid", voltooidOp: new Date() })

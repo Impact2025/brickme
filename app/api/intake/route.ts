@@ -20,20 +20,26 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // Vertaal berichten naar Anthropic formaat
+  // Vertaal berichten naar OpenAI formaat
   const messages = berichten.map((b: { rol: string; inhoud: string }) => ({
     role: b.rol === "ai" ? "assistant" : "user",
     content: b.inhoud,
   }));
 
-  const response = await openai.chat.completions.create({
-    model: AI_MODEL,
-    max_tokens: 500,
-    messages: [
-      { role: "system", content: buildIntakeSystemPrompt(themaId as ThemaId) },
-      ...messages,
-    ],
-  });
+  let response;
+  try {
+    response = await openai.chat.completions.create({
+      model: AI_MODEL,
+      max_tokens: 500,
+      messages: [
+        { role: "system", content: buildIntakeSystemPrompt(themaId as ThemaId) },
+        ...messages,
+      ],
+    });
+  } catch (err) {
+    console.error("[intake] AI call mislukt:", err);
+    return NextResponse.json({ error: "AI tijdelijk niet beschikbaar. Probeer opnieuw." }, { status: 503 });
+  }
 
   const tekst = response.choices[0]?.message?.content ?? "";
 
@@ -49,8 +55,6 @@ export async function POST(req: NextRequest) {
       if (jsonMatch) {
         const parsed = JSON.parse(jsonMatch[0]);
 
-        // Maak sessie aan in DB
-        const aantalVragen = berichten.filter((b: { rol: string }) => b.rol === "gebruiker").length; // eslint-disable-line @typescript-eslint/no-unused-vars
         const intakeAntwoorden = berichten
           .filter((_: unknown, i: number) => i > 0)
           .reduce((acc: Array<{vraag: string; antwoord: string}>, b: {rol: string; inhoud: string}, i: number, arr: {rol: string; inhoud: string}[]) => {
@@ -75,7 +79,6 @@ export async function POST(req: NextRequest) {
 
         sessieId = nieuweSessie.id;
 
-        // Maak 3 bouwfases aan
         const bouwvragen = thema.bouwvragen;
         const faseTitels = thema.faseTitels;
 
@@ -90,7 +93,9 @@ export async function POST(req: NextRequest) {
 
         zichtbareTekst = `Goed. Ik heb genoeg om mee te werken. Je sessie staat klaar — het is tijd om te gaan bouwen.`;
       }
-    } catch {}
+    } catch (err) {
+      console.error("[intake] sessie aanmaken mislukt:", err);
+    }
   }
 
   return NextResponse.json({ bericht: zichtbareTekst, klaar, sessieId });
