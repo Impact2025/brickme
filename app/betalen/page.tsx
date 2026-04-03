@@ -83,7 +83,7 @@ function BetalenForm() {
         <div className="bg-white border border-border rounded-2xl p-5 mb-6">
           <div className="flex justify-between items-center mb-1">
             <span className="text-bricktext">Brickme sessie</span>
-            <span className="text-bricktext font-medium">€29,95</span>
+            <span className="text-bricktext font-medium">€{(basisprijs / 100).toFixed(2).replace(".", ",")}</span>
           </div>
           {korting > 0 && (
             <div className="flex justify-between items-center text-sm">
