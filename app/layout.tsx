@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
 import Script from "next/script";
+import AssistentChat from "@/components/AssistentChat";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -35,7 +36,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="nl">
       <body>
-        <SessionProvider>{children}</SessionProvider>
+        <SessionProvider>
+          {children}
+          <AssistentChat />
+        </SessionProvider>
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-647VHR1NK5"
           strategy="afterInteractive"

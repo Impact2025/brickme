@@ -150,6 +150,88 @@ FORMAAT:
 [ÉÉN vervolgvraag]`;
 }
 
+// ─── Assistent AI prompt ─────────────────────────────────────────────────────
+
+export type AssistentContext = {
+  rol: string;
+  naam?: string | null;
+  sessies?: Array<{ themaLabel: string; status: string }>;
+  clienten?: Array<{ naam: string | null; aantalSessies: number; recentThema?: string }>;
+  workshops?: Array<{ naam: string; aantalDeelnemers: number; status: string }>;
+};
+
+const BRICKME_APP_KENNIS = `
+OVER BRICKME:
+Brickme is een LSP-geïnspireerde zelfreflectie-app. Gebruikers kiezen een levensthema, doen een AI-gedreven intakegesprek, bouwen een fysiek model met LEGO of huishoudspullen, fotograferen dat, en ontvangen een persoonlijke AI-reflectie en eindrapport.
+
+DE 6 THEMA'S: Werk & energie ("Ik loop leeg"), Liefde & relatie ("Ik voel me niet gezien"), Wie ben ik ("Ik weet niet meer wie ik ben"), Verbinding ("Ik sta er alleen voor"), Kruispunt ("Ik weet niet welke kant ik op moet"), Rouw & verlies ("Ik weet niet hoe ik verder moet").
+
+HET PROCES: 1) Intake: AI-gesprek (7-10 vragen) → 2) Bouwen: 4 bouwfases, elk met opdracht → 3) Reflectie: foto uploaden, AI kijkt mee → 4) Rapport: persoonlijk eindrapport.
+
+LSP-METHODIEK: Gebaseerd op LEGO Serious Play. Het bouwen activeert andere cognities dan praten. Het model IS de werkelijkheid van de bouwer.
+`;
+
+export function buildAssistentSystemPrompt(context: AssistentContext): string {
+  const rolInstructies: Record<string, string> = {
+    gebruiker: `Je bent de persoonlijke gids van deze gebruiker. Help ze: begrijpen hoe de app werkt, het juiste thema kiezen, navigeren door hun sessie(s), de AI-reflecties en rapporten begrijpen.`,
+    coach: `Je bent de AI-assistent van deze coach. Help ze: overzicht houden over cliënten en sessies, patronen herkennen, gesprekstips formuleren, notities structureren.`,
+    facilitator: `Je bent de AI-assistent van deze facilitator. Help ze: workshops voorbereiden, overzicht houden over deelnemers, groepspatronen interpreteren, de LSP-methodiek toelichten.`,
+    superadmin: `Je bent de AI-assistent van de beheerder. Help ze overzicht te houden en vragen te beantwoorden over de app en methodiek.`,
+  };
+
+  const delen: string[] = [];
+  if (context.naam) delen.push(`Naam: ${context.naam}`);
+  delen.push(`Rol: ${context.rol}`);
+
+  if (context.sessies !== undefined) {
+    if (context.sessies.length === 0) {
+      delen.push("Sessies: Nog geen sessies gedaan — dit is een nieuwe gebruiker.");
+    } else {
+      const actief = context.sessies.filter((s) => s.status !== "voltooid");
+      const voltooid = context.sessies.filter((s) => s.status === "voltooid");
+      if (actief.length > 0) delen.push(`Lopende sessies: ${actief.map((s) => `${s.themaLabel} (${s.status})`).join(", ")}`);
+      if (voltooid.length > 0) delen.push(`Voltooide sessies: ${voltooid.map((s) => s.themaLabel).join(", ")}`);
+    }
+  }
+
+  if (context.clienten && context.clienten.length > 0) {
+    delen.push(
+      `Cliënten (${context.clienten.length}): ${context.clienten
+        .map((c) => `${c.naam || "Naamloos"} — ${c.aantalSessies} sessies${c.recentThema ? `, recent: ${c.recentThema}` : ""}`)
+        .join(" | ")}`
+    );
+  }
+
+  if (context.workshops && context.workshops.length > 0) {
+    delen.push(
+      `Workshops: ${context.workshops.map((w) => `${w.naam} — ${w.aantalDeelnemers} deelnemers (${w.status})`).join(" | ")}`
+    );
+  }
+
+  return `${BRICKME_APP_KENNIS}
+
+JE ROL:
+${rolInstructies[context.rol] ?? rolInstructies.gebruiker}
+
+HUIDIGE GEBRUIKERSCONTEXT:
+${delen.join("\n")}
+
+GEDRAGSREGELS:
+- Antwoord altijd in het Nederlands
+- Warm, direct, geen jargon
+- Max 3 zinnen per antwoord — wees beknopt
+- Stel maximaal één vraag tegelijk
+- Je bent GEEN therapeut — verwijs door als iemand ernstige psychische klachten noemt`;
+}
+
+export function getAssistentChips(rol: string, heeftSessies: boolean): string[] {
+  if (rol === "coach") return ["Hoe gaat het met mijn cliënten?", "Geef gesprekstips", "Welke patronen zie jij?"];
+  if (rol === "facilitator") return ["Hoe bereid ik een workshop voor?", "Wat is LSP precies?", "Bekijk mijn deelnemers"];
+  if (rol === "superadmin") return ["Hoe werkt de app?", "Uitleg over de thema's", "LSP-methodiek uitleggen"];
+  if (!heeftSessies) return ["Hoe werkt Brickme?", "Welk thema past bij mij?", "Wat is LSP?"];
+  return ["Wat moet ik bouwen?", "Leg deze fase uit", "Hoe gaat het tot nu toe?"];
+}
+
 // ─── Rapport AI prompt ────────────────────────────────────────────────────────
 export function buildRapportPrompt(
   themaId: ThemaId,
