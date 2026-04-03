@@ -37,7 +37,13 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("Register fout:", err);
-    return NextResponse.json({ error: "Server fout. Controleer de databaseverbinding." }, { status: 500 });
+    const boodschap = err instanceof Error ? err.message : String(err);
+    console.error("Register fout:", boodschap);
+    const isDbFout = boodschap.includes("DATABASE_URL") || boodschap.includes("connect") || boodschap.includes("ECONNREFUSED");
+    return NextResponse.json({
+      error: isDbFout
+        ? "Databaseverbinding mislukt. Controleer de DATABASE_URL in Vercel."
+        : "Server fout. Probeer opnieuw.",
+    }, { status: 500 });
   }
 }
