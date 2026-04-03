@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { db, artikelen } from "@/lib/db";
+import { db } from "@/lib/db";
+import { artikelen } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
 
 export const metadata: Metadata = {
