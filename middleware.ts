@@ -14,7 +14,10 @@ const publicRoutes = [
 ];
 
 export default auth((req) => {
-  const isPublic = publicRoutes.some((r) => req.nextUrl.pathname.startsWith(r));
+  const { pathname } = req.nextUrl;
+  const isPublic =
+    pathname === "/" ||
+    publicRoutes.slice(1).some((r) => pathname.startsWith(r));
   if (!isPublic && !req.auth) {
     return NextResponse.redirect(new URL("/sign-in", req.url));
   }
