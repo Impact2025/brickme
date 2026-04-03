@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
         const bouwvragen = thema.bouwvragen;
         const faseTitels = thema.faseTitels;
 
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < 4; i++) {
           await db.insert(fases).values({
             sessieId: nieuweSessie.id,
             faseNummer: i + 1,

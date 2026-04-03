@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { openai, AI_MODEL, buildReflectiePrompt, EerdereFase, ThemaId } from "@/lib/ai";
+import { openai, AI_MODEL, buildReflectiePrompt, EerdereFase, ThemaId, THEMAS, FaseType } from "@/lib/ai";
 import { db } from "@/lib/db";
 import { fases, sessies } from "@/lib/db/schema";
 import { and, eq, lt } from "drizzle-orm";
@@ -44,6 +44,9 @@ export async function POST(req: NextRequest) {
     .set({ fotoBase64, gebruikersBeschrijving: beschrijving })
     .where(eq(fases.id, faseId));
 
+  const themaConfig = THEMAS[sessie.thema as ThemaId];
+  const faseType = (themaConfig.faseTypes[fase.faseNummer - 1] ?? "situatie") as FaseType;
+
   const prompt = buildReflectiePrompt(
     sessie.thema as ThemaId,
     sessie.aiSessieContext || "",
@@ -51,7 +54,8 @@ export async function POST(req: NextRequest) {
     fase.faseTitel,
     fase.vraag,
     beschrijving,
-    eerdereFases
+    eerdereFases,
+    faseType
   );
 
   const imageData = stripBase64Prefix(fotoBase64);

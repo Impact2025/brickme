@@ -1,9 +1,9 @@
 import "server-only";
 import OpenAI from "openai";
-import { THEMAS, ThemaId } from "./themas";
+import { THEMAS, ThemaId, FaseType } from "./themas";
 
 export { THEMAS };
-export type { ThemaId };
+export type { ThemaId, FaseType };
 
 export const openai = new OpenAI({
   baseURL: "https://openrouter.ai/api/v1",
@@ -17,8 +17,6 @@ export const openai = new OpenAI({
 export const AI_MODEL = "anthropic/claude-sonnet-4-5";
 
 // ─── LSP Facilitator kennisbasis ──────────────────────────────────────────────
-// Gebaseerd op de LEGO® Serious Play kernmethodologie, toegepast door een
-// gecertificeerd LSP-facilitator. Deze kennis vormt de basis van alle AI-prompts.
 const LSP_FACILITATOR_KENNIS = `
 JE BENT OPGELEID ALS LSP-FACILITATOR (LEGO® Serious Play methode):
 
@@ -84,6 +82,29 @@ export type EerdereFase = {
   aiReflectie: string;
 };
 
+// Taak-instructies per fasetype — het hart van de methodologische upgrade
+const FASE_TAAK: Record<FaseType, string> = {
+  situatie: `JE TAAK:
+1. Beschrijf 1-2 SPECIFIEKE, concrete elementen die je ziet in het bouwsel (kleur, positie, grootte, wat ernaast staat, wat ontbreekt)
+2. Verbind dit voorzichtig met wat ze hebben gezegd — zonder te interpreteren als een therapeut
+3. Stel aan het einde ÉÉN vraag. Niet twee. De meest belangrijke vraag die overblijft.`,
+
+  krachten: `JE TAAK:
+1. Beschrijf 1-2 elementen die KRACHT, stabiliteit of aanwezigheid uitstralen. Wat staat stevig, wat is prominent, wat neemt bewust ruimte in?
+2. Verbind dit met wat de bouwer al zei — benoem wat er al is, wat al werkt, wat al van hen is. Gebruik nooit "maar" of "hoewel" richting wat ontbreekt.
+3. Stel ÉÉN vraag die dieper ingaat op een van die krachten — "Hoe lang heb je dit al?", "Wanneer voelde je dit het sterkst?", "Wat zou er veranderen als je dit meer zou inzetten?" Geen vragen over wat ontbreekt of wat nog nodig is.`,
+
+  ideaal: `JE TAAK:
+1. Behandel dit model als werkelijkheid, niet als wens. Het bestaat al. Beschrijf 1-2 specifieke elementen alsof de bouwer er al staat — wat is er, hoe voelt het in het model?
+2. Verbind dit met het patroon van de vorige bouwsels: wat is er veranderd, wat is nieuw binnengekomen, wat heeft de bouwer bewust neergezet?
+3. Stel ÉÉN vraag die de kloof tussen nu en dit model concreet maakt: "Wat is er nodig om dit werkelijk te maken?", "Welke stap zet dit model als eerste?", of een variant die in dit specifieke model past.`,
+
+  beweging: `JE TAAK:
+1. Beschrijf 1-2 elementen die richting, beweging of actie suggereren — wat wijst ergens naartoe, wat staat klaar, wat is al in gang gezet?
+2. Trek een lijn door alle bouwsels van deze sessie: wat herhaalt zich, wat is veranderd, welk patroon maakte de bouwer zichtbaar? Benoem dit concreet, niet als analyse maar als observatie.
+3. Stel ÉÉN vraag die helpt de eerste concrete stap te formuleren — dichtbij, haalbaar, van de bouwer zelf.`,
+};
+
 export function buildReflectiePrompt(
   themaId: ThemaId,
   sessieContext: string,
@@ -91,7 +112,8 @@ export function buildReflectiePrompt(
   faseTitel: string,
   bouwvraag: string,
   gebruikersBeschrijving: string,
-  eerdereFases: EerdereFase[] = []
+  eerdereFases: EerdereFase[] = [],
+  faseType: FaseType = "situatie"
 ): string {
   const eerderContext =
     eerdereFases.length > 0
@@ -112,10 +134,7 @@ ${eerderContext}
 HUIDIGE BOUWOPDRACHT (fase ${faseNummer} — ${faseTitel}): "${bouwvraag}"
 WAT ZE ZELF ZEGGEN OVER HUN BOUWSEL: "${gebruikersBeschrijving}"
 
-JE TAAK:
-1. Beschrijf 1-2 SPECIFIEKE, concrete elementen die je ziet in het huidige bouwsel (kleur, positie, grootte, wat ernaast staat, wat ontbreekt)
-2. Verbind dit voorzichtig met wat ze hebben gezegd${eerdereFases.length > 0 ? " — en noem als het opvalt hoe dit verschilt van of aansluit op een eerder bouwsel" : ""} — zonder te interpreteren als een therapeut
-3. Stel aan het einde ÉÉN vraag. Niet twee. De meest belangrijke vraag die overblijft.
+${FASE_TAAK[faseType]}
 
 STIJL:
 - Schrijf in de tweede persoon ("Je hebt...", "Opvallend is dat...")
@@ -151,14 +170,19 @@ Je schrijft een persoonlijk reflectierapport voor iemand die een Brickme-sessie 
 CONTEXT:
 ${sessieContext}
 
-DE SESSIE:
+DE SESSIE (${fasesData.length} fases):
 ${fassenTekst}
 
 PATROONHERKENNING:
-Bekijk alle drie de fases als één geheel. Wat herhaalt zich? Welk element, spanning of verlangen keert terug in zowel de bouwsels als de woorden? Noteer dit voor jezelf voordat je schrijft.
+Bekijk alle ${fasesData.length} fases als één geheel. Let op vier lagen:
+- Fase 1 (situatie): wat ze als werkelijkheid neerzetten
+- Fase 2 (krachten): wat ze al in zichzelf herkenden
+- Fase 3 (ideaal): wat ze als toekomst bouwen
+- Fase 4 (beweging): wat ze nodig hebben om te bewegen
+Wat herhaalt zich? Welk element, spanning of verlangen keert terug? Wat veranderde er van fase tot fase? Noteer dit voor jezelf voordat je schrijft.
 
 SCHRIJF:
-1. Een samenvatting van 3-4 zinnen die de kern raakt — warm, persoonlijk, als een brief aan zichzelf
+1. Een samenvatting van 3-4 zinnen die de kern raakt — warm, persoonlijk, als een brief aan zichzelf. Verwerk het patroon dat je over de vier fases zag.
 2. Drie kernthema's die opkwamen (elk 1 zin). VERPLICHT: één van de drie begint met "In elke fase..." en beschrijft een patroon dat in meerdere fases terugkwam
 3. ÉÉN concrete eerste stap — specifiek en haalbaar, iets wat deze persoon zelf kan doen (geen "accepteer jezelf", maar een actie met een wie/wat/wanneer)
 

@@ -4,7 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { compressImage, cn } from "@/lib/utils";
 
-const FASE_DUUR = 8 * 60; // 8 minuten per fase
+const FASE_DUUR = 8 * 60;       // 8 minuten per fase
+const WARMUP_DUUR = 2 * 60;     // 2 minuten warmup
 
 interface Fase {
   id: string;
@@ -14,12 +15,99 @@ interface Fase {
   voltooid: boolean;
 }
 
+// ─── Warmup scherm ─────────────────────────────────────────────────────────────
+function WarmupScherm({ onKlaar }: { onKlaar: () => void }) {
+  const [secondenOver, setSecondenOver] = useState(WARMUP_DUUR);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    timerRef.current = setInterval(() => {
+      setSecondenOver((s) => (s <= 0 ? 0 : s - 1));
+    }, 1000);
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, []);
+
+  const mins = Math.floor(secondenOver / 60);
+  const secs = secondenOver % 60;
+  const voortgang = (WARMUP_DUUR - secondenOver) / WARMUP_DUUR;
+  // Knop wordt actief na 90 seconden (of als timer op 0 staat)
+  const klaarActief = secondenOver <= WARMUP_DUUR - 90 || secondenOver === 0;
+
+  return (
+    <main className="min-h-dvh bg-secondary flex flex-col max-w-xl mx-auto">
+      <header className="px-6 pb-4" style={{ paddingTop: "max(1.5rem, env(safe-area-inset-top))" }}>
+        <div className="flex items-center justify-between mb-6">
+          <p className="text-xs text-muted uppercase tracking-wider">Opwarmen</p>
+          {/* Analoge timer */}
+          <div className="relative w-14 h-14">
+            <svg className="w-full h-full -rotate-90" viewBox="0 0 56 56">
+              <circle cx="28" cy="28" r="24" fill="none" stroke="#E8DDD0" strokeWidth="3" />
+              <circle
+                cx="28" cy="28" r="24"
+                fill="none"
+                stroke="#C8583A"
+                strokeWidth="3"
+                strokeDasharray={`${2 * Math.PI * 24}`}
+                strokeDashoffset={`${2 * Math.PI * 24 * (1 - voortgang)}`}
+                strokeLinecap="round"
+                className="transition-all duration-1000"
+              />
+            </svg>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-xs font-medium text-bricktext tabular-nums">
+                {mins}:{secs.toString().padStart(2, "0")}
+              </span>
+            </div>
+          </div>
+        </div>
+        <h2 className="text-2xl font-serif text-bricktext">Maak je handen wakker</h2>
+      </header>
+
+      <div className="flex-1 px-6 space-y-5" style={{ paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))" }}>
+        <div className="p-6 rounded-3xl bg-surface border border-border">
+          <p className="font-serif text-bricktext text-lg leading-relaxed">
+            Pak een handvol blokken. Bouw iets — wat dan ook — in twee minuten.
+          </p>
+          <p className="text-muted text-base leading-relaxed mt-4">
+            Het hoeft nergens over te gaan. Geen thema, geen betekenis. Je handen moeten wakker worden voordat de sessie begint.
+          </p>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10">
+          <p className="text-xs text-primary uppercase tracking-wider mb-1 font-medium">Waarom dit werkt</p>
+          <p className="text-sm text-bricktext leading-relaxed">
+            Bouwen activeert andere cognities dan denken. Even vrij spelen zet de hand-mind-verbinding aan — waardoor alles wat daarna komt dieper gaat.
+          </p>
+        </div>
+
+        <button
+          onClick={onKlaar}
+          className={cn(
+            "btn-primary w-full py-4 text-lg transition-all duration-300",
+            !klaarActief && "opacity-40 cursor-not-allowed"
+          )}
+          disabled={!klaarActief}
+        >
+          {klaarActief ? "Klaar, start de sessie →" : `Bouw nog ${Math.ceil((WARMUP_DUUR - 90 - (WARMUP_DUUR - secondenOver)) / 1)}s...`}
+        </button>
+        {!klaarActief && (
+          <p className="text-xs text-muted text-center -mt-2">
+            De knop wordt actief na 90 seconden
+          </p>
+        )}
+      </div>
+    </main>
+  );
+}
+
+// ─── Bouwen pagina ─────────────────────────────────────────────────────────────
 export default function BouwenPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
 
   const [fases, setFases] = useState<Fase[]>([]);
   const [huidigeFase, setHuidigeFase] = useState(0);
+  const [warmupKlaar, setWarmupKlaar] = useState(false);
   const [vraagZichtbaar, setVraagZichtbaar] = useState(false);
   const [secondenOver, setSecondenOver] = useState(FASE_DUUR);
   const [foto, setFoto] = useState<string | null>(null);
@@ -35,11 +123,11 @@ export default function BouwenPage() {
   }, [id]);
 
   useEffect(() => {
-    if (!laden && fases.length > 0) {
+    if (!laden && fases.length > 0 && warmupKlaar) {
       startTimer();
     }
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [huidigeFase, laden]);
+  }, [huidigeFase, laden, warmupKlaar]);
 
   function startTimer() {
     setSecondenOver(FASE_DUUR);
@@ -62,7 +150,6 @@ export default function BouwenPage() {
   async function fotoGekozen(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    // Compress to max 1280px / 82% JPEG before storing — reduces ~12MP photo from ~5MB to ~200KB
     const base64 = await compressImage(file, 1280, 0.82);
     setFoto(base64);
   }
@@ -125,9 +212,14 @@ export default function BouwenPage() {
     );
   }
 
+  // Toon warmup voor fase 1 als die nog niet gedaan is
+  if (!warmupKlaar && huidigeFase === 0) {
+    return <WarmupScherm onKlaar={() => setWarmupKlaar(true)} />;
+  }
+
   return (
     <main className="min-h-dvh bg-secondary flex flex-col max-w-xl mx-auto">
-      {/* Header — pt-safe pushes content below iOS notch/Dynamic Island */}
+      {/* Header */}
       <header className="px-6 pt-safe pb-4" style={{ paddingTop: "max(1.5rem, env(safe-area-inset-top))" }}>
         <div className="flex items-center justify-between mb-6">
           <p className="text-xs text-muted uppercase tracking-wider">
@@ -210,7 +302,6 @@ export default function BouwenPage() {
               </div>
             </button>
           )}
-          {/* Geen capture="environment" — iOS toont dan "Maak foto" + "Kies uit bibliotheek" + "Bladeren" */}
           <input
             ref={fileInputRef}
             type="file"
