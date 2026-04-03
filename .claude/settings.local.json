@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(npm install:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(ls \"D:/apps/brickme/brickme/brickme/app/\"*.png)",
+      "Bash(ls \"D:/apps/brickme/brickme/brickme/public/favicon\"*)"
     ]
   }
 }
