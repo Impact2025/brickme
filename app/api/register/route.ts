@@ -4,7 +4,7 @@ import { randomUUID } from "crypto";
 import { db } from "@/lib/db";
 import { gebruikers } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { sendMagicLinkEmail, sendNieuwAccountNotificatie } from "@/lib/email";
+import { sendVerificatieEmail, sendNieuwAccountNotificatie } from "@/lib/email";
 import { checkRateLimit } from "@/lib/ratelimit";
 
 export async function POST(req: NextRequest) {
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Dit e-mailadres is al in gebruik." }, { status: 400 });
     }
 
-    const token = randomUUID();
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
     const userId = randomUUID();
     const verloptOp = new Date(Date.now() + 15 * 60 * 1000);
 
@@ -36,11 +36,11 @@ export async function POST(req: NextRequest) {
       email,
       rol: "gebruiker",
       actief: false,
-      verificatieCode: token,
+      verificatieCode: code,
       verificatieVerloptOp: verloptOp,
     });
 
-    void sendMagicLinkEmail(naam || email, email, token);
+    void sendVerificatieEmail(naam || email, email, code);
     void sendNieuwAccountNotificatie(naam || null, email);
 
     return NextResponse.json({ ok: true });

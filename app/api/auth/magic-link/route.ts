@@ -1,10 +1,9 @@
 export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-import { randomUUID } from "crypto";
 import { db } from "@/lib/db";
 import { gebruikers } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { sendMagicLinkEmail } from "@/lib/email";
+import { sendVerificatieEmail } from "@/lib/email";
 import { checkRateLimit } from "@/lib/ratelimit";
 
 export async function POST(req: NextRequest) {
@@ -26,15 +25,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Geen account gevonden. Maak eerst een account aan." }, { status: 404 });
     }
 
-    const token = randomUUID();
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
     const verloptOp = new Date(Date.now() + 15 * 60 * 1000);
 
     await db
       .update(gebruikers)
-      .set({ verificatieCode: token, verificatieVerloptOp: verloptOp })
+      .set({ verificatieCode: code, verificatieVerloptOp: verloptOp })
       .where(eq(gebruikers.userId, gebruiker.userId));
 
-    void sendMagicLinkEmail(gebruiker.naam || email, email, token);
+    void sendVerificatieEmail(gebruiker.naam || email, email, code);
 
     return NextResponse.json({ ok: true });
   } catch (err) {

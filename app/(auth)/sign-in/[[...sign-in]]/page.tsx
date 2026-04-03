@@ -1,14 +1,17 @@
 "use client";
 
 import { useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
-import Image from "next/image";
 
 function SignInForm() {
   const params = useSearchParams();
+  const router = useRouter();
+  const callbackUrl = params.get("callbackUrl") || "/start";
 
   const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
   const [fout, setFout] = useState("");
   const [bezig, setBezig] = useState(false);
   const [verzonden, setVerzonden] = useState(false);
@@ -40,11 +43,32 @@ function SignInForm() {
     setBezig(false);
   }
 
+  async function handleCodeSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setBezig(true);
+    setFout("");
+
+    const result = await signIn("credentials", {
+      email,
+      magicToken: code.trim(),
+      redirect: false,
+    });
+
+    if (result?.error) {
+      setFout("Ongeldige of verlopen code. Probeer opnieuw.");
+      setBezig(false);
+      return;
+    }
+
+    router.push(callbackUrl);
+  }
+
   return (
     <main className="min-h-dvh bg-secondary flex flex-col items-center justify-center px-6">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <Image src="/icon.svg" alt="Brickme" width={56} height={56} unoptimized className="mx-auto mb-4" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/icon.svg" alt="Brickme" width={56} height={56} className="mx-auto mb-4" />
           {!verzonden ? (
             <>
               <h1 className="text-2xl font-serif text-bricktext">Welkom terug</h1>
@@ -52,9 +76,9 @@ function SignInForm() {
             </>
           ) : (
             <>
-              <h1 className="text-2xl font-serif text-bricktext">Check je inbox</h1>
+              <h1 className="text-2xl font-serif text-bricktext">Voer je code in</h1>
               <p className="text-muted text-sm mt-1">
-                We stuurden een inloglink naar <span className="text-bricktext">{email}</span>
+                We stuurden een 6-cijferige code naar <span className="text-bricktext">{email}</span>
               </p>
             </>
           )}
@@ -94,19 +118,48 @@ function SignInForm() {
               disabled={bezig}
               className="btn-primary w-full py-3 disabled:opacity-50"
             >
-              {bezig ? "Versturen..." : "Stuur inloglink →"}
+              {bezig ? "Versturen..." : "Stuur code →"}
             </button>
           </form>
         ) : (
-          <p className="text-center text-sm text-muted">
-            De link is 15 minuten geldig.{" "}
+          <form onSubmit={handleCodeSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm text-bricktext mb-1">Inlogcode</label>
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]{6}"
+                maxLength={6}
+                value={code}
+                onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+                required
+                autoFocus
+                className="input-base w-full text-center text-2xl tracking-widest font-bold"
+                placeholder="123456"
+              />
+            </div>
+
+            {fout && <p className="text-sm text-red-600">{fout}</p>}
+
             <button
-              onClick={() => { setVerzonden(false); setEmail(""); setFout(""); }}
-              className="text-primary hover:underline"
+              type="submit"
+              disabled={bezig || code.length !== 6}
+              className="btn-primary w-full py-3 disabled:opacity-50"
             >
-              Ander e-mailadres
+              {bezig ? "Bezig..." : "Inloggen →"}
             </button>
-          </p>
+
+            <p className="text-center text-sm text-muted">
+              Code niet ontvangen?{" "}
+              <button
+                type="button"
+                onClick={() => { setVerzonden(false); setCode(""); setFout(""); }}
+                className="text-primary hover:underline"
+              >
+                Opnieuw versturen
+              </button>
+            </p>
+          </form>
         )}
 
         {!verzonden && (
