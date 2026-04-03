@@ -6,16 +6,20 @@ import { db } from "@/lib/db";
 import { fases, sessies } from "@/lib/db/schema";
 import { and, eq, lt } from "drizzle-orm";
 import { stripBase64Prefix } from "@/lib/utils";
+import { checkRateLimit } from "@/lib/ratelimit";
 
 export async function POST(req: NextRequest) {
   const session = await auth();
   const userId = session?.user?.id;
   if (!userId) return NextResponse.json({ error: "Niet ingelogd" }, { status: 401 });
 
+  const { ok } = checkRateLimit(`reflectie:${userId}`, 20, 60 * 60 * 1000); // 20 per uur per gebruiker
+  if (!ok) return NextResponse.json({ error: "Te veel pogingen. Probeer later opnieuw." }, { status: 429 });
+
   const { sessieId, faseId, fotoBase64, beschrijving } = await req.json();
 
-  const [sessie] = await db.select().from(sessies).where(eq(sessies.id, sessieId));
-  const [fase] = await db.select().from(fases).where(eq(fases.id, faseId));
+  const [sessie] = await db.select().from(sessies).where(and(eq(sessies.id, sessieId), eq(sessies.userId, userId)));
+  const [fase] = await db.select().from(fases).where(and(eq(fases.id, faseId), eq(fases.sessieId, sessieId)));
 
   if (!sessie || !fase) {
     return NextResponse.json({ error: "Niet gevonden" }, { status: 404 });

@@ -11,6 +11,8 @@ const publicRoutes = [
   "/api/auth",
   "/api/register",
   "/api/stripe/webhook",
+  "/blog",
+  "/api/blog",
 ];
 
 export default auth((req) => {

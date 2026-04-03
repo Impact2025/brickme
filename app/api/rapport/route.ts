@@ -5,16 +5,20 @@ import { openai, AI_MODEL, buildRapportPrompt, ThemaId } from "@/lib/ai";
 import { db } from "@/lib/db";
 import { sessies, fases, rapporten, gebruikers } from "@/lib/db/schema";
 import { sendRapportGereedEmail } from "@/lib/email";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
+import { checkRateLimit } from "@/lib/ratelimit";
 
 export async function POST(req: NextRequest) {
   const session = await auth();
   const userId = session?.user?.id;
   if (!userId) return NextResponse.json({ error: "Niet ingelogd" }, { status: 401 });
 
+  const { ok } = checkRateLimit(`rapport:${userId}`, 10, 60 * 60 * 1000); // 10 per uur per gebruiker
+  if (!ok) return NextResponse.json({ error: "Te veel pogingen. Probeer later opnieuw." }, { status: 429 });
+
   const { sessieId } = await req.json();
 
-  const [sessie] = await db.select().from(sessies).where(eq(sessies.id, sessieId));
+  const [sessie] = await db.select().from(sessies).where(and(eq(sessies.id, sessieId), eq(sessies.userId, userId)));
   if (!sessie) return NextResponse.json({ error: "Sessie niet gevonden" }, { status: 404 });
 
   const fasesData = await db

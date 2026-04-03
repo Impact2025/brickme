@@ -1,11 +1,17 @@
 export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
+import { timingSafeEqual } from "crypto";
 import { db } from "@/lib/db";
 import { gebruikers } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { sendWelkomEmail } from "@/lib/email";
+import { checkRateLimit } from "@/lib/ratelimit";
 
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const { ok } = checkRateLimit(`verify:${ip}`, 10, 60 * 60 * 1000); // 10 per uur per IP
+  if (!ok) return NextResponse.json({ error: "Te veel pogingen. Probeer later opnieuw." }, { status: 429 });
+
   try {
     const { email, code } = await req.json();
 
@@ -24,8 +30,12 @@ export async function POST(req: NextRequest) {
     }
 
     const nu = new Date();
+    const storedCode = gebruiker.verificatieCode ?? "";
+    const codeGeldig =
+      storedCode.length === code.length &&
+      timingSafeEqual(Buffer.from(storedCode), Buffer.from(code));
     const geldig =
-      gebruiker.verificatieCode === code &&
+      codeGeldig &&
       gebruiker.verificatieVerloptOp !== null &&
       gebruiker.verificatieVerloptOp > nu;
 

@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { sessies, fases } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -17,7 +17,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "Ongeldige waarde" }, { status: 400 });
   }
 
-  await db.update(sessies).set({ stemmingNa }).where(eq(sessies.id, id));
+  await db.update(sessies).set({ stemmingNa }).where(and(eq(sessies.id, id), eq(sessies.userId, userId)));
   return NextResponse.json({ ok: true });
 }
 
@@ -30,7 +30,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const url = new URL(req.url);
   const faseNummer = parseInt(url.searchParams.get("fase") || "0");
 
-  const [sessie] = await db.select().from(sessies).where(eq(sessies.id, id));
+  const [sessie] = await db.select().from(sessies).where(and(eq(sessies.id, id), eq(sessies.userId, userId)));
   if (!sessie) return NextResponse.json({ error: "Niet gevonden" }, { status: 404 });
 
   const alleFases = await db.select().from(fases).where(eq(fases.sessieId, id)).orderBy(fases.faseNummer);

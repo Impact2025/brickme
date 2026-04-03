@@ -6,8 +6,12 @@ import { gebruikers } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { randomUUID } from "crypto";
 import { sendVerificatieEmail } from "@/lib/email";
+import { checkRateLimit } from "@/lib/ratelimit";
 
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const { ok } = checkRateLimit(`register:${ip}`, 5, 60 * 60 * 1000); // 5 per uur per IP
+  if (!ok) return NextResponse.json({ error: "Te veel pogingen. Probeer later opnieuw." }, { status: 429 });
   try {
     const { naam, email, wachtwoord } = await req.json();
 
@@ -45,13 +49,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true });
   } catch (err) {
-    const boodschap = err instanceof Error ? err.message : String(err);
-    console.error("Register fout:", boodschap);
-    const isDbFout = boodschap.includes("DATABASE_URL") || boodschap.includes("connect") || boodschap.includes("ECONNREFUSED");
-    return NextResponse.json({
-      error: isDbFout
-        ? "Databaseverbinding mislukt. Controleer de DATABASE_URL in Vercel."
-        : "Server fout. Probeer opnieuw.",
-    }, { status: 500 });
+    console.error("Register fout:", err instanceof Error ? err.message : String(err));
+    return NextResponse.json({ error: "Server fout. Probeer opnieuw." }, { status: 500 });
   }
 }

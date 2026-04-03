@@ -1,0 +1,777 @@
+"use client";
+
+import { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import type { Artikel, SeoResultaat } from "@/types";
+import type { InterneLink } from "@/lib/db/schema";
+
+interface ArtikelEditorProps {
+  initieel?: Partial<Artikel>;
+  artikelId?: string;
+}
+
+type Veld = {
+  titel: string;
+  inhoud: string;
+  schemaMarkup: object | null;
+  slug: string;
+  excerpt: string;
+  metaTitel: string;
+  metaBeschrijving: string;
+  trefwoorden: string[];
+  categorie: string;
+  tags: string[];
+  ogAfbeelding: string;
+  interneLinks: InterneLink[];
+  leestijd: number;
+  seoScore: number;
+  verbeteringen: string[];
+  gepubliceerd: boolean;
+};
+
+function seoScoreKleur(score: number) {
+  if (score >= 80) return "#476558";
+  if (score >= 60) return "#a03b1f";
+  return "#8B7355";
+}
+
+function SerpPreview({ metaTitel, metaBeschrijving, slug }: { metaTitel: string; metaBeschrijving: string; slug: string }) {
+  const url = `brickme.nl/blog/${slug || "artikel-slug"}`;
+  const titel = metaTitel || "Artikel titel verschijnt hier";
+  const beschr = metaBeschrijving || "Meta beschrijving verschijnt hier. Schrijf een pakkende samenvatting die bezoekers aantrekt vanuit Google.";
+
+  return (
+    <div style={{ background: "#fff", borderRadius: 8, padding: "16px 20px", border: "1px solid #e0e0e0", fontFamily: "arial, sans-serif" }}>
+      <div style={{ fontSize: 12, color: "#202124", marginBottom: 2 }}>
+        <span style={{ color: "#4d5156" }}>brickme.nl</span>
+        <span style={{ color: "#4d5156" }}> › blog › {slug || "artikel-slug"}</span>
+      </div>
+      <div style={{
+        fontSize: 20,
+        color: "#1a0dab",
+        marginBottom: 4,
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap",
+        maxWidth: 600,
+      }}>
+        {titel.length > 60 ? titel.slice(0, 57) + "..." : titel}
+      </div>
+      <div style={{ fontSize: 14, color: "#4d5156", lineHeight: 1.58, maxWidth: 600 }}>
+        {beschr.length > 160 ? beschr.slice(0, 157) + "..." : beschr}
+      </div>
+    </div>
+  );
+}
+
+function markdownNaarHtml(md: string): string {
+  const regels = md.split("\n");
+  const html: string[] = [];
+  let inLijst = false;
+  let lijstType = "";
+
+  function sluitLijst() {
+    if (inLijst) { html.push(lijstType === "ul" ? "</ul>" : "</ol>"); inLijst = false; lijstType = ""; }
+  }
+
+  function inline(tekst: string) {
+    return tekst
+      .replace(/\*\*\*(.+?)\*\*\*/g, "<strong><em>$1</em></strong>")
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\*(.+?)\*/g, "<em>$1</em>")
+      .replace(/`(.+?)`/g, "<code>$1</code>")
+      .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>');
+  }
+
+  for (let i = 0; i < regels.length; i++) {
+    const r = regels[i];
+    const trimmed = r.trim();
+
+    if (!trimmed) { sluitLijst(); continue; }
+
+    if (/^#{1,6}\s/.test(trimmed)) {
+      sluitLijst();
+      const niveau = trimmed.match(/^(#{1,6})\s/)![1].length;
+      const tekst = inline(trimmed.replace(/^#{1,6}\s/, ""));
+      html.push(`<h${niveau}>${tekst}</h${niveau}>`);
+      continue;
+    }
+
+    if (/^[-*+]\s/.test(trimmed)) {
+      if (!inLijst || lijstType !== "ul") { sluitLijst(); html.push("<ul>"); inLijst = true; lijstType = "ul"; }
+      html.push(`<li>${inline(trimmed.replace(/^[-*+]\s/, ""))}</li>`);
+      continue;
+    }
+
+    if (/^\d+\.\s/.test(trimmed)) {
+      if (!inLijst || lijstType !== "ol") { sluitLijst(); html.push("<ol>"); inLijst = true; lijstType = "ol"; }
+      html.push(`<li>${inline(trimmed.replace(/^\d+\.\s/, ""))}</li>`);
+      continue;
+    }
+
+    if (/^---+$/.test(trimmed)) { sluitLijst(); html.push("<hr>"); continue; }
+
+    sluitLijst();
+    html.push(`<p>${inline(trimmed)}</p>`);
+  }
+
+  sluitLijst();
+  return html.join("\n");
+}
+
+function isWaarschijnlijkMarkdown(tekst: string) {
+  return /^#{1,6}\s|^\*\*|^[-*+]\s|\d+\.\s/m.test(tekst) && !/<[a-z][\s\S]*>/i.test(tekst);
+}
+
+type GeparsdeInhoud = {
+  titel?: string;
+  metaTitel?: string;
+  metaBeschrijving?: string;
+  slug?: string;
+  inhoud: string;
+};
+
+function parsClaudeOutput(tekst: string): GeparsdeInhoud {
+  const regels = tekst.split("\n");
+  let titel: string | undefined;
+  let metaTitel: string | undefined;
+  let metaBeschrijving: string | undefined;
+  let slug: string | undefined;
+  let artikelStart = 0;
+
+  for (let i = 0; i < Math.min(regels.length, 20); i++) {
+    const r = regels[i].trim();
+    if (!r) continue;
+
+    if (!titel && /^#{1,2}\s/.test(r)) {
+      titel = r.replace(/^#{1,2}\s/, "").replace(/\*\*/g, "").trim();
+      artikelStart = i + 1;
+      continue;
+    }
+    if (!titel && /^\*\*(.+)\*\*$/.test(r)) {
+      titel = r.replace(/^\*\*/, "").replace(/\*\*$/, "").trim();
+      artikelStart = i + 1;
+      continue;
+    }
+
+    const mtMatch = r.match(/^(?:\*\*)?Meta-?titel(?:\*\*)?[:\s]+(.+)/i);
+    if (mtMatch) { metaTitel = mtMatch[1].replace(/\*\*/g, "").trim(); artikelStart = i + 1; continue; }
+
+    const mbMatch = r.match(/^(?:\*\*)?Meta-?(?:omschrijving|beschrijving|description)(?:\*\*)?[:\s]+(.+)/i);
+    if (mbMatch) { metaBeschrijving = mbMatch[1].replace(/\*\*/g, "").trim(); artikelStart = i + 1; continue; }
+
+    const urlMatch = r.match(/^(?:\*\*)?URL(?:\*\*)?[:\s]+(?:https?:\/\/[^/]+)?\/blog\/([a-z0-9-]+)/i);
+    if (urlMatch) { slug = urlMatch[1]; artikelStart = i + 1; continue; }
+
+    if (/^---+$/.test(r)) { artikelStart = i + 1; break; }
+  }
+
+  const artikelRegels = regels.slice(artikelStart).join("\n").trim();
+  const inhoud = markdownNaarHtml(artikelRegels || tekst);
+  return { titel, metaTitel, metaBeschrijving, slug, inhoud };
+}
+
+export default function ArtikelEditor({ initieel, artikelId }: ArtikelEditorProps) {
+  const router = useRouter();
+
+  const [veld, setVeld] = useState<Veld>({
+    titel: initieel?.titel ?? "",
+    inhoud: initieel?.inhoud ?? "",
+    slug: initieel?.slug ?? "",
+    excerpt: initieel?.excerpt ?? "",
+    metaTitel: initieel?.metaTitel ?? "",
+    metaBeschrijving: initieel?.metaBeschrijving ?? "",
+    trefwoorden: initieel?.trefwoorden ?? [],
+    categorie: initieel?.categorie ?? "",
+    tags: initieel?.tags ?? [],
+    ogAfbeelding: initieel?.ogAfbeelding ?? "",
+    interneLinks: initieel?.interneLinks ?? [],
+    schemaMarkup: initieel?.schemaMarkup ?? null,
+    leestijd: initieel?.leestijd ?? 0,
+    seoScore: initieel?.seoScore ?? 0,
+    verbeteringen: [],
+    gepubliceerd: initieel?.gepubliceerd ?? false,
+  });
+
+  const [aiLaden, setAiLaden] = useState(false);
+  const [opslaan, setOpslaan] = useState(false);
+  const [fout, setFout] = useState<string | null>(null);
+  const [succes, setSucces] = useState<string | null>(null);
+  const [nieuwTrefwoord, setNieuwTrefwoord] = useState("");
+  const [toonInhoudVoorvertoning, setToonInhoudVoorvertoning] = useState(false);
+
+  const update = useCallback(<K extends keyof Veld>(key: K, value: Veld[K]) => {
+    setVeld(v => ({ ...v, [key]: value }));
+  }, []);
+
+  async function handleAiSeo() {
+    if (!veld.titel || !veld.inhoud) {
+      setFout("Vul eerst een titel en inhoud in.");
+      return;
+    }
+    setAiLaden(true);
+    setFout(null);
+    try {
+      const res = await fetch("/api/admin/blog/seo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          titel: veld.titel,
+          inhoud: veld.inhoud,
+          huidigSlug: artikelId ? veld.slug : undefined,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error ?? "SEO genereren mislukt");
+      }
+      const data: SeoResultaat & { leestijd: number } = await res.json();
+      setVeld(v => ({
+        ...v,
+        metaTitel: data.metaTitel ?? v.metaTitel,
+        metaBeschrijving: data.metaBeschrijving ?? v.metaBeschrijving,
+        slug: v.slug || data.slug || v.slug,
+        excerpt: data.excerpt ?? v.excerpt,
+        trefwoorden: data.trefwoorden ?? v.trefwoorden,
+        interneLinks: data.interneLinks ?? v.interneLinks,
+        schemaMarkup: data.schemaMarkup ?? v.schemaMarkup,
+        leestijd: data.leestijd ?? v.leestijd,
+        seoScore: data.seoScore ?? v.seoScore,
+        verbeteringen: data.verbeteringen ?? [],
+      }));
+      setSucces("AI SEO gegenereerd!");
+      setTimeout(() => setSucces(null), 3000);
+    } catch (e) {
+      setFout(e instanceof Error ? e.message : "Onbekende fout");
+    } finally {
+      setAiLaden(false);
+    }
+  }
+
+  function maakSlug(tekst: string) {
+    return tekst
+      .toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9\s-]/g, "")
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .slice(0, 80);
+  }
+
+  async function handleOpslaan(publiceer?: boolean) {
+    setOpslaan(true);
+    setFout(null);
+    const gepubliceerd = publiceer !== undefined ? publiceer : veld.gepubliceerd;
+
+    const slug = veld.slug || maakSlug(veld.titel);
+    if (!slug) { setFout("Vul een titel of slug in."); setOpslaan(false); return; }
+    if (slug !== veld.slug) update("slug", slug);
+
+    const payload = {
+      slug,
+      titel: veld.titel,
+      inhoud: veld.inhoud,
+      excerpt: veld.excerpt || null,
+      metaTitel: veld.metaTitel || null,
+      metaBeschrijving: veld.metaBeschrijving || null,
+      trefwoorden: veld.trefwoorden.length ? veld.trefwoorden : null,
+      ogAfbeelding: veld.ogAfbeelding || null,
+      categorie: veld.categorie || null,
+      tags: veld.tags.length ? veld.tags : null,
+      interneLinks: veld.interneLinks.length ? veld.interneLinks : null,
+      schemaMarkup: veld.schemaMarkup || null,
+      leestijd: veld.leestijd || null,
+      seoScore: veld.seoScore || null,
+      gepubliceerd,
+    };
+
+    try {
+      const url = artikelId ? `/api/admin/blog/${artikelId}` : "/api/admin/blog";
+      const method = artikelId ? "PUT" : "POST";
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(typeof err.error === "string" ? err.error : JSON.stringify(err.error));
+      }
+      const data = await res.json();
+      if (gepubliceerd !== veld.gepubliceerd) update("gepubliceerd", gepubliceerd);
+      setSucces(publiceer ? "Gepubliceerd!" : "Opgeslagen!");
+      setTimeout(() => setSucces(null), 3000);
+      if (!artikelId) {
+        router.push(`/admin/blog/${data.id}/bewerken`);
+      }
+    } catch (e) {
+      setFout(e instanceof Error ? e.message : "Opslaan mislukt");
+    } finally {
+      setOpslaan(false);
+    }
+  }
+
+  async function handleVerwijder() {
+    if (!artikelId) return;
+    if (!confirm("Dit artikel permanent verwijderen?")) return;
+    const res = await fetch(`/api/admin/blog/${artikelId}`, { method: "DELETE" });
+    if (res.ok) router.push("/admin/blog");
+    else setFout("Verwijderen mislukt");
+  }
+
+  const metaTitelLengte = veld.metaTitel.length;
+  const metaBeschrLengte = veld.metaBeschrijving.length;
+  const scoreKleur = seoScoreKleur(veld.seoScore);
+
+  return (
+    <div style={{ display: "flex", height: "calc(100vh - 64px)", background: "var(--color-surface)" }}>
+      {/* Linker paneel: content */}
+      <div style={{ flex: "0 0 56%", display: "flex", flexDirection: "column", borderRight: "1px solid var(--color-outline)", overflow: "hidden" }}>
+        {/* Header */}
+        <div style={{ padding: "20px 28px", borderBottom: "1px solid var(--color-outline)", display: "flex", alignItems: "center", gap: 12, background: "var(--color-surface-bright)" }}>
+          <a href="/admin/blog" style={{ color: "var(--color-text-muted)", fontSize: 14, textDecoration: "none" }}>
+            ← Blog
+          </a>
+          <span style={{ color: "var(--color-outline)", fontSize: 20 }}>|</span>
+          <span style={{ fontSize: 13, fontWeight: 500, color: "var(--color-text-muted)" }}>
+            {artikelId ? "Artikel bewerken" : "Nieuw artikel"}
+          </span>
+          <div style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center" }}>
+            {succes && <span style={{ fontSize: 13, color: "#476558", fontWeight: 500 }}>{succes}</span>}
+            {fout && <span style={{ fontSize: 13, color: "#a03b1f" }}>{fout}</span>}
+            {artikelId && (
+              <button onClick={handleVerwijder} style={{ fontSize: 13, color: "#a03b1f", background: "none", border: "1px solid rgba(160,59,31,0.3)", borderRadius: 8, padding: "6px 12px", cursor: "pointer" }}>
+                Verwijder
+              </button>
+            )}
+            <button
+              onClick={() => handleOpslaan()}
+              disabled={opslaan}
+              className="btn-secondary"
+              style={{ padding: "8px 18px", fontSize: 13 }}
+            >
+              {opslaan ? "Opslaan..." : "Opslaan"}
+            </button>
+            <button
+              onClick={() => handleOpslaan(!veld.gepubliceerd)}
+              disabled={opslaan}
+              className="btn-primary"
+              style={{ padding: "8px 18px", fontSize: 13 }}
+            >
+              {veld.gepubliceerd ? "Depubliceer" : "Publiceer"}
+            </button>
+          </div>
+        </div>
+
+        {/* Titel */}
+        <div style={{ padding: "20px 28px 0" }}>
+          <input
+            type="text"
+            value={veld.titel}
+            onChange={e => update("titel", e.target.value)}
+            placeholder="Artikel titel..."
+            style={{
+              width: "100%",
+              border: "none",
+              outline: "none",
+              fontSize: 28,
+              fontFamily: "var(--font-serif)",
+              fontWeight: 400,
+              color: "var(--color-text)",
+              background: "transparent",
+              padding: "0",
+            }}
+          />
+        </div>
+
+        {/* Slug */}
+        <div style={{ padding: "8px 28px 0", display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontSize: 12, color: "var(--color-text-muted)" }}>brickme.nl/blog/</span>
+          <input
+            type="text"
+            value={veld.slug}
+            onChange={e => update("slug", e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-"))}
+            placeholder="artikel-slug"
+            style={{
+              border: "none",
+              outline: "none",
+              fontSize: 12,
+              fontFamily: "var(--font-sans)",
+              color: "var(--color-primary)",
+              background: "transparent",
+              padding: 0,
+              minWidth: 200,
+            }}
+          />
+        </div>
+
+        {/* Content toggle */}
+        <div style={{ padding: "12px 28px 0", display: "flex", gap: 12 }}>
+          <button
+            onClick={() => setToonInhoudVoorvertoning(false)}
+            style={{
+              fontSize: 12, fontWeight: 500, padding: "4px 12px", borderRadius: 6, border: "none", cursor: "pointer",
+              background: !toonInhoudVoorvertoning ? "var(--color-surface-high)" : "transparent",
+              color: "var(--color-text-muted)",
+            }}
+          >
+            Bewerken
+          </button>
+          <button
+            onClick={() => setToonInhoudVoorvertoning(true)}
+            style={{
+              fontSize: 12, fontWeight: 500, padding: "4px 12px", borderRadius: 6, border: "none", cursor: "pointer",
+              background: toonInhoudVoorvertoning ? "var(--color-surface-high)" : "transparent",
+              color: "var(--color-text-muted)",
+            }}
+          >
+            Voorvertoning
+          </button>
+          {isWaarschijnlijkMarkdown(veld.inhoud) && (
+            <button
+              onClick={() => update("inhoud", markdownNaarHtml(veld.inhoud))}
+              style={{
+                fontSize: 12, fontWeight: 500, padding: "4px 14px", borderRadius: 6, border: "none", cursor: "pointer",
+                background: "var(--color-primary)", color: "white", marginLeft: "auto",
+              }}
+            >
+              Markdown → HTML
+            </button>
+          )}
+        </div>
+
+        {/* Content area */}
+        <div style={{ flex: 1, overflow: "hidden", padding: "16px 28px 28px" }}>
+          {toonInhoudVoorvertoning ? (
+            <div
+              style={{
+                height: "100%",
+                overflow: "auto",
+                background: "var(--color-surface-bright)",
+                borderRadius: 12,
+                padding: "24px 32px",
+                fontSize: 16,
+                lineHeight: 1.7,
+                color: "var(--color-text)",
+              }}
+              className="prose"
+              dangerouslySetInnerHTML={{ __html: veld.inhoud }}
+            />
+          ) : (
+            <textarea
+              value={veld.inhoud}
+              onChange={e => update("inhoud", e.target.value)}
+              onPaste={e => {
+                const tekst = e.clipboardData.getData("text/plain");
+                if (!tekst) return;
+                e.preventDefault();
+                const parsed = parsClaudeOutput(tekst);
+                setVeld(v => ({
+                  ...v,
+                  inhoud: parsed.inhoud,
+                  titel: parsed.titel || v.titel,
+                  metaTitel: parsed.metaTitel || v.metaTitel,
+                  metaBeschrijving: parsed.metaBeschrijving || v.metaBeschrijving,
+                  slug: parsed.slug || v.slug,
+                }));
+              }}
+              placeholder="Plak hier je Claude artikel — meta-titel, omschrijving en headers worden automatisch herkend..."
+              style={{
+                width: "100%",
+                height: "100%",
+                border: "1px solid var(--color-outline)",
+                borderRadius: 12,
+                padding: "20px",
+                fontSize: 14,
+                fontFamily: "monospace",
+                lineHeight: 1.6,
+                color: "var(--color-text)",
+                background: "var(--color-surface-bright)",
+                resize: "none",
+                outline: "none",
+              }}
+            />
+          )}
+        </div>
+      </div>
+
+      {/* Rechter paneel: SEO */}
+      <div style={{ flex: 1, overflow: "auto", padding: "20px 24px", background: "var(--color-surface-low)" }}>
+        {/* AI SEO knop */}
+        <button
+          onClick={handleAiSeo}
+          disabled={aiLaden || !veld.titel || !veld.inhoud}
+          style={{
+            width: "100%",
+            padding: "14px",
+            borderRadius: 12,
+            border: "none",
+            background: aiLaden ? "var(--color-surface-high)" : "var(--color-primary)",
+            color: aiLaden ? "var(--color-text-muted)" : "white",
+            fontSize: 15,
+            fontWeight: 500,
+            cursor: aiLaden ? "not-allowed" : "pointer",
+            marginBottom: 20,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+            transition: "all 200ms",
+          }}
+        >
+          {aiLaden ? (
+            <>
+              <span style={{ display: "inline-block", animation: "pulseSoft 1.4s ease-in-out infinite" }}>●</span>
+              AI analyseert...
+            </>
+          ) : (
+            "✦ Genereer AI SEO"
+          )}
+        </button>
+
+        {/* SEO Score */}
+        {veld.seoScore > 0 && (
+          <div style={{
+            background: "var(--color-surface-bright)",
+            borderRadius: 12,
+            padding: "16px 20px",
+            marginBottom: 16,
+            display: "flex",
+            alignItems: "center",
+            gap: 16,
+          }}>
+            <div style={{
+              width: 56,
+              height: 56,
+              borderRadius: "50%",
+              border: `4px solid ${scoreKleur}`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}>
+              <span style={{ fontSize: 18, fontWeight: 700, color: scoreKleur }}>{veld.seoScore}</span>
+            </div>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: "var(--color-text)" }}>
+                SEO Score
+              </div>
+              <div style={{ fontSize: 12, color: "var(--color-text-muted)" }}>
+                {veld.seoScore >= 80 ? "Uitstekend" : veld.seoScore >= 60 ? "Goed, verbetering mogelijk" : "Verbetering nodig"}
+              </div>
+            </div>
+            {veld.leestijd > 0 && (
+              <div style={{ marginLeft: "auto", textAlign: "right" }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: "var(--color-text)" }}>{veld.leestijd} min</div>
+                <div style={{ fontSize: 12, color: "var(--color-text-muted)" }}>leestijd</div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* SERP Preview */}
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: 11, fontWeight: 500, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--color-text-muted)", marginBottom: 8 }}>
+            Google Voorvertoning
+          </div>
+          <SerpPreview metaTitel={veld.metaTitel} metaBeschrijving={veld.metaBeschrijving} slug={veld.slug} />
+        </div>
+
+        {/* Meta Titel */}
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+            <label style={{ fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--color-text-muted)" }}>
+              Meta Titel
+            </label>
+            <span style={{
+              fontSize: 11,
+              color: metaTitelLengte > 60 ? "#a03b1f" : metaTitelLengte >= 50 ? "#476558" : "var(--color-text-muted)",
+            }}>
+              {metaTitelLengte}/60
+            </span>
+          </div>
+          <input
+            type="text"
+            value={veld.metaTitel}
+            onChange={e => update("metaTitel", e.target.value)}
+            placeholder="50-60 tekens — zoekwoord vooraan..."
+            className="input-base"
+            style={{ fontSize: 13 }}
+          />
+        </div>
+
+        {/* Meta Beschrijving */}
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+            <label style={{ fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--color-text-muted)" }}>
+              Meta Beschrijving
+            </label>
+            <span style={{
+              fontSize: 11,
+              color: metaBeschrLengte > 160 ? "#a03b1f" : metaBeschrLengte >= 145 ? "#476558" : "var(--color-text-muted)",
+            }}>
+              {metaBeschrLengte}/160
+            </span>
+          </div>
+          <textarea
+            value={veld.metaBeschrijving}
+            onChange={e => update("metaBeschrijving", e.target.value)}
+            placeholder="145-160 tekens — bevat zoekwoord + CTA..."
+            className="input-base"
+            rows={3}
+            style={{ fontSize: 13, resize: "vertical" }}
+          />
+        </div>
+
+        {/* Excerpt */}
+        <div style={{ marginBottom: 14 }}>
+          <label style={{ fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--color-text-muted)", display: "block", marginBottom: 6 }}>
+            Excerpt (artikelkaart)
+          </label>
+          <textarea
+            value={veld.excerpt}
+            onChange={e => update("excerpt", e.target.value)}
+            placeholder="Korte samenvatting voor blog overzicht..."
+            className="input-base"
+            rows={2}
+            style={{ fontSize: 13, resize: "vertical" }}
+          />
+        </div>
+
+        {/* Categorie */}
+        <div style={{ marginBottom: 14 }}>
+          <label style={{ fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--color-text-muted)", display: "block", marginBottom: 6 }}>
+            Categorie
+          </label>
+          <input
+            type="text"
+            value={veld.categorie}
+            onChange={e => update("categorie", e.target.value)}
+            placeholder="bv. LEGO Serious Play, Zelfreflectie..."
+            className="input-base"
+            style={{ fontSize: 13 }}
+          />
+        </div>
+
+        {/* Trefwoorden */}
+        <div style={{ marginBottom: 14 }}>
+          <label style={{ fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--color-text-muted)", display: "block", marginBottom: 8 }}>
+            Trefwoorden
+          </label>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 8 }}>
+            {veld.trefwoorden.map((t, i) => (
+              <span key={i} style={{
+                background: "var(--color-surface-high)",
+                borderRadius: 100,
+                padding: "4px 10px",
+                fontSize: 12,
+                color: "var(--color-text)",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}>
+                {t}
+                <button
+                  onClick={() => update("trefwoorden", veld.trefwoorden.filter((_, j) => j !== i))}
+                  style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-text-muted)", fontSize: 14, padding: 0, lineHeight: 1 }}
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <input
+              type="text"
+              value={nieuwTrefwoord}
+              onChange={e => setNieuwTrefwoord(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === "Enter" && nieuwTrefwoord.trim()) {
+                  e.preventDefault();
+                  update("trefwoorden", [...veld.trefwoorden, nieuwTrefwoord.trim()]);
+                  setNieuwTrefwoord("");
+                }
+              }}
+              placeholder="Voeg trefwoord toe..."
+              className="input-base"
+              style={{ fontSize: 13 }}
+            />
+          </div>
+        </div>
+
+        {/* OG Afbeelding */}
+        <div style={{ marginBottom: 14 }}>
+          <label style={{ fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--color-text-muted)", display: "block", marginBottom: 6 }}>
+            OG Afbeelding URL
+          </label>
+          <input
+            type="text"
+            value={veld.ogAfbeelding}
+            onChange={e => update("ogAfbeelding", e.target.value)}
+            placeholder="https://..."
+            className="input-base"
+            style={{ fontSize: 13 }}
+          />
+        </div>
+
+        {/* Interne Links */}
+        {veld.interneLinks.length > 0 && (
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--color-text-muted)", display: "block", marginBottom: 8 }}>
+              Interne Links ({veld.interneLinks.length})
+            </label>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {veld.interneLinks.map((link, i) => (
+                <div key={i} style={{
+                  background: "var(--color-surface-bright)",
+                  borderRadius: 10,
+                  padding: "10px 14px",
+                  fontSize: 12,
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+                    <span style={{ color: "#1a0dab", fontWeight: 500 }}>
+                      {link.ankerTekst}
+                    </span>
+                    <a href={link.href} target="_blank" style={{ color: "var(--color-text-muted)", fontSize: 11 }}>
+                      {link.href}
+                    </a>
+                  </div>
+                  <div style={{ color: "var(--color-text-muted)", fontStyle: "italic", lineHeight: 1.4 }}>
+                    "{link.context}"
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Verbeteringen */}
+        {veld.verbeteringen.length > 0 && (
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--color-text-muted)", display: "block", marginBottom: 8 }}>
+              SEO Verbeteringen
+            </label>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {veld.verbeteringen.map((v, i) => (
+                <div key={i} style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: 8,
+                  fontSize: 12,
+                  color: "var(--color-text)",
+                  background: "var(--color-surface-bright)",
+                  borderRadius: 8,
+                  padding: "8px 12px",
+                }}>
+                  <span style={{ color: "#a03b1f", flexShrink: 0 }}>→</span>
+                  {v}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

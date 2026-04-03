@@ -97,6 +97,38 @@ export const rapporten = pgTable("rapporten", {
   aangemaktOp: timestamp("aangemakt_op").defaultNow().notNull(),
 });
 
+// ─── Blog ─────────────────────────────────────────────────────────────────────
+
+export type InterneLink = {
+  ankerTekst: string;
+  href: string;
+  context: string;
+};
+
+export const artikelen = pgTable("artikelen", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  slug: text("slug").notNull().unique(),
+  titel: text("titel").notNull(),
+  inhoud: text("inhoud").notNull(),
+  excerpt: text("excerpt"),
+  metaTitel: text("meta_titel"),
+  metaBeschrijving: text("meta_beschrijving"),
+  trefwoorden: jsonb("trefwoorden").$type<string[]>(),
+  ogAfbeelding: text("og_afbeelding"),
+  categorie: text("categorie"),
+  tags: jsonb("tags").$type<string[]>(),
+  interneLinks: jsonb("interne_links").$type<InterneLink[]>(),
+  schemaMarkup: jsonb("schema_markup"),
+  leestijd: integer("leestijd"),
+  seoScore: integer("seo_score"),
+  gepubliceerd: boolean("gepubliceerd").notNull().default(false),
+  gepubliceerdOp: timestamp("gepubliceerd_op"),
+  aangemaktOp: timestamp("aangemakt_op").defaultNow().notNull(),
+  bijgewerktOp: timestamp("bijgewerkt_op").defaultNow().notNull(),
+});
+
+export type Artikel = typeof artikelen.$inferSelect;
+
 export type Sessie = typeof sessies.$inferSelect;
 export type NieuweSessie = typeof sessies.$inferInsert;
 export type Fase = typeof fases.$inferSelect;

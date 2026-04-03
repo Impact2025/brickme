@@ -10,6 +10,18 @@
   --kleur-accent: #2D4A3E;
   --kleur-text: #2C1F14;
   --kleur-muted: #8B7355;
+  /* Blog/admin CSS variable aliases */
+  --color-primary: #C8583A;
+  --color-text: #2C1F14;
+  --color-text-muted: #8B7355;
+  --color-surface: #F5F0E8;
+  --color-surface-bright: #FFFFFF;
+  --color-surface-high: #EDE8DF;
+  --color-surface-low: #FAF7F2;
+  --color-outline: #E8DDD0;
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --shadow-card: 0 2px 12px rgba(44,31,20,0.08);
   /* Safe area insets (filled by browser on notch/home-indicator devices) */
   --sat: env(safe-area-inset-top);
   --sar: env(safe-area-inset-right);
@@ -77,6 +89,14 @@ button, a, [role="button"], label {
            transition-all duration-300 hover:bg-primary-dark active:scale-95
            focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
     /* Ensure minimum tap target size (48×48px) */
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .btn-secondary {
+    @apply bg-white border border-[#E8DDD0] text-[#2C1F14] px-6 py-3 rounded-2xl font-medium
+           transition-all duration-200 hover:bg-[#F5F0E8]
+           focus:outline-none focus:ring-2 focus:ring-[#C8583A] focus:ring-offset-2;
     min-height: 44px;
     min-width: 44px;
   }
