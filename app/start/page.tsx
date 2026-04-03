@@ -37,7 +37,9 @@ function StartForm() {
         </div>
         {isSignedIn ? (
           <div className="flex items-center gap-3">
-            <span className="text-sm text-muted">{session.user?.name}</span>
+            <a href="/dashboard" className="text-sm text-primary font-medium hover:text-primary-dark transition-colors">
+              Mijn sessies
+            </a>
             <button
               onClick={() => signOut({ callbackUrl: "/" })}
               className="text-sm text-muted hover:text-bricktext transition-colors"
