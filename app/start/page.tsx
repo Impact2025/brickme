@@ -1,18 +1,22 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
 import { THEMAS, ThemaId } from "@/lib/themas";
 import { cn } from "@/lib/utils";
 
-export default function HomePage() {
+function StartForm() {
   const { data: session } = useSession();
   const isSignedIn = !!session?.user;
   const router = useRouter();
-  const [geselecteerd, setGeselecteerd] = useState<ThemaId | null>(null);
+  const params = useSearchParams();
+  const themaParam = params.get("thema") as ThemaId | null;
+  const [geselecteerd, setGeselecteerd] = useState<ThemaId | null>(
+    themaParam && THEMAS[themaParam] ? themaParam : null
+  );
   const [bezig, setBezig] = useState(false);
 
   async function startSessie() {
@@ -141,5 +145,13 @@ export default function HomePage() {
         </footer>
       </div>
     </main>
+  );
+}
+
+export default function StartPage() {
+  return (
+    <Suspense fallback={<div className="min-h-dvh bg-secondary" />}>
+      <StartForm />
+    </Suspense>
   );
 }
