@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
+import Script from "next/script";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -33,6 +34,20 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="nl">
+      <head>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-647VHR1NK5"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-647VHR1NK5');
+          `}
+        </Script>
+      </head>
       <body>
         <SessionProvider>{children}</SessionProvider>
       </body>
