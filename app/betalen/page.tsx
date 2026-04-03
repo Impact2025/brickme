@@ -33,7 +33,7 @@ function BetalenForm() {
     }
   }
 
-  const basisprijs = 2995; // €29,95 in centen
+  const basisprijs = 1495; // €14,95 in centen
   const prijsNaKorting = Math.round(basisprijs * (1 - korting / 100));
   const gratis = prijsNaKorting === 0;
 

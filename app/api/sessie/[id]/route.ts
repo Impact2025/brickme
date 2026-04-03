@@ -5,6 +5,22 @@ import { db } from "@/lib/db";
 import { sessies, fases } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return NextResponse.json({ error: "Niet ingelogd" }, { status: 401 });
+
+  const { id } = await params;
+  const { stemmingNa } = await req.json();
+
+  if (typeof stemmingNa !== "number" || stemmingNa < 1 || stemmingNa > 10) {
+    return NextResponse.json({ error: "Ongeldige waarde" }, { status: 400 });
+  }
+
+  await db.update(sessies).set({ stemmingNa }).where(eq(sessies.id, id));
+  return NextResponse.json({ ok: true });
+}
+
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   const userId = session?.user?.id;

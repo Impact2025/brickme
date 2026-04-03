@@ -83,6 +83,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({
     themaLabel: sessie.themaLabel,
     stemmingVoor: sessie.stemmingVoor,
+    stemmingNa: sessie.stemmingNa,
     samenvatting: parsed.samenvatting,
     inzichten: parsed.inzichten,
     eersteStap: parsed.eersteStap,

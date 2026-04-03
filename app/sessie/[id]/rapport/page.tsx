@@ -212,7 +212,7 @@ export default function RapportPagina() {
           >
             Opslaan als PDF
           </button>
-          <a href="/" className="btn-primary flex-1 text-center py-3">
+          <a href="/start" className="btn-primary flex-1 text-center py-3">
             Nieuwe sessie
           </a>
         </div>

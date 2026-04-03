@@ -24,7 +24,9 @@ function ReflectiePaginaInner() {
   const [antwoord, setAntwoord] = useState("");
   const [bezig, setBezig] = useState(false);
   const [laden, setLaden] = useState(true);
-  const [totalFases, setTotalFases] = useState(3);
+  const [totalFases, setTotalFases] = useState(4);
+  const [stemmingNaFase, setStemmingNaFase] = useState(false);
+  const [stemmingNa, setStemmingNa] = useState<number | null>(null);
 
   useEffect(() => {
     laadFase();
@@ -41,6 +43,8 @@ function ReflectiePaginaInner() {
     }
   }
 
+  const isLaatsteFase = faseNummer >= totalFases;
+
   async function verderGaan() {
     if (!antwoord.trim() || bezig || !fase) return;
     setBezig(true);
@@ -52,10 +56,10 @@ function ReflectiePaginaInner() {
         body: JSON.stringify({ faseId: fase.id, antwoord }),
       });
 
-      if (faseNummer < totalFases) {
-        router.push(`/sessie/${id}/bouwen?fase=${faseNummer}`);
+      if (isLaatsteFase) {
+        setStemmingNaFase(true);
       } else {
-        router.push(`/sessie/${id}/rapport`);
+        router.push(`/sessie/${id}/bouwen?fase=${faseNummer}`);
       }
     } finally {
       setBezig(false);
@@ -63,11 +67,21 @@ function ReflectiePaginaInner() {
   }
 
   function slaAntwoordOver() {
-    if (faseNummer < totalFases) {
-      router.push(`/sessie/${id}/bouwen?fase=${faseNummer}`);
+    if (isLaatsteFase) {
+      setStemmingNaFase(true);
     } else {
-      router.push(`/sessie/${id}/rapport`);
+      router.push(`/sessie/${id}/bouwen?fase=${faseNummer}`);
     }
+  }
+
+  async function slaStemmingNaOp() {
+    if (!stemmingNa) return;
+    await fetch(`/api/sessie/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ stemmingNa }),
+    });
+    router.push(`/sessie/${id}/rapport`);
   }
 
   if (laden) {
@@ -90,7 +104,49 @@ function ReflectiePaginaInner() {
     );
   }
 
-  const isLaatsteFase = faseNummer >= totalFases;
+  if (stemmingNaFase) {
+    return (
+      <main className="min-h-dvh bg-secondary flex flex-col items-center justify-center px-6">
+        <div className="max-w-md w-full">
+          <p className="text-xs text-muted uppercase tracking-wider mb-2">Sessie afgerond</p>
+          <h2 className="text-3xl font-serif text-bricktext mb-2">Hoe voel je je nu?</h2>
+          <p className="text-muted text-sm mb-8">Vergelijk met hoe je je voelde voor de sessie.</p>
+
+          <div className="flex gap-2 flex-wrap mb-8">
+            {[1,2,3,4,5,6,7,8,9,10].map((n) => (
+              <button
+                key={n}
+                onClick={() => setStemmingNa(n)}
+                className={cn(
+                  "w-12 h-12 rounded-2xl border-2 font-medium transition-all duration-200",
+                  stemmingNa === n
+                    ? "border-primary bg-primary text-white"
+                    : "border-border bg-surface text-bricktext hover:border-primary"
+                )}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+
+          {stemmingNa && (
+            <button
+              onClick={slaStemmingNaOp}
+              className="btn-primary w-full py-4 text-lg animate-slide-up"
+            >
+              Mijn rapport bekijken →
+            </button>
+          )}
+          <button
+            onClick={() => router.push(`/sessie/${id}/rapport`)}
+            className="btn-ghost w-full mt-3 text-sm"
+          >
+            Sla over
+          </button>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-dvh bg-secondary pb-12">
@@ -173,11 +229,7 @@ function ReflectiePaginaInner() {
                 disabled={bezig || !antwoord.trim()}
                 className="btn-primary flex-1 py-4 disabled:opacity-40"
               >
-                {bezig
-                  ? "Bezig..."
-                  : isLaatsteFase
-                  ? "Mijn rapport bekijken →"
-                  : "Volgende fase →"}
+                {bezig ? "Bezig..." : isLaatsteFase ? "Afronden →" : "Volgende fase →"}
               </button>
               <button
                 onClick={slaAntwoordOver}
