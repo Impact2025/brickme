@@ -9,6 +9,7 @@ const publicRoutes = [
   "/start",
   "/sign-in",
   "/sign-up",
+  "/verify-magic",
   "/api/auth",
   "/api/register",
   "/api/stripe/webhook",
