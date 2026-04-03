@@ -32,6 +32,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+/** Als de inhoud geen HTML-tags bevat, zet alinea's om naar <p>-elementen */
+function tekstNaarHtml(inhoud: string): string {
+  if (/<[a-z][\s\S]*>/i.test(inhoud)) return inhoud; // al HTML
+  return inhoud
+    .split(/\n{2,}/)
+    .map(alinea => alinea.trim())
+    .filter(Boolean)
+    .map(alinea => `<p>${alinea.replace(/\n/g, "<br>")}</p>`)
+    .join("\n");
+}
+
 function formatDatum(datum: Date | null) {
   if (!datum) return "";
   return datum.toLocaleDateString("nl-NL", { day: "numeric", month: "long", year: "numeric" });
@@ -86,8 +97,8 @@ export default async function ArtikelPage({ params }: Props) {
             <img src={artikel.ogAfbeelding} alt={artikel.titel} style={{ width: "100%", borderRadius: 16, aspectRatio: "16/9", objectFit: "cover" }} />
           </div>
         )}
-        <article style={{ maxWidth: 760, margin: "0 auto", padding: "0 40px 80px", fontSize: 17, lineHeight: 1.8, color: "var(--color-text)" }}
-          dangerouslySetInnerHTML={{ __html: artikel.inhoud }} />
+        <article className="blog-prose" style={{ maxWidth: 760, margin: "0 auto", padding: "0 40px 80px" }}
+          dangerouslySetInnerHTML={{ __html: tekstNaarHtml(artikel.inhoud) }} />
         {artikel.tags && artikel.tags.length > 0 && (
           <div style={{ maxWidth: 760, margin: "0 auto", padding: "32px 40px 60px", borderTop: "1px solid var(--color-outline)" }}>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>

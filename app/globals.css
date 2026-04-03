@@ -122,6 +122,37 @@ button, a, [role="button"], label {
   .skeleton {
     @apply animate-pulse bg-border rounded-2xl;
   }
+
+  /* Blog artikel prose styling */
+  .blog-prose {
+    font-size: 17px;
+    line-height: 1.8;
+    color: var(--color-text);
+  }
+  .blog-prose p { margin: 0 0 1.4em; }
+  .blog-prose h1, .blog-prose h2, .blog-prose h3, .blog-prose h4 {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    line-height: 1.25;
+    margin: 2em 0 0.6em;
+    color: var(--color-text);
+  }
+  .blog-prose h1 { font-size: 2em; }
+  .blog-prose h2 { font-size: 1.5em; }
+  .blog-prose h3 { font-size: 1.25em; }
+  .blog-prose strong { font-weight: 600; }
+  .blog-prose em { font-style: italic; }
+  .blog-prose ul, .blog-prose ol { margin: 0 0 1.4em 1.5em; }
+  .blog-prose li { margin-bottom: 0.4em; }
+  .blog-prose a { color: var(--color-primary); text-decoration: underline; }
+  .blog-prose blockquote {
+    border-left: 3px solid var(--color-primary);
+    margin: 1.5em 0;
+    padding: 0.5em 1.5em;
+    color: var(--color-text-muted);
+    font-style: italic;
+  }
+  .blog-prose hr { border: none; border-top: 1px solid var(--color-outline); margin: 2em 0; }
 }
 
 @layer utilities {
