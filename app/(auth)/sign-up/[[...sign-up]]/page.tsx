@@ -3,6 +3,7 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { signIn } from "next-auth/react";
 
 function SignUpForm() {
@@ -57,9 +58,7 @@ function SignUpForm() {
     <main className="min-h-dvh bg-secondary flex flex-col items-center justify-center px-6">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <div className="w-10 h-10 bg-primary rounded-xl mx-auto mb-4 flex items-center justify-center">
-            <span className="text-xl text-white">◆</span>
-          </div>
+          <Image src="/logo.png" alt="Brickme" width={56} height={56} className="mx-auto mb-4" />
           <h1 className="text-2xl font-serif text-bricktext">Maak een account</h1>
           <p className="text-muted text-sm mt-1">Gratis beginnen, altijd jouw data</p>
         </div>

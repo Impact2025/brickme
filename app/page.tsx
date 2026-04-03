@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Zap, Heart, User, Users, GitFork, Feather, MessageCircle, BookOpen, Bot } from "lucide-react";
 import FaqAccordion from "@/components/FaqAccordion";
 import { MobileNav } from "@/components/MobileNav";
@@ -11,14 +12,7 @@ export default function HomePage() {
       <nav className="sticky top-0 z-50 bg-secondary/80 backdrop-blur-md border-b border-border" style={{ paddingTop: "env(safe-area-inset-top)" }}>
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <svg width="32" height="32" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-              <g fill="#C8583A">
-                <path transform="translate(33,33) rotate(-45)" d="M -28,-24 A 14,14,0,0,0,0,-24 A 14,14,0,0,0,28,-24 Q 28,0 0,24 Q -28,0 -28,-24 Z"/>
-                <path transform="translate(67,33) rotate(45)"  d="M -28,-24 A 14,14,0,0,0,0,-24 A 14,14,0,0,0,28,-24 Q 28,0 0,24 Q -28,0 -28,-24 Z"/>
-                <path transform="translate(33,67) rotate(225)" d="M -28,-24 A 14,14,0,0,0,0,-24 A 14,14,0,0,0,28,-24 Q 28,0 0,24 Q -28,0 -28,-24 Z"/>
-                <path transform="translate(67,67) rotate(135)" d="M -28,-24 A 14,14,0,0,0,0,-24 A 14,14,0,0,0,28,-24 Q 28,0 0,24 Q -28,0 -28,-24 Z"/>
-              </g>
-            </svg>
+            <Image src="/logo.png" alt="Brickme" width={32} height={32} />
             <span className="font-serif text-xl text-primary">Brickme</span>
           </Link>
 
@@ -659,15 +653,8 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-6 py-12">
           <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-8">
             <div>
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-7 h-7 bg-primary rounded-md flex items-center justify-center">
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                    <rect x="1" y="6" width="6" height="4" rx="0.5" fill="white" opacity="0.9"/>
-                    <rect x="9" y="6" width="6" height="4" rx="0.5" fill="white" opacity="0.9"/>
-                    <rect x="4" y="10" width="8" height="4" rx="0.5" fill="white"/>
-                    <rect x="4" y="2" width="8" height="4" rx="0.5" fill="white" opacity="0.7"/>
-                  </svg>
-                </div>
+              <div className="flex items-center gap-2.5 mb-3">
+                <Image src="/logo.png" alt="Brickme" width={28} height={28} />
                 <span className="font-serif text-lg text-white/90">Brickme.nl</span>
               </div>
               <p className="text-xs text-white/40 leading-relaxed">

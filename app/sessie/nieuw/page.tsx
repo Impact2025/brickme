@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
 import { ThemaId } from "@/types";
 import { THEMAS } from "@/lib/themas";
 import { cn } from "@/lib/utils";
@@ -94,9 +95,7 @@ function NieuweSessieInner() {
       <main className="min-h-dvh bg-secondary flex flex-col items-center justify-center px-6">
         <div className="max-w-md w-full">
           <a href="/" className="text-sm text-muted hover:text-bricktext mb-8 block">← Terug</a>
-          <div className="w-8 h-8 bg-primary rounded-lg mb-6 flex items-center justify-center">
-            <span>◆</span>
-          </div>
+          <Image src="/logo.png" alt="Brickme" width={40} height={40} className="mb-6" />
           <h2 className="text-3xl font-serif text-bricktext mb-2">Hoe voel je je nu?</h2>
           <p className="text-muted mb-8">Een schaal van 1 (zwaar) tot 10 (lekker in je vel). Dit meten we ook na de sessie.</p>
 
