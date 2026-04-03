@@ -3,7 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { openai, AI_MODEL, buildRapportPrompt, ThemaId } from "@/lib/ai";
 import { db } from "@/lib/db";
-import { sessies, fases, rapporten } from "@/lib/db/schema";
+import { sessies, fases, rapporten, gebruikers } from "@/lib/db/schema";
+import { sendRapportGereedEmail } from "@/lib/email";
 import { eq } from "drizzle-orm";
 
 export async function POST(req: NextRequest) {
@@ -79,6 +80,23 @@ export async function POST(req: NextRequest) {
     .update(sessies)
     .set({ status: "voltooid", voltooidOp: new Date() })
     .where(eq(sessies.id, sessieId));
+
+  const [gebruiker] = await db
+    .select({ email: gebruikers.email, naam: gebruikers.naam })
+    .from(gebruikers)
+    .where(eq(gebruikers.userId, userId))
+    .limit(1);
+
+  if (gebruiker?.email) {
+    void sendRapportGereedEmail(
+      gebruiker.email,
+      gebruiker.naam ?? "",
+      sessie.themaLabel,
+      parsed.samenvatting,
+      parsed.eersteStap,
+      Array.isArray(parsed.inzichten) ? parsed.inzichten : []
+    );
+  }
 
   return NextResponse.json({
     themaLabel: sessie.themaLabel,

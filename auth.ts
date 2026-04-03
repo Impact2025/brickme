@@ -31,6 +31,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           gebruiker.wachtwoord
         );
         if (!geldig) return null;
+        if (!gebruiker.actief) return null;
 
         return {
           id: gebruiker.userId,

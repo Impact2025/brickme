@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { coachingRelaties, sessies, gebruikers } from "@/lib/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { z } from "zod";
+import { sendCoachKoppelingEmail } from "@/lib/email";
 
 export async function GET() {
   const gebruiker = await requireAdminOfRol("coach");
@@ -78,6 +79,16 @@ export async function POST(req: NextRequest) {
       status: "actief",
     })
     .returning();
+
+  const [client] = await db
+    .select({ email: gebruikers.email, naam: gebruikers.naam })
+    .from(gebruikers)
+    .where(eq(gebruikers.userId, parsed.data.clientUserId))
+    .limit(1);
+
+  if (client?.email) {
+    void sendCoachKoppelingEmail(client.email, client.naam ?? "", gebruiker.naam ?? null);
+  }
 
   return NextResponse.json({ relatie });
 }

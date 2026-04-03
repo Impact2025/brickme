@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { gebruikers } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { randomUUID } from "crypto";
+import { sendVerificatieEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   try {
@@ -26,6 +27,8 @@ export async function POST(req: NextRequest) {
 
     const hash = await bcrypt.hash(wachtwoord, 12);
     const userId = randomUUID();
+    const verificatieCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const verificatieVerloptOp = new Date(Date.now() + 15 * 60 * 1000);
 
     await db.insert(gebruikers).values({
       userId,
@@ -33,7 +36,12 @@ export async function POST(req: NextRequest) {
       email,
       wachtwoord: hash,
       rol: "gebruiker",
+      actief: false,
+      verificatieCode,
+      verificatieVerloptOp,
     });
+
+    void sendVerificatieEmail(naam || email, email, verificatieCode);
 
     return NextResponse.json({ ok: true });
   } catch (err) {

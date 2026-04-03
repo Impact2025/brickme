@@ -2,9 +2,10 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdminOfRol } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { workshops, workshopDeelnemers } from "@/lib/db/schema";
+import { workshops, workshopDeelnemers, gebruikers } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { z } from "zod";
+import { sendWorkshopUitnodigingEmail } from "@/lib/email";
 
 export async function POST(
   req: NextRequest,
@@ -55,6 +56,21 @@ export async function POST(
       toegetreden: false,
     })
     .returning();
+
+  const [uitgenodigde] = await db
+    .select({ email: gebruikers.email, naam: gebruikers.naam })
+    .from(gebruikers)
+    .where(eq(gebruikers.userId, parsed.data.userId))
+    .limit(1);
+
+  if (uitgenodigde?.email) {
+    void sendWorkshopUitnodigingEmail(
+      uitgenodigde.email,
+      uitgenodigde.naam ?? "",
+      workshop.naam,
+      workshop.code
+    );
+  }
 
   return NextResponse.json({ deelnemer });
 }

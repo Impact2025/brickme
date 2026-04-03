@@ -2,7 +2,7 @@ import type { NextAuthConfig } from "next-auth";
 
 // Edge-compatible config (geen DB imports)
 export const authConfig: NextAuthConfig = {
-  session: { strategy: "jwt" },
+  session: { strategy: "jwt", maxAge: 30 * 24 * 60 * 60 }, // 30 dagen
   pages: {
     signIn: "/sign-in",
   },

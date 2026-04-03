@@ -11,6 +11,8 @@ export const gebruikers = pgTable("gebruikers", {
   email: text("email"),
   wachtwoord: text("wachtwoord"),
   actief: boolean("actief").notNull().default(true),
+  verificatieCode: text("verificatie_code"),
+  verificatieVerloptOp: timestamp("verificatie_verlopt_op"),
   aangemaktOp: timestamp("aangemakt_op").defaultNow().notNull(),
 });
 
