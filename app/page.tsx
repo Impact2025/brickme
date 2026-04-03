@@ -12,7 +12,7 @@ export default function HomePage() {
       <nav className="sticky top-0 z-50 bg-secondary/80 backdrop-blur-md border-b border-border" style={{ paddingTop: "env(safe-area-inset-top)" }}>
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <Image src="/icon.svg" alt="Brickme" width={32} height={32} unoptimized />
+            <Image src="/logo.png" alt="Brickme" width={32} height={32} unoptimized />
             <span className="font-serif text-xl text-primary">Brickme</span>
           </Link>
 
@@ -655,7 +655,7 @@ export default function HomePage() {
           <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-8">
             <div>
               <div className="flex items-center gap-2.5 mb-3">
-                <Image src="/icon.svg" alt="Brickme" width={28} height={28} unoptimized />
+                <Image src="/logo.png" alt="Brickme" width={28} height={28} unoptimized />
                 <span className="font-serif text-lg text-white/90">Brickme.nl</span>
               </div>
               <p className="text-xs text-white/40 leading-relaxed">

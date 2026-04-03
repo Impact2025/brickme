@@ -68,7 +68,7 @@ function SignInForm() {
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/icon.svg" alt="Brickme" width={56} height={56} className="mx-auto mb-4" />
+          <img src="/logo.png" alt="Brickme" width={56} height={56} className="mx-auto mb-4" />
           {!verzonden ? (
             <>
               <h1 className="text-2xl font-serif text-bricktext">Welkom terug</h1>

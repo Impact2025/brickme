@@ -34,7 +34,7 @@ function VerifyMagic() {
   return (
     <main className="min-h-dvh bg-secondary flex flex-col items-center justify-center px-6">
       <div className="w-full max-w-sm text-center">
-        <Image src="/icon.svg" alt="Brickme" width={56} height={56} unoptimized className="mx-auto mb-6" />
+        <Image src="/logo.png" alt="Brickme" width={56} height={56} unoptimized className="mx-auto mb-6" />
 
         {status === "bezig" ? (
           <>
