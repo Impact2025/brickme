@@ -21,6 +21,7 @@ export default function HomePage() {
             <a href="#themas" className="hover:text-bricktext transition-colors">Thema&apos;s</a>
             <a href="#over" className="hover:text-bricktext transition-colors">Over</a>
             <a href="#prijzen" className="hover:text-bricktext transition-colors">Prijzen</a>
+            <Link href="/blog" className="hover:text-bricktext transition-colors">Blog</Link>
           </div>
 
           <div className="flex items-center gap-2">

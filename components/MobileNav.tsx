@@ -8,6 +8,7 @@ const NAV_LINKS = [
   { href: "#themas",        label: "Thema's" },
   { href: "#over",          label: "Over" },
   { href: "#prijzen",       label: "Prijzen" },
+  { href: "/blog",          label: "Blog" },
 ];
 
 export function MobileNav() {
