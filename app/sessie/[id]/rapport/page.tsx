@@ -96,9 +96,14 @@ export default function RapportPagina() {
         {/* Document header */}
         <header className="pt-10 pb-8 border-b border-border">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-sm text-white">◆</span>
-            </div>
+            <svg width="32" height="32" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <g fill="#C8583A">
+                <path transform="translate(33,33) rotate(-45)" d="M -28,-24 A 14,14,0,0,0,0,-24 A 14,14,0,0,0,28,-24 Q 28,0 0,24 Q -28,0 -28,-24 Z"/>
+                <path transform="translate(67,33) rotate(45)"  d="M -28,-24 A 14,14,0,0,0,0,-24 A 14,14,0,0,0,28,-24 Q 28,0 0,24 Q -28,0 -28,-24 Z"/>
+                <path transform="translate(33,67) rotate(225)" d="M -28,-24 A 14,14,0,0,0,0,-24 A 14,14,0,0,0,28,-24 Q 28,0 0,24 Q -28,0 -28,-24 Z"/>
+                <path transform="translate(67,67) rotate(135)" d="M -28,-24 A 14,14,0,0,0,0,-24 A 14,14,0,0,0,28,-24 Q 28,0 0,24 Q -28,0 -28,-24 Z"/>
+              </g>
+            </svg>
             <p className="text-xs text-muted">{formatDatum(datum)}</p>
           </div>
           <p className="text-xs text-muted uppercase tracking-wider mb-1">{rapport.themaLabel}</p>

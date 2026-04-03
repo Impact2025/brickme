@@ -1,7 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="96" fill="#C8583A"/>
-  <rect x="64" y="192" width="176" height="128" rx="16" fill="white" opacity="0.9"/>
-  <rect x="272" y="192" width="176" height="128" rx="16" fill="white" opacity="0.9"/>
-  <rect x="128" y="320" width="256" height="128" rx="16" fill="white"/>
-  <rect x="128" y="64" width="256" height="128" rx="16" fill="white" opacity="0.7"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!--
+    Brickme logo — 4-hart klaver
+    Elke hart heeft zijn punt gericht naar het centrum (50,50).
+    Hart-pad: punt naar beneden, breedte 56, breedte bogen r=14
+  -->
+  <g fill="#C8583A">
+    <!-- Linksboven: punt → rechtsonder (rotate -45) -->
+    <path transform="translate(33,33) rotate(-45)"
+          d="M -28,-24 A 14,14,0,0,0,0,-24 A 14,14,0,0,0,28,-24 Q 28,0 0,24 Q -28,0 -28,-24 Z"/>
+    <!-- Rechtsboven: punt → linksonder (rotate 45) -->
+    <path transform="translate(67,33) rotate(45)"
+          d="M -28,-24 A 14,14,0,0,0,0,-24 A 14,14,0,0,0,28,-24 Q 28,0 0,24 Q -28,0 -28,-24 Z"/>
+    <!-- Linksonder: punt → rechtsboven (rotate 225) -->
+    <path transform="translate(33,67) rotate(225)"
+          d="M -28,-24 A 14,14,0,0,0,0,-24 A 14,14,0,0,0,28,-24 Q 28,0 0,24 Q -28,0 -28,-24 Z"/>
+    <!-- Rechtsonder: punt → linksboven (rotate 135) -->
+    <path transform="translate(67,67) rotate(135)"
+          d="M -28,-24 A 14,14,0,0,0,0,-24 A 14,14,0,0,0,28,-24 Q 28,0 0,24 Q -28,0 -28,-24 Z"/>
+  </g>
 </svg>

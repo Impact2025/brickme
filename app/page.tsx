@@ -10,15 +10,15 @@ export default function HomePage() {
       {/* ── NAVIGATIE ─────────────────────────────────────────────── */}
       <nav className="sticky top-0 z-50 bg-secondary/80 backdrop-blur-md border-b border-border" style={{ paddingTop: "env(safe-area-inset-top)" }}>
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <rect x="1" y="6" width="6" height="4" rx="0.5" fill="white" opacity="0.9"/>
-                <rect x="9" y="6" width="6" height="4" rx="0.5" fill="white" opacity="0.9"/>
-                <rect x="4" y="10" width="8" height="4" rx="0.5" fill="white"/>
-                <rect x="4" y="2" width="8" height="4" rx="0.5" fill="white" opacity="0.7"/>
-              </svg>
-            </div>
+          <Link href="/" className="flex items-center gap-2.5">
+            <svg width="32" height="32" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <g fill="#C8583A">
+                <path transform="translate(33,33) rotate(-45)" d="M -28,-24 A 14,14,0,0,0,0,-24 A 14,14,0,0,0,28,-24 Q 28,0 0,24 Q -28,0 -28,-24 Z"/>
+                <path transform="translate(67,33) rotate(45)"  d="M -28,-24 A 14,14,0,0,0,0,-24 A 14,14,0,0,0,28,-24 Q 28,0 0,24 Q -28,0 -28,-24 Z"/>
+                <path transform="translate(33,67) rotate(225)" d="M -28,-24 A 14,14,0,0,0,0,-24 A 14,14,0,0,0,28,-24 Q 28,0 0,24 Q -28,0 -28,-24 Z"/>
+                <path transform="translate(67,67) rotate(135)" d="M -28,-24 A 14,14,0,0,0,0,-24 A 14,14,0,0,0,28,-24 Q 28,0 0,24 Q -28,0 -28,-24 Z"/>
+              </g>
+            </svg>
             <span className="font-serif text-xl text-primary">Brickme</span>
           </Link>
 

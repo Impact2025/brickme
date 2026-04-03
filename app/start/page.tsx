@@ -26,9 +26,19 @@ export default function HomePage() {
     <main className="min-h-dvh bg-secondary">
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-5 max-w-2xl mx-auto">
-        <div>
-          <h1 className="text-2xl font-serif text-bricktext tracking-tight">Brickme</h1>
-          <p className="text-xs text-muted mt-0.5">Bouw wat je niet kunt zeggen</p>
+        <div className="flex items-center gap-3">
+          <svg width="36" height="36" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <g fill="#C8583A">
+              <path transform="translate(33,33) rotate(-45)" d="M -28,-24 A 14,14,0,0,0,0,-24 A 14,14,0,0,0,28,-24 Q 28,0 0,24 Q -28,0 -28,-24 Z"/>
+              <path transform="translate(67,33) rotate(45)"  d="M -28,-24 A 14,14,0,0,0,0,-24 A 14,14,0,0,0,28,-24 Q 28,0 0,24 Q -28,0 -28,-24 Z"/>
+              <path transform="translate(33,67) rotate(225)" d="M -28,-24 A 14,14,0,0,0,0,-24 A 14,14,0,0,0,28,-24 Q 28,0 0,24 Q -28,0 -28,-24 Z"/>
+              <path transform="translate(67,67) rotate(135)" d="M -28,-24 A 14,14,0,0,0,0,-24 A 14,14,0,0,0,28,-24 Q 28,0 0,24 Q -28,0 -28,-24 Z"/>
+            </g>
+          </svg>
+          <div>
+            <h1 className="text-2xl font-serif text-bricktext tracking-tight">Brickme</h1>
+            <p className="text-xs text-muted mt-0.5">Bouw wat je niet kunt zeggen</p>
+          </div>
         </div>
         {isSignedIn ? (
           <div className="flex items-center gap-3">

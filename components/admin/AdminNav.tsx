@@ -23,8 +23,18 @@ export function AdminNav({ items, titel, rolLabel }: AdminNavProps) {
     <aside className="w-56 shrink-0 flex flex-col h-full bg-[#2C1F14] text-white">
       {/* Branding */}
       <div className="px-5 py-6 border-b border-white/10">
-        <p className="font-serif text-lg text-[#F5F0E8]">{titel}</p>
-        <p className="text-xs text-white/40 mt-0.5">{rolLabel}</p>
+        <div className="flex items-center gap-2.5 mb-1">
+          <svg width="24" height="24" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <g fill="#C8583A">
+              <path transform="translate(33,33) rotate(-45)" d="M -28,-24 A 14,14,0,0,0,0,-24 A 14,14,0,0,0,28,-24 Q 28,0 0,24 Q -28,0 -28,-24 Z"/>
+              <path transform="translate(67,33) rotate(45)"  d="M -28,-24 A 14,14,0,0,0,0,-24 A 14,14,0,0,0,28,-24 Q 28,0 0,24 Q -28,0 -28,-24 Z"/>
+              <path transform="translate(33,67) rotate(225)" d="M -28,-24 A 14,14,0,0,0,0,-24 A 14,14,0,0,0,28,-24 Q 28,0 0,24 Q -28,0 -28,-24 Z"/>
+              <path transform="translate(67,67) rotate(135)" d="M -28,-24 A 14,14,0,0,0,0,-24 A 14,14,0,0,0,28,-24 Q 28,0 0,24 Q -28,0 -28,-24 Z"/>
+            </g>
+          </svg>
+          <p className="font-serif text-lg text-[#F5F0E8]">{titel}</p>
+        </div>
+        <p className="text-xs text-white/40">{rolLabel}</p>
       </div>
 
       {/* Nav items */}
