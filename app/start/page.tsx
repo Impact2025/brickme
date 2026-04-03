@@ -31,12 +31,9 @@ function StartForm() {
     <main className="min-h-dvh bg-secondary">
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-5 max-w-2xl mx-auto">
-        <div className="flex items-center gap-3">
-          <Image src="/logo.png" alt="Brickme" width={36} height={36} unoptimized />
-          <div>
-            <h1 className="text-2xl font-serif text-bricktext tracking-tight">Brickme</h1>
-            <p className="text-xs text-muted mt-0.5">Bouw wat je niet kunt zeggen</p>
-          </div>
+        <div className="flex items-center gap-2">
+          <Image src="/logo.png" alt="Brickme" width={32} height={32} unoptimized />
+          <span className="font-serif text-xl text-primary">Brickme</span>
         </div>
         {isSignedIn ? (
           <div className="flex items-center gap-3">
