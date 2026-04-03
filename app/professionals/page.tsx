@@ -16,7 +16,7 @@ export default function ProfessionalsPage() {
       <nav className="sticky top-0 z-50 bg-secondary/80 backdrop-blur-md border-b border-border">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <Image src="/logo.png" alt="Brickme" width={32} height={32} />
+            <Image src="/icon.svg" alt="Brickme" width={32} height={32} unoptimized />
             <span className="font-serif text-xl text-primary">Brickme</span>
           </Link>
 

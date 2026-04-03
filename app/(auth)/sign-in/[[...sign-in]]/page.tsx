@@ -44,7 +44,7 @@ function SignInForm() {
     <main className="min-h-dvh bg-secondary flex flex-col items-center justify-center px-6">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <Image src="/logo.png" alt="Brickme" width={56} height={56} unoptimized className="mx-auto mb-4" />
+          <Image src="/icon.svg" alt="Brickme" width={56} height={56} unoptimized className="mx-auto mb-4" />
           {!verzonden ? (
             <>
               <h1 className="text-2xl font-serif text-bricktext">Welkom terug</h1>
