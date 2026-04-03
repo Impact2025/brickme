@@ -4,7 +4,7 @@ import { randomUUID } from "crypto";
 import { db } from "@/lib/db";
 import { gebruikers } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { sendMagicLinkEmail } from "@/lib/email";
+import { sendMagicLinkEmail, sendNieuwAccountNotificatie } from "@/lib/email";
 import { checkRateLimit } from "@/lib/ratelimit";
 
 export async function POST(req: NextRequest) {
@@ -41,6 +41,7 @@ export async function POST(req: NextRequest) {
     });
 
     void sendMagicLinkEmail(naam || email, email, token);
+    void sendNieuwAccountNotificatie(naam || null, email);
 
     return NextResponse.json({ ok: true });
   } catch (err) {

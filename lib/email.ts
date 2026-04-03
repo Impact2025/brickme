@@ -186,6 +186,26 @@ export async function sendRapportGereedEmail(
   }).catch((err) => console.error("[email] sendRapportGereedEmail mislukt:", err));
 }
 
+// ─── Nieuw account notificatie (intern) ──────────────────────────────────────
+
+export async function sendNieuwAccountNotificatie(naam: string | null, email: string): Promise<void> {
+  const inhoud = `
+    <h1 style="margin:0 0 16px;font-size:26px;font-weight:700;color:#2C1F14;">Nieuw account</h1>
+    <p style="margin:0 0 8px;font-size:16px;line-height:1.6;color:#2C1F14;">
+      <strong>Naam:</strong> ${naam ?? "—"}<br/>
+      <strong>E-mail:</strong> ${email}<br/>
+      <strong>Tijdstip:</strong> ${new Date().toLocaleString("nl-NL", { timeZone: "Europe/Amsterdam" })}
+    </p>
+  `;
+
+  await resend.emails.send({
+    from: FROM,
+    to: "hello@brickme.nl",
+    subject: `Nieuw account: ${naam ?? email}`,
+    html: layout(inhoud),
+  }).catch((err) => console.error("[email] sendNieuwAccountNotificatie mislukt:", err));
+}
+
 // ─── Coach koppeling ──────────────────────────────────────────────────────────
 
 export async function sendCoachKoppelingEmail(
