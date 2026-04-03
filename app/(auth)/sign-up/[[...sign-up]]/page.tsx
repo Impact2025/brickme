@@ -1,25 +1,20 @@
 "use client";
 
 import { useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { signIn } from "next-auth/react";
 
 function SignUpForm() {
-  const router = useRouter();
   const params = useSearchParams();
-  const callbackUrl = params.get("callbackUrl") || "/start";
 
-  const [stap, setStap] = useState<"formulier" | "verificatie">("formulier");
   const [naam, setNaam] = useState("");
-  const [email, setEmail] = useState("");
-  const [wachtwoord, setWachtwoord] = useState("");
-  const [code, setCode] = useState("");
+  const [email, setEmail] = useState(params.get("email") || "");
   const [fout, setFout] = useState("");
   const [bezig, setBezig] = useState(false);
+  const [verzonden, setVerzonden] = useState(false);
 
-  async function handleRegistratie(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setBezig(true);
     setFout("");
@@ -27,66 +22,27 @@ function SignUpForm() {
     const res = await fetch("/api/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ naam, email, wachtwoord }),
+      body: JSON.stringify({ naam, email }),
     });
 
+    const data = await res.json().catch(() => ({}));
+
     if (!res.ok) {
-      let foutmelding = "Er ging iets mis. Probeer opnieuw.";
-      try {
-        const data = await res.json();
-        if (data.error) foutmelding = data.error;
-      } catch {}
-      setFout(foutmelding);
+      setFout(data.error || "Er ging iets mis. Probeer opnieuw.");
       setBezig(false);
       return;
     }
 
+    setVerzonden(true);
     setBezig(false);
-    setStap("verificatie");
-  }
-
-  async function handleVerificatie(e: React.FormEvent) {
-    e.preventDefault();
-    setBezig(true);
-    setFout("");
-
-    const res = await fetch("/api/register/verify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, code }),
-    });
-
-    if (!res.ok) {
-      let foutmelding = "Ongeldige of verlopen code.";
-      try {
-        const data = await res.json();
-        if (data.error) foutmelding = data.error;
-      } catch {}
-      setFout(foutmelding);
-      setBezig(false);
-      return;
-    }
-
-    const result = await signIn("credentials", {
-      email,
-      wachtwoord,
-      redirect: false,
-    });
-
-    if (result?.error) {
-      setFout("Verificatie gelukt, maar inloggen mislukt. Probeer opnieuw.");
-      setBezig(false);
-    } else {
-      router.push(callbackUrl);
-    }
   }
 
   return (
     <main className="min-h-dvh bg-secondary flex flex-col items-center justify-center px-6">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <Image src="/logo.png" alt="Brickme" width={56} height={56} className="mx-auto mb-4" />
-          {stap === "formulier" ? (
+          <Image src="/logo.png" alt="Brickme" width={56} height={56} unoptimized className="mx-auto mb-4" />
+          {!verzonden ? (
             <>
               <h1 className="text-2xl font-serif text-bricktext">Maak een account</h1>
               <p className="text-muted text-sm mt-1">Gratis beginnen, altijd jouw data</p>
@@ -95,14 +51,14 @@ function SignUpForm() {
             <>
               <h1 className="text-2xl font-serif text-bricktext">Check je inbox</h1>
               <p className="text-muted text-sm mt-1">
-                We stuurden een code naar <span className="text-bricktext">{email}</span>
+                We stuurden een inloglink naar <span className="text-bricktext">{email}</span>
               </p>
             </>
           )}
         </div>
 
-        {stap === "formulier" ? (
-          <form onSubmit={handleRegistratie} className="space-y-4">
+        {!verzonden ? (
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm text-bricktext mb-1">Naam</label>
               <input
@@ -125,18 +81,6 @@ function SignUpForm() {
                 placeholder="jij@voorbeeld.nl"
               />
             </div>
-            <div>
-              <label className="block text-sm text-bricktext mb-1">Wachtwoord</label>
-              <input
-                type="password"
-                value={wachtwoord}
-                onChange={(e) => setWachtwoord(e.target.value)}
-                required
-                minLength={8}
-                className="input-base w-full"
-                placeholder="Minimaal 8 tekens"
-              />
-            </div>
 
             {fout && <p className="text-sm text-red-600">{fout}</p>}
 
@@ -149,51 +93,21 @@ function SignUpForm() {
             </button>
           </form>
         ) : (
-          <form onSubmit={handleVerificatie} className="space-y-6">
-            <div>
-              <label className="block text-sm text-bricktext mb-3 text-center">
-                Voer je 6-cijferige code in
-              </label>
-              <input
-                type="text"
-                inputMode="numeric"
-                maxLength={6}
-                value={code}
-                onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-                required
-                autoFocus
-                className="input-base w-full text-center text-3xl font-bold tracking-widest py-4"
-                placeholder="000000"
-              />
-            </div>
-
-            {fout && <p className="text-sm text-red-600 text-center">{fout}</p>}
-
+          <p className="text-center text-sm text-muted">
+            De link is 15 minuten geldig.{" "}
             <button
-              type="submit"
-              disabled={bezig || code.length !== 6}
-              className="btn-primary w-full py-3 disabled:opacity-50"
+              onClick={() => { setVerzonden(false); setFout(""); }}
+              className="text-primary hover:underline"
             >
-              {bezig ? "Verificeren..." : "Bevestigen →"}
+              Opnieuw versturen
             </button>
-
-            <p className="text-center text-sm text-muted">
-              Verkeerd e-mailadres?{" "}
-              <button
-                type="button"
-                onClick={() => { setStap("formulier"); setFout(""); setCode(""); }}
-                className="text-primary hover:underline"
-              >
-                Terug
-              </button>
-            </p>
-          </form>
+          </p>
         )}
 
-        {stap === "formulier" && (
+        {!verzonden && (
           <p className="text-center text-sm text-muted mt-6">
             Al een account?{" "}
-            <Link href={`/sign-in?callbackUrl=${encodeURIComponent(callbackUrl)}`} className="text-primary hover:underline">
+            <Link href="/sign-in" className="text-primary hover:underline">
               Inloggen
             </Link>
           </p>

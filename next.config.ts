@@ -28,7 +28,7 @@ const nextConfig: NextConfig = {
     ],
   },
   experimental: {
-    serverActions: { allowedOrigins: ["localhost:3000"] },
+    serverActions: { allowedOrigins: ["localhost:3000", "brickme-seven.vercel.app", "brickme.nl", "www.brickme.nl"] },
   },
   async headers() {
     return [

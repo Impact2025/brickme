@@ -9,42 +9,36 @@ import { checkRateLimit } from "@/lib/ratelimit";
 
 export async function POST(req: NextRequest) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
-  const { ok } = checkRateLimit(`register:${ip}`, 5, 60 * 60 * 1000);
+  const { ok } = checkRateLimit(`magic:${ip}`, 5, 15 * 60 * 1000); // 5 per kwartier per IP
   if (!ok) return NextResponse.json({ error: "Te veel pogingen. Probeer later opnieuw." }, { status: 429 });
 
   try {
-    const { naam, email } = await req.json();
+    const { email } = await req.json();
     if (!email) return NextResponse.json({ error: "Vul je e-mailadres in." }, { status: 400 });
 
-    const bestaand = await db
+    const [gebruiker] = await db
       .select()
       .from(gebruikers)
       .where(eq(gebruikers.email, email))
       .limit(1);
 
-    if (bestaand.length > 0) {
-      return NextResponse.json({ error: "Dit e-mailadres is al in gebruik." }, { status: 400 });
+    if (!gebruiker) {
+      return NextResponse.json({ error: "Geen account gevonden. Maak eerst een account aan." }, { status: 404 });
     }
 
     const token = randomUUID();
-    const userId = randomUUID();
     const verloptOp = new Date(Date.now() + 15 * 60 * 1000);
 
-    await db.insert(gebruikers).values({
-      userId,
-      naam: naam || null,
-      email,
-      rol: "gebruiker",
-      actief: false,
-      verificatieCode: token,
-      verificatieVerloptOp: verloptOp,
-    });
+    await db
+      .update(gebruikers)
+      .set({ verificatieCode: token, verificatieVerloptOp: verloptOp })
+      .where(eq(gebruikers.userId, gebruiker.userId));
 
-    void sendMagicLinkEmail(naam || email, email, token);
+    void sendMagicLinkEmail(gebruiker.naam || email, email, token);
 
     return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("Register fout:", err instanceof Error ? err.message : String(err));
+    console.error("Magic link fout:", err);
     return NextResponse.json({ error: "Server fout. Probeer opnieuw." }, { status: 500 });
   }
 }

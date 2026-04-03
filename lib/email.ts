@@ -42,6 +42,31 @@ function knop(tekst: string, href: string): string {
   return `<a href="${href}" style="display:inline-block;margin-top:24px;padding:14px 28px;background:#C8583A;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;font-size:15px;">${tekst}</a>`;
 }
 
+// ─── Magic link ──────────────────────────────────────────────────────────────
+
+export async function sendMagicLinkEmail(naam: string, email: string, token: string): Promise<void> {
+  const url = `${APP_URL}/verify-magic?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`;
+
+  const inhoud = `
+    <h1 style="margin:0 0 16px;font-size:26px;font-weight:700;color:#2C1F14;">Inloggen bij Brickme</h1>
+    <p style="margin:0 0 24px;font-size:16px;line-height:1.6;color:#2C1F14;">
+      Hoi${naam ? ` ${naam}` : ""},<br/><br/>
+      Klik op de knop hieronder om in te loggen. De link is 15 minuten geldig.
+    </p>
+    ${knop("Inloggen →", url)}
+    <p style="margin:24px 0 0;font-size:13px;line-height:1.6;color:#8B7355;">
+      Heb je dit niet aangevraagd? Dan kun je deze mail negeren.
+    </p>
+  `;
+
+  await resend.emails.send({
+    from: FROM,
+    to: email,
+    subject: "Jouw Brickme inloglink",
+    html: layout(inhoud),
+  }).catch((err) => console.error("[email] sendMagicLinkEmail mislukt:", err));
+}
+
 // ─── Verificatiemail ─────────────────────────────────────────────────────────
 
 export async function sendVerificatieEmail(naam: string, email: string, code: string): Promise<void> {
