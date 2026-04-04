@@ -38,3 +38,6 @@ lib/db/migrations/
 
 # clerk configuration (can include secrets)
 /.clerk/
+
+.vercel
+.env*.local
