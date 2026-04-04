@@ -161,7 +161,7 @@ export default function BouwenPage() {
   async function fotoGekozen(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    const base64 = await compressImage(file, 1280, 0.82);
+    const base64 = await compressImage(file, 800, 0.78);
     setFoto(base64);
   }
 
@@ -170,6 +170,9 @@ export default function BouwenPage() {
     setBezig(true);
     setFout("");
     if (timerRef.current) clearInterval(timerRef.current);
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 55_000);
 
     try {
       const fase = fases[huidigeFase];
@@ -182,6 +185,7 @@ export default function BouwenPage() {
           fotoBase64: foto,
           beschrijving,
         }),
+        signal: controller.signal,
       });
 
       if (!res.ok) {
@@ -191,10 +195,13 @@ export default function BouwenPage() {
 
       router.push(`/sessie/${id}/reflectie?fase=${huidigeFase + 1}`);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Er ging iets mis.";
+      const msg = err instanceof Error && err.name === "AbortError"
+        ? "De reflectie duurt te lang. Probeer opnieuw."
+        : (err instanceof Error ? err.message : "Er ging iets mis.");
       setFout(`${msg} Probeer opnieuw.`);
       startTimer();
     } finally {
+      clearTimeout(timeout);
       setBezig(false);
     }
   }

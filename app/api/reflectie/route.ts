@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { openai, AI_MODEL, buildReflectiePrompt, EerdereFase, ThemaId, THEMAS, FaseType } from "@/lib/ai";
