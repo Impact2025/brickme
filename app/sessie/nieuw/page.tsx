@@ -16,37 +16,47 @@ function NieuweSessieInner() {
   const router = useRouter();
   const params = useSearchParams();
   const themaId = (params.get("thema") || "werk") as ThemaId;
+  const resumeSessieId = params.get("sessieId");
   const thema = THEMAS[themaId];
 
   const [berichten, setBerichten] = useState<Bericht[]>([]);
   const [invoer, setInvoer] = useState("");
   const [bezig, setBezig] = useState(false);
   const [klaar, setKlaar] = useState(false);
-  const [sessieId, setSessieId] = useState<string | null>(null);
+  const [sessieId, setSessieId] = useState<string | null>(resumeSessieId);
   const [stemming, setStemming] = useState<number | null>(null);
-  const [stemmingFase, setStemmingFase] = useState(true);
+  const [stemmingFase, setStemmingFase] = useState(!resumeSessieId);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const gestart = useRef(false);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [berichten]);
 
   useEffect(() => {
-    if (!stemmingFase && berichten.length === 0) {
-      startIntake();
+    if (!stemmingFase && berichten.length === 0 && !gestart.current) {
+      gestart.current = true;
+      startIntake(resumeSessieId ?? undefined);
     }
   }, [stemmingFase]);
 
-  async function startIntake() {
+  async function startIntake(bestaandSessieId?: string) {
     setBezig(true);
     try {
       const res = await fetch("/api/intake", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ themaId, berichten: [], fase: "start" }),
+        body: JSON.stringify({
+          themaId,
+          berichten: [],
+          fase: "start",
+          sessieId: bestaandSessieId || null,
+          stemming,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Fout");
+      if (data.sessieId) setSessieId(data.sessieId);
       setBerichten([{ rol: "ai", inhoud: data.bericht }]);
     } catch {
       setBerichten([{ rol: "ai", inhoud: "Er ging iets mis bij het starten. Ververs de pagina." }]);
@@ -67,18 +77,23 @@ function NieuweSessieInner() {
       const res = await fetch("/api/intake", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ themaId, berichten: bijgewerkt, fase: "gesprek" }),
+        body: JSON.stringify({
+          themaId,
+          berichten: bijgewerkt,
+          fase: "gesprek",
+          sessieId,
+          stemming,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Fout");
 
+      if (data.sessieId) setSessieId(data.sessieId);
+
       if (data.klaar && data.sessieId) {
-        setSessieId(data.sessieId);
         setKlaar(true);
-        setBerichten((prev) => [...prev, { rol: "ai", inhoud: data.bericht }]);
-      } else {
-        setBerichten((prev) => [...prev, { rol: "ai", inhoud: data.bericht }]);
       }
+      setBerichten((prev) => [...prev, { rol: "ai", inhoud: data.bericht }]);
     } catch {
       setBerichten((prev) => [...prev, { rol: "ai", inhoud: "Verbinding even weg. Probeer opnieuw." }]);
     } finally {
@@ -131,18 +146,20 @@ function NieuweSessieInner() {
 
   return (
     <main className="min-h-dvh bg-secondary flex flex-col">
-      {/* Header — sticky top-0 with safe area for iOS notch */}
+      {/* Header */}
       <header className="flex items-center justify-between px-6 py-4 border-b border-border bg-surface sticky top-0 z-10" style={{ paddingTop: "max(1rem, env(safe-area-inset-top))" }}>
         <div>
           <p className="text-xs text-muted uppercase tracking-wider">{thema.label}</p>
           <h2 className="font-serif text-bricktext">Intake gesprek</h2>
         </div>
-        {/* Voortgangsbalk */}
-        <div className="w-24 h-1 bg-border rounded-full overflow-hidden">
-          <div
-            className="h-full bg-primary rounded-full transition-all duration-500"
-            style={{ width: `${Math.min((berichten.filter(b => b.rol === "gebruiker").length / 7) * 100, 100)}%` }}
-          />
+        <div className="flex items-center gap-3">
+          <div className="w-24 h-1 bg-border rounded-full overflow-hidden">
+            <div
+              className="h-full bg-primary rounded-full transition-all duration-500"
+              style={{ width: `${Math.min((berichten.filter(b => b.rol === "gebruiker").length / 7) * 100, 100)}%` }}
+            />
+          </div>
+          <a href="/dashboard" className="text-xs text-muted hover:text-bricktext transition-colors">Dashboard</a>
         </div>
       </header>
 

@@ -1,12 +1,16 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 
 type Bericht = { rol: "gebruiker" | "ai"; inhoud: string };
 
+const ONBOARDING_ROUTES = ["/start", "/betalen", "/sessie/nieuw"];
+
 export default function AssistentChat() {
   const { status } = useSession();
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [berichten, setBerichten] = useState<Bericht[]>([]);
   const [chips, setChips] = useState<string[]>([]);
@@ -38,6 +42,7 @@ export default function AssistentChat() {
   }, [berichten, laden]);
 
   if (status !== "authenticated") return null;
+  if (ONBOARDING_ROUTES.some((r) => pathname?.startsWith(r))) return null;
 
   async function verstuur(tekst: string) {
     if (!tekst.trim() || laden) return;

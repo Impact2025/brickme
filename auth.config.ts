@@ -15,6 +15,15 @@ export const authConfig: NextAuthConfig = {
       if (token.userId) session.user.id = token.userId as string;
       return session;
     },
+    redirect({ url, baseUrl }) {
+      // Na inloggen zonder specifieke callback → ga naar dashboard
+      if (url === baseUrl || url === `${baseUrl}/` || url === `${baseUrl}/start`) {
+        return `${baseUrl}/dashboard`;
+      }
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
+    },
   },
   providers: [],
 };

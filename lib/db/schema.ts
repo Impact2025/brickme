@@ -61,7 +61,7 @@ export const sessies = pgTable("sessies", {
   userId: text("user_id").notNull(),
   thema: text("thema").notNull(),
   themaLabel: text("thema_label").notNull(),
-  status: text("status").notNull().default("intake"),
+  status: text("status").notNull().default("intake"), // draft | intake | bouwen | reflectie | rapport | voltooid
   stemmingVoor: integer("stemming_voor"),
   stemmingNa: integer("stemming_na"),
   intakeAntwoorden: jsonb("intake_antwoorden"),
