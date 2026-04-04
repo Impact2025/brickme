@@ -88,7 +88,7 @@ function WarmupScherm({ onKlaar }: { onKlaar: () => void }) {
           )}
           disabled={!klaarActief}
         >
-          {klaarActief ? "Klaar, start de sessie →" : `Bouw nog ${Math.ceil((WARMUP_DUUR - 90 - (WARMUP_DUUR - secondenOver)) / 1)}s...`}
+          {klaarActief ? "Klaar, start de sessie →" : `Bouw nog ${secondenOver - (WARMUP_DUUR - 90)}s...`}
         </button>
         {!klaarActief && (
           <p className="text-xs text-muted text-center -mt-2">
@@ -141,7 +141,18 @@ export default function BouwenPage() {
     try {
       const res = await fetch(`/api/sessie/${id}`);
       const data = await res.json();
-      setFases(data.fases || []);
+      const loadedFases: Fase[] = data.fases || [];
+      setFases(loadedFases);
+
+      // Zet de huidige fase op de eerste niet-voltooide fase
+      const eersteOpen = loadedFases.findIndex((f) => !f.voltooid);
+      const faseIndex = eersteOpen >= 0 ? eersteOpen : loadedFases.length - 1;
+      setHuidigeFase(faseIndex);
+
+      // Sla warmup over als er al fases zijn voltooid
+      if (faseIndex > 0 || loadedFases.some((f) => f.voltooid)) {
+        setWarmupKlaar(true);
+      }
     } finally {
       setLaden(false);
     }
