@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
   const { ok } = checkRateLimit(`reflectie:${userId}`, 20, 60 * 60 * 1000); // 20 per uur per gebruiker
   if (!ok) return NextResponse.json({ error: "Te veel pogingen. Probeer later opnieuw." }, { status: 429 });
 
-  const { sessieId, faseId, fotoBase64, beschrijving } = await req.json();
+  const { sessieId, faseId, fotoBase64, beschrijving, probeVraag, probeAntwoord } = await req.json();
 
   const [sessie] = await db.select().from(sessies).where(and(eq(sessies.id, sessieId), eq(sessies.userId, userId)));
   const [fase] = await db.select().from(fases).where(and(eq(fases.id, faseId), eq(fases.sessieId, sessieId)));
@@ -60,7 +60,9 @@ export async function POST(req: NextRequest) {
     fase.vraag,
     beschrijving,
     eerdereFases,
-    faseType
+    faseType,
+    probeVraag,
+    probeAntwoord
   );
 
   const imageData = stripBase64Prefix(fotoBase64);

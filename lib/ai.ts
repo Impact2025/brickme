@@ -105,6 +105,30 @@ const FASE_TAAK: Record<FaseType, string> = {
 3. Stel ÉÉN vraag die helpt de eerste concrete stap te formuleren — dichtbij, haalbaar, van de bouwer zelf.`,
 };
 
+export function buildProbeVraagPrompt(faseTitel: string, thema: string, beschrijving: string): string {
+  void beschrijving; // used via user message, not system prompt
+  return `Je bent een LSP-facilitator. Een bouwer heeft net hun model beschreven tijdens de fase "${faseTitel}" (thema: "${thema}").
+
+JOUW TAAK:
+Stel precies ÉÉN probe-vraag gebaseerd op wat de bouwer zei. Haal een specifiek element aan dat ze noemden.
+
+REGELS:
+- Citeer een concreet element uit hun beschrijving
+- Vraag naar de relatie, positie, betekenis of wat er zou veranderen zonder dat element
+- Interpreteer NOOIT — vraag met echte nieuwsgierigheid
+- Geen coachingklichés ("Wat zou het voor je betekenen als...")
+- Precies 1 zin, eindigend op een vraagteken
+- Geen introductie, geen uitleg — alleen de vraag
+
+VOORBEELDEN (pas de structuur aan op het genoemde element):
+- "Je noemt [X] — wat doet die in je bouwsel?"
+- "Waar staat [X] in verhouding tot de rest?"
+- "Wat zou er veranderen als [X] er niet was?"
+- "Je zegt dat [X] het meest opvalt — waar staat die precies?"
+
+Geef alleen de vraag terug, niets anders.`;
+}
+
 export function buildReflectiePrompt(
   themaId: ThemaId,
   sessieContext: string,
@@ -113,7 +137,9 @@ export function buildReflectiePrompt(
   bouwvraag: string,
   gebruikersBeschrijving: string,
   eerdereFases: EerdereFase[] = [],
-  faseType: FaseType = "situatie"
+  faseType: FaseType = "situatie",
+  probeVraag?: string,
+  probeAntwoord?: string
 ): string {
   const eerderContext =
     eerdereFases.length > 0
@@ -133,7 +159,7 @@ ${sessieContext}
 ${eerderContext}
 HUIDIGE BOUWOPDRACHT (fase ${faseNummer} — ${faseTitel}): "${bouwvraag}"
 WAT ZE ZELF ZEGGEN OVER HUN BOUWSEL: "${gebruikersBeschrijving}"
-
+${probeVraag && probeAntwoord ? `\nALS FACILITATOR VROEG JE: "${probeVraag}"\nHUN ANTWOORD: "${probeAntwoord}"` : ""}
 ${FASE_TAAK[faseType]}
 
 STIJL:
