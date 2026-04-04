@@ -34,8 +34,8 @@ function WarmupScherm({ onKlaar }: { onKlaar: () => void }) {
   const klaarActief = secondenOver <= WARMUP_DUUR - 90 || secondenOver === 0;
 
   return (
-    <main className="min-h-dvh bg-secondary flex flex-col max-w-xl mx-auto">
-      <header className="px-6 pb-4" style={{ paddingTop: "max(1.5rem, env(safe-area-inset-top))" }}>
+    <main className="h-dvh bg-secondary flex flex-col max-w-xl mx-auto overflow-hidden">
+      <header className="px-6 pb-4 flex-shrink-0" style={{ paddingTop: "max(1.5rem, env(safe-area-inset-top))" }}>
         <div className="flex items-center justify-between mb-6">
           <p className="text-xs text-muted uppercase tracking-wider">Opwarmen</p>
           {/* Analoge timer */}
@@ -218,9 +218,9 @@ export default function BouwenPage() {
   }
 
   return (
-    <main className="min-h-dvh bg-secondary flex flex-col max-w-xl mx-auto">
+    <main className="h-dvh bg-secondary flex flex-col max-w-xl mx-auto overflow-hidden">
       {/* Header */}
-      <header className="px-6 pt-safe pb-4" style={{ paddingTop: "max(1.5rem, env(safe-area-inset-top))" }}>
+      <header className="px-6 pb-4 flex-shrink-0" style={{ paddingTop: "max(1.5rem, env(safe-area-inset-top))" }}>
         <div className="flex items-center justify-between mb-6">
           <p className="text-xs text-muted uppercase tracking-wider">
             Fase {fase.faseNummer} van {fases.length}

@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from "react";
 
 type Bericht = { rol: "gebruiker" | "ai"; inhoud: string };
 
-const ONBOARDING_ROUTES = ["/start", "/betalen", "/sessie/nieuw"];
+const ONBOARDING_ROUTES = ["/start", "/betalen", "/sessie/nieuw", "/sessie/"];
 
 export default function AssistentChat() {
   const { status } = useSession();
