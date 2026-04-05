@@ -27,17 +27,43 @@ function ReflectiePaginaInner() {
   const [totalFases, setTotalFases] = useState(4);
   const [stemmingNaFase, setStemmingNaFase] = useState(false);
   const [stemmingNa, setStemmingNa] = useState<number | null>(null);
+  const [reflectieFout, setReflectieFout] = useState(false);
 
   useEffect(() => {
     laadFase();
   }, [id, faseNummer]);
+
+  // Poll als aiReflectie nog niet klaar is (AI-generatie liep door na navigatie)
+  useEffect(() => {
+    if (!laden && fase && !fase.aiReflectie && !reflectieFout) {
+      let pogingen = 0;
+      const poll = setInterval(async () => {
+        pogingen++;
+        try {
+          const res = await fetch(`/api/sessie/${id}?fase=${faseNummer}`);
+          const data = await res.json();
+          if (data.fase?.aiReflectie) {
+            setFase(data.fase);
+            clearInterval(poll);
+          } else if (pogingen >= 8) {
+            clearInterval(poll);
+            setReflectieFout(true);
+          }
+        } catch {
+          clearInterval(poll);
+          setReflectieFout(true);
+        }
+      }, 4000);
+      return () => clearInterval(poll);
+    }
+  }, [laden, fase, reflectieFout, id, faseNummer]);
 
   async function laadFase() {
     try {
       const res = await fetch(`/api/sessie/${id}?fase=${faseNummer}`);
       const data = await res.json();
       setFase(data.fase);
-      setTotalFases(data.totalFases || 3);
+      setTotalFases(data.totalFases || 4);
     } finally {
       setLaden(false);
     }
@@ -201,8 +227,21 @@ function ReflectiePaginaInner() {
               </p>
             </div>
           </div>
+        ) : reflectieFout ? (
+          <div className="card mb-6 border-amber-200 bg-amber-50">
+            <p className="text-sm text-amber-800 leading-relaxed">
+              De reflectie kon niet worden geladen. Je kunt doorgaan — je bouwsel en antwoord zijn wel opgeslagen.
+            </p>
+            <button
+              onClick={slaAntwoordOver}
+              className="mt-3 text-sm text-amber-700 underline underline-offset-2"
+            >
+              Doorgaan zonder reflectie →
+            </button>
+          </div>
         ) : (
           <div className="card mb-6">
+            <p className="text-xs text-muted uppercase tracking-wider mb-3">Reflectie wordt geladen...</p>
             <div className="space-y-3">
               <div className="skeleton h-4 w-full" />
               <div className="skeleton h-4 w-5/6" />

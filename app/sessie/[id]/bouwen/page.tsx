@@ -338,7 +338,7 @@ export default function BouwenPage() {
                 "w-full text-left p-5 rounded-3xl border-2 transition-all duration-500",
                 vraagZichtbaar
                   ? "border-primary bg-white"
-                  : "border-border bg-surface hover:border-primary cursor-pointer"
+                  : "border-primary/40 bg-primary/5 hover:border-primary hover:bg-primary/8 cursor-pointer"
               )}
             >
               {vraagZichtbaar ? (
@@ -347,9 +347,16 @@ export default function BouwenPage() {
                   <p className="text-bricktext leading-relaxed">{fase.vraag}</p>
                 </div>
               ) : (
-                <div className="text-center py-3">
-                  <p className="text-muted text-sm">Tik om de opdracht te onthullen</p>
-                  <p className="text-xs text-muted mt-1">Neem even de tijd voordat je kijkt</p>
+                <div className="flex items-center justify-between py-1">
+                  <div>
+                    <p className="text-bricktext font-medium text-sm">Onthul je bouwopdracht</p>
+                    <p className="text-xs text-muted mt-0.5">Lees dit voordat je begint te bouwen</p>
+                  </div>
+                  <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center flex-shrink-0 ml-3">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M8 2v12M8 2l-3 3M8 2l3 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
                 </div>
               )}
             </button>

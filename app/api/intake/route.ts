@@ -67,10 +67,12 @@ export async function POST(req: NextRequest) {
   let huidigeSessieId: string | null = sessieId || null;
   let zichtbareTekst = tekst;
 
-  if (tekst.includes('"klaar": true')) {
+  if (/"klaar"\s*:\s*true/.test(tekst)) {
     klaar = true;
     try {
-      const jsonMatch = tekst.match(/\{[\s\S]*"klaar"[\s\S]*\}/);
+      // Strip markdown code fences die Claude soms toevoegt
+      const ontdaan = tekst.replace(/```(?:json)?\s*/gi, "").replace(/```/g, "");
+      const jsonMatch = ontdaan.match(/\{[\s\S]*?"klaar"[\s\S]*?\}/);
       if (jsonMatch) {
         const parsed = JSON.parse(jsonMatch[0]);
 

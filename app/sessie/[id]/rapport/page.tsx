@@ -243,6 +243,19 @@ export default function RapportPagina() {
           </div>
         </section>
 
+        {/* Feedback */}
+        <section className="py-6 border-t border-border">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted">Hoe was je ervaring met Brickme?</p>
+            <a
+              href="mailto:vincent@brickme.nl?subject=Feedback Brickme sessie"
+              className="text-sm text-primary hover:text-primary-dark font-medium transition-colors"
+            >
+              Geef feedback →
+            </a>
+          </div>
+        </section>
+
         {/* Acties */}
         <div className="space-y-3 pt-4">
           <div className="flex gap-3">
