@@ -55,6 +55,7 @@ export interface SeoResultaat {
   metaBeschrijving: string;
   slug: string;
   excerpt: string;
+  categorie?: string;
   trefwoorden: string[];
   interneLinks: InterneLink[];
   schemaMarkup: object;
