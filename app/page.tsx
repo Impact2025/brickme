@@ -47,9 +47,9 @@ export default function HomePage() {
         <div className="relative max-w-4xl mx-auto">
           {/* badge */}
           <div className="inline-flex items-center gap-2 mb-8">
-            <span className="text-xs font-medium text-accent bg-accent/10 px-3 py-1.5 rounded-full border border-accent/20">
+            <a href="https://weareimpact.nl/" target="_blank" rel="noopener noreferrer" className="text-xs font-medium text-accent bg-accent/10 px-3 py-1.5 rounded-full border border-accent/20 hover:bg-accent/15 transition-colors">
               Een concept van WeAreImpact
-            </span>
+            </a>
           </div>
 
           {/* kop */}
@@ -417,7 +417,7 @@ export default function HomePage() {
             </h2>
             <div className="space-y-5 font-serif text-lg text-muted leading-relaxed">
               <p>
-                Ik heb jaren gewerkt in het welzijn. Als bestuurder, als kwartiermaker,
+                Ik heb jaren gewerkt in het welzijn. Als sociaal ondernemer, bestuurder, als kwartiermaker,
                 als iemand die gelooft dat technologie mensen verder kan helpen als je haar
                 met een sociaal hart inzet.
               </p>
@@ -658,7 +658,9 @@ export default function HomePage() {
                 <span className="font-serif text-lg text-white/90">Brickme.nl</span>
               </div>
               <p className="text-xs text-white/40 leading-relaxed">
-                Een concept van WeAreImpact door Vincent van Munster
+                Een concept van{" "}
+                <a href="https://weareimpact.nl/" target="_blank" rel="noopener noreferrer" className="hover:text-white/70 transition-colors underline underline-offset-2">WeAreImpact</a>
+                {" "}door Vincent van Munster
               </p>
               {/* Social media */}
               <div className="flex items-center gap-3 mt-4">
