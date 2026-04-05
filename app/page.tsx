@@ -417,29 +417,48 @@ export default function HomePage() {
             </h2>
             <div className="space-y-5 font-serif text-lg text-muted leading-relaxed">
               <p>
-                De meeste tools die je iets over jezelf moeten vertellen, zijn gemaakt om je
-                zo lang mogelijk op een scherm te houden. Dat ergerde me.
+                Technologie belooft ons te verbinden. Maar kijk om je heen.
+                We scrollen meer en voelen minder. We hebben meer tools dan ooit — en toch
+                weten de meeste mensen niet wie ze écht zijn, wat ze willen, of waarom ze vastzitten.
               </p>
               <p>
-                Ik werk al jaren met teams en individuen die vastzitten — niet omdat ze het
-                antwoord niet weten, maar omdat ze het nooit de ruimte geven om te verschijnen.
-                LSP leerde me dat bouwen met je handen dat wél doet.
+                Ik ook. Jarenlang heb ik als bestuurder en directeur gewerkt aan systemen die
+                mensen moesten helpen. Tot ik merkte dat de échte vragen — wie ben ik, wat wil ik,
+                waarheen — nergens beantwoord werden. Niet door apps. Niet door algoritmes.
+                En vaak ook niet door dure coaches.
+              </p>
+              <p>
+                Dat is waarom ik Brickme bouwde.
               </p>
               <p className="border-l-2 border-primary pl-5 text-bricktext font-medium">
-                "Ik wilde iets bouwen dat je helpt offline te leven."
+                "Ik ontwerp geen apps om je online te houden. Ik bouw tools die je helpen offline te leven."
+              </p>
+              <p>
+                Brickme is geen zelfhulpapp. Het is een spiegel. Gebouwd op een methode die bewezen
+                werkt — niet bedacht door een algoritme, maar ontwikkeld door mensen die geloven dat
+                spelen de kortste weg is naar waarheid.
+              </p>
+              <p>
+                Je bouwt. Je kijkt. Je begrijpt.<br />
+                Zonder coach die je vertelt wat je moet denken. Zonder abonnement dat je gevangen houdt.
+                Zonder dat jouw data ergens anders terechtkomt.
+              </p>
+              <p className="text-bricktext font-serif">
+                Ik ben geen standaard tech-ondernemer. Ik ben een sociaal architect — iemand die gelooft
+                dat technologie mensen dichter bij zichzelf moet brengen, niet verder weg.<br />
+                Brickme is mijn bewijs dat het anders kan.<br />
+                <span className="text-primary">— Vincent</span>
               </p>
             </div>
             <ul className="mt-8 space-y-3">
               {[
-                "Geen app die je vasthoudt — één sessie kan al genoeg zijn",
-                "Gebouwd voor mensen die liever doen dan praten over wat ze moeten doen",
-                "Je data is van jou. Wij verdienen niet aan je aandacht",
-                "Geen coach die zegt wat je moet doen — een methode die laat zien wat je al weet",
+                "Gebaseerd op bewezen LSP-methodiek, geen coach, wel structuur",
+                "Jouw data is van jou. Altijd. Geen adverteerders, geen analyses",
+                "Gemaakt in Nederland, voor mensen die écht verder willen",
+                "Geen antwoorden. Wel de juiste vragen.",
               ].map((punt) => (
                 <li key={punt} className="flex items-start gap-3 text-sm text-muted">
-                  <svg className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
-                  </svg>
+                  <span className="text-primary flex-shrink-0 mt-0.5">✦</span>
                   {punt}
                 </li>
               ))}
@@ -460,9 +479,49 @@ export default function HomePage() {
             </div>
             <div className="pt-14 pb-8 px-8">
               <h3 className="font-serif text-xl text-bricktext">Vincent van Munster</h3>
-              <p className="text-sm text-primary font-medium mt-1 mb-6">Sociaal ondernemer &amp; oprichter van Brickme</p>
-              <a href="https://weareimpact.nl" target="_blank" rel="noopener noreferrer" className="text-xs text-accent hover:underline font-medium">
-                Een WeAreImpact venture · weareimpact.nl ↗
+              <p className="text-sm text-primary font-medium mt-1">Sociaal ondernemer &amp; oprichter van Brickme</p>
+
+              <div className="mt-5 mb-1">
+                <span className="text-xs font-medium uppercase tracking-[0.15em] text-accent">WeAreImpact</span>
+                <p className="text-xs text-muted mt-1 font-medium">Innovatie met een sociaal hart.</p>
+              </div>
+
+              <div className="space-y-3 font-serif text-sm text-muted leading-relaxed mt-3">
+                <p>
+                  Meer dan vijftien jaar gewerkt in en voor de maatschappelijke sector. Als directeur,
+                  als bestuurder, als de man die werd ingevlogen als het vastliep.
+                </p>
+                <p>
+                  WeAreImpact is mijn antwoord. Geen adviesbureau dat rapporten schrijft en weer vertrekt.
+                  Maar iemand die naast je staat, de handen uit de mouwen steekt — en pas weggaat als
+                  jouw team het zelf kan voortzetten.
+                </p>
+                <p className="border-l-2 border-primary pl-4 text-bricktext font-medium text-xs">
+                  "Ik geloof dat technologie er is om menselijk talent te laten bloeien, niet om het te vervangen."
+                </p>
+                <p>
+                  Brickme is daar een voorbeeld van. Gebouwd met één kompas: doet het er écht toe voor
+                  de mensen die het gebruiken?
+                </p>
+                <p className="text-primary font-medium">— Vincent</p>
+              </div>
+
+              <ul className="mt-5 space-y-2">
+                {[
+                  "15+ jaar ervaring in zorg, welzijn en gemeenten",
+                  "Gecertificeerd Serious Play facilitator",
+                  "Bouwen én besturen — geen keuze tussen de twee",
+                  "Innovatie die blijft werken als ik weg ben",
+                ].map((punt) => (
+                  <li key={punt} className="flex items-start gap-2 text-xs text-muted">
+                    <span className="text-primary flex-shrink-0">✦</span>
+                    {punt}
+                  </li>
+                ))}
+              </ul>
+
+              <a href="https://weareimpact.nl" target="_blank" rel="noopener noreferrer" className="inline-block mt-6 text-xs text-accent hover:underline font-medium">
+                weareimpact.nl ↗
               </a>
             </div>
           </div>
