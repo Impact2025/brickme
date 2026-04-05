@@ -142,6 +142,7 @@ export default function ArtikelEditor({ initieel, artikelId }: ArtikelEditorProp
         metaTitel: data.metaTitel ?? v.metaTitel,
         metaBeschrijving: data.metaBeschrijving ?? v.metaBeschrijving,
         slug: v.slug || data.slug || v.slug,
+        categorie: (data as Record<string, unknown>).categorie as string ?? v.categorie,
         excerpt: data.excerpt ?? v.excerpt,
         trefwoorden: data.trefwoorden ?? v.trefwoorden,
         interneLinks: data.interneLinks ?? v.interneLinks,

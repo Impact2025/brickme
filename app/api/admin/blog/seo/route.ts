@@ -72,6 +72,7 @@ Geef ALLEEN een JSON-object terug (geen markdown, geen uitleg):
   "metaBeschrijving": "exact 145-155 tekens, zoekwoord aanwezig + CTA",
   "slug": "seo-slug-max-60-tekens",
   "excerpt": "2-3 zinnen, 120-160 tekens",
+  "categorie": "1 of 2 woorden, hoofdcategorie van dit artikel (bv. 'Zelfreflectie', 'LEGO Serious Play', 'Persoonlijke groei', 'Loopbaan')",
   "trefwoorden": ["5-8", "semantische", "zoekwoorden"],
   "interneLinks": [{"ankerTekst": "...", "href": "/blog/slug", "context": "De zin uit het artikel"}],
   "schemaMarkup": {"@context": "https://schema.org", "@type": "Article", "headline": "...", "description": "...", "author": {"@type": "Organization", "name": "${siteNaam}"}, "publisher": {"@type": "Organization", "name": "${siteNaam}", "url": "${siteUrl}"}, "dateModified": "${new Date().toISOString().split("T")[0]}"},
