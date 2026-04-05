@@ -462,17 +462,8 @@ export default function HomePage() {
             </div>
             <div className="pt-14 pb-8 px-8">
               <h3 className="font-serif text-xl text-bricktext">Vincent van Munster</h3>
-              <p className="text-sm text-primary font-medium mt-1 mb-4">Sociaal ondernemer &amp; oprichter van Brickme</p>
-              <p className="text-sm text-muted leading-relaxed mb-5">
-                Meer dan 15 jaar bestuurder en kwartiermaker in de zorg- en welzijnssector.
-                Brickme is voortgekomen uit zijn eigen kruispunt, zakelijk én privé.
-                Die ervaring staat aan de basis van elke sessie.
-              </p>
-              <blockquote className="border-l-2 border-primary/30 pl-4 font-serif text-sm text-muted mb-5">
-                &ldquo;Geen grote woorden. Gewoon een uur de tijd nemen voor jezelf,
-                en daarna net iets scherper weten wie je bent en wat je wil.&rdquo;
-              </blockquote>
-              <a href="https://weareimpact.nl" className="text-xs text-accent hover:underline font-medium">
+              <p className="text-sm text-primary font-medium mt-1 mb-6">Sociaal ondernemer &amp; oprichter van Brickme</p>
+              <a href="https://weareimpact.nl" target="_blank" rel="noopener noreferrer" className="text-xs text-accent hover:underline font-medium">
                 Een WeAreImpact venture · weareimpact.nl ↗
               </a>
             </div>
