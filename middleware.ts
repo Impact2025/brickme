@@ -18,6 +18,7 @@ const publicRoutes = [
   "/privacy",
   "/voorwaarden",
   "/professionals",
+  "/api/assistent-publiek",
 ];
 
 export default auth((req) => {

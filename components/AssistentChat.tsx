@@ -19,10 +19,13 @@ export default function AssistentChat() {
   const [chipsGeladen, setChipsGeladen] = useState(false);
   const onderRef = useRef<HTMLDivElement>(null);
 
+  const isIngelogd = status === "authenticated";
+  const apiEndpoint = isIngelogd ? "/api/assistent" : "/api/assistent-publiek";
+
   // Laad chips bij eerste opening
   useEffect(() => {
-    if (open && !chipsGeladen && status === "authenticated") {
-      fetch("/api/assistent", {
+    if (open && !chipsGeladen && status !== "loading") {
+      fetch(apiEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ berichten: [] }),
@@ -34,7 +37,7 @@ export default function AssistentChat() {
         })
         .catch(() => setChipsGeladen(true));
     }
-  }, [open, chipsGeladen]);
+  }, [open, chipsGeladen, status]);
 
   // Scroll naar onder bij nieuw bericht
   useEffect(() => {
@@ -43,13 +46,7 @@ export default function AssistentChat() {
 
   if (ONBOARDING_ROUTES.some((r) => pathname?.startsWith(r))) return null;
 
-  const isIngelogd = status === "authenticated";
-
   async function verstuur(tekst: string) {
-    if (!isIngelogd) {
-      window.location.href = "/sign-in";
-      return;
-    }
     if (!tekst.trim() || laden) return;
 
     const nieuweBerichten: Bericht[] = [...berichten, { rol: "gebruiker", inhoud: tekst }];
@@ -58,7 +55,7 @@ export default function AssistentChat() {
     setLaden(true);
 
     try {
-      const res = await fetch("/api/assistent", {
+      const res = await fetch(apiEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ berichten: nieuweBerichten }),
@@ -175,7 +172,7 @@ export default function AssistentChat() {
               <p style={{ color: "#8B7355", fontSize: "0.875rem", margin: 0, lineHeight: 1.5 }}>
                 {isIngelogd
                   ? "Hoi! Ik ben je persoonlijke gids in Brickme. Stel een vraag of kies een onderwerp:"
-                  : "Hoi! Ik ben je persoonlijke gids in Brickme. Log in om te chatten."}
+                  : "Hoi! Ik kan je alles vertellen over Brickme. Stel gerust een vraag:"}
               </p>
             )}
 
@@ -217,7 +214,7 @@ export default function AssistentChat() {
           </div>
 
           {/* Quick-start chips */}
-          {isIngelogd && chips.length > 0 && berichten.length === 0 && (
+          {chips.length > 0 && berichten.length === 0 && (
             <div
               style={{
                 padding: "0 1rem 0.75rem",
@@ -275,8 +272,8 @@ export default function AssistentChat() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && verstuur(input)}
-              placeholder={isIngelogd ? "Stel een vraag..." : "Log in om te chatten..."}
-              disabled={laden || !isIngelogd}
+              placeholder="Stel een vraag..."
+              disabled={laden}
               style={{
                 flex: 1,
                 border: "1px solid rgba(44,31,20,0.15)",
@@ -290,15 +287,15 @@ export default function AssistentChat() {
               }}
             />
             <button
-              onClick={() => isIngelogd ? verstuur(input) : (window.location.href = "/sign-in")}
-              disabled={isIngelogd && (!input.trim() || laden)}
+              onClick={() => verstuur(input)}
+              disabled={!input.trim() || laden}
               style={{
-                backgroundColor: (!isIngelogd || (input.trim() && !laden)) ? "#C8583A" : "#e0d5c8",
-                color: (!isIngelogd || (input.trim() && !laden)) ? "#F5F0E8" : "#8B7355",
+                backgroundColor: (input.trim() && !laden) ? "#C8583A" : "#e0d5c8",
+                color: (input.trim() && !laden) ? "#F5F0E8" : "#8B7355",
                 border: "none",
                 borderRadius: "0.5rem",
                 padding: "0.5rem 0.75rem",
-                cursor: !isIngelogd || (input.trim() && !laden) ? "pointer" : "default",
+                cursor: (input.trim() && !laden) ? "pointer" : "default",
                 transition: "background 150ms",
                 display: "flex",
                 alignItems: "center",
