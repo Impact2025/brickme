@@ -417,15 +417,9 @@ export default function HomePage() {
             </h2>
             <div className="space-y-5 font-serif text-lg text-muted leading-relaxed">
               <p>
-                Technologie belooft ons te verbinden. Maar kijk om je heen.
-                We scrollen meer en voelen minder. We hebben meer tools dan ooit — en toch
-                weten de meeste mensen niet wie ze écht zijn, wat ze willen, of waarom ze vastzitten.
-              </p>
-              <p>
-                Ik ook. Jarenlang heb ik als bestuurder en directeur gewerkt aan systemen die
-                mensen moesten helpen. Tot ik merkte dat de échte vragen — wie ben ik, wat wil ik,
-                waarheen — nergens beantwoord werden. Niet door apps. Niet door algoritmes.
-                En vaak ook niet door dure coaches.
+                Jarenlang werkte ik als bestuurder en directeur aan systemen die mensen moesten helpen.
+                Tot ik merkte dat de échte vragen — wie ben ik, wat wil ik, waarheen — nergens
+                beantwoord werden.
               </p>
               <p>
                 Dat is waarom ik Brickme bouwde.
@@ -433,22 +427,7 @@ export default function HomePage() {
               <p className="border-l-2 border-primary pl-5 text-bricktext font-medium">
                 "Ik ontwerp geen apps om je online te houden. Ik bouw tools die je helpen offline te leven."
               </p>
-              <p>
-                Brickme is geen zelfhulpapp. Het is een spiegel. Gebouwd op een methode die bewezen
-                werkt — niet bedacht door een algoritme, maar ontwikkeld door mensen die geloven dat
-                spelen de kortste weg is naar waarheid.
-              </p>
-              <p>
-                Je bouwt. Je kijkt. Je begrijpt.<br />
-                Zonder coach die je vertelt wat je moet denken. Zonder abonnement dat je gevangen houdt.
-                Zonder dat jouw data ergens anders terechtkomt.
-              </p>
-              <p className="text-bricktext font-serif">
-                Ik ben geen standaard tech-ondernemer. Ik ben een sociaal architect — iemand die gelooft
-                dat technologie mensen dichter bij zichzelf moet brengen, niet verder weg.<br />
-                Brickme is mijn bewijs dat het anders kan.<br />
-                <span className="text-primary">— Vincent</span>
-              </p>
+              <p className="text-primary font-medium">— Vincent</p>
             </div>
             <ul className="mt-8 space-y-3">
               {[
@@ -486,25 +465,10 @@ export default function HomePage() {
                 <p className="text-xs text-muted mt-1 font-medium">Innovatie met een sociaal hart.</p>
               </div>
 
-              <div className="space-y-3 font-serif text-sm text-muted leading-relaxed mt-3">
-                <p>
-                  Meer dan vijftien jaar gewerkt in en voor de maatschappelijke sector. Als directeur,
-                  als bestuurder, als de man die werd ingevlogen als het vastliep.
-                </p>
-                <p>
-                  WeAreImpact is mijn antwoord. Geen adviesbureau dat rapporten schrijft en weer vertrekt.
-                  Maar iemand die naast je staat, de handen uit de mouwen steekt — en pas weggaat als
-                  jouw team het zelf kan voortzetten.
-                </p>
-                <p className="border-l-2 border-primary pl-4 text-bricktext font-medium text-xs">
-                  "Ik geloof dat technologie er is om menselijk talent te laten bloeien, niet om het te vervangen."
-                </p>
-                <p>
-                  Brickme is daar een voorbeeld van. Gebouwd met één kompas: doet het er écht toe voor
-                  de mensen die het gebruiken?
-                </p>
-                <p className="text-primary font-medium">— Vincent</p>
-              </div>
+              <p className="font-serif text-sm text-muted leading-relaxed mt-3">
+                Geen adviesbureau dat rapporten schrijft en weer vertrekt. Iemand die naast je staat,
+                de handen uit de mouwen steekt — en pas weggaat als jouw team het zelf kan voortzetten.
+              </p>
 
               <ul className="mt-5 space-y-2">
                 {[
