@@ -433,10 +433,10 @@ export default function HomePage() {
             </div>
             <ul className="mt-8 space-y-3">
               {[
-                "Gecertificeerd LSP-facilitator aan het roer, geen hobbyist maar methodologie van binnenuit",
-                "Observeert vóórdat het interpreteert, zoals een echte facilitator voor een model staat",
-                "Gebouwd voor de Nederlandse markt, in het Nederlands",
-                "Privacyvriendelijk, jouw sessies zijn van jou",
+                "LSP-methodiek van binnenuit — geen algoritme dat raadt, maar een methode die bewezen werkt",
+                "Jouw data is van jou. Altijd. We verkopen niets door, we analyseren niets voor adverteerders",
+                "Gemaakt in Nederland, voor mensen die écht verder willen — niet voor engagement-statistieken",
+                "Geen coach die je vertelt wat je moet doen. Een spiegel die laat zien wie je al bent",
               ].map((punt) => (
                 <li key={punt} className="flex items-start gap-3 text-sm text-muted">
                   <svg className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
