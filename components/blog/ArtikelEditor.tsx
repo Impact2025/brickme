@@ -93,6 +93,23 @@ export default function ArtikelEditor({ initieel, artikelId }: ArtikelEditorProp
   const [fout, setFout] = useState<string | null>(null);
   const [succes, setSucces] = useState<string | null>(null);
   const [nieuwTrefwoord, setNieuwTrefwoord] = useState("");
+  const [ogUploaden, setOgUploaden] = useState(false);
+
+  async function handleOgUpload(bestand: File) {
+    setOgUploaden(true);
+    const form = new FormData();
+    form.append("bestand", bestand);
+    try {
+      const res = await fetch("/api/admin/blog/upload", { method: "POST", body: form });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Upload mislukt");
+      update("ogAfbeelding", data.url);
+    } catch (e) {
+      setFout(e instanceof Error ? e.message : "Upload mislukt");
+    } finally {
+      setOgUploaden(false);
+    }
+  }
 
   const update = useCallback(<K extends keyof Veld>(key: K, value: Veld[K]) => {
     setVeld(v => ({ ...v, [key]: value }));
@@ -526,15 +543,58 @@ export default function ArtikelEditor({ initieel, artikelId }: ArtikelEditorProp
         {/* OG Afbeelding */}
         <div style={{ marginBottom: 14 }}>
           <label style={{ fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--color-text-muted)", display: "block", marginBottom: 6 }}>
-            OG Afbeelding URL
+            Blog afbeelding
           </label>
+          {veld.ogAfbeelding ? (
+            <div style={{ marginBottom: 8, position: "relative" }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={veld.ogAfbeelding}
+                alt="Blog afbeelding"
+                style={{ width: "100%", height: 140, objectFit: "cover", borderRadius: 10, display: "block" }}
+              />
+              <button
+                onClick={() => update("ogAfbeelding", "")}
+                style={{
+                  position: "absolute", top: 6, right: 6,
+                  background: "rgba(0,0,0,0.5)", color: "white", border: "none",
+                  borderRadius: "50%", width: 24, height: 24, cursor: "pointer",
+                  fontSize: 14, lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center",
+                }}
+              >
+                ×
+              </button>
+            </div>
+          ) : (
+            <label style={{
+              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+              border: "2px dashed var(--color-outline)", borderRadius: 10, padding: "20px 12px",
+              cursor: ogUploaden ? "not-allowed" : "pointer", marginBottom: 8,
+              background: ogUploaden ? "var(--color-surface-low)" : "var(--color-surface)",
+            }}>
+              <input
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                disabled={ogUploaden}
+                onChange={e => { const f = e.target.files?.[0]; if (f) handleOgUpload(f); }}
+              />
+              {ogUploaden
+                ? <span style={{ fontSize: 13, color: "var(--color-text-muted)" }}>Uploaden...</span>
+                : <>
+                    <span style={{ fontSize: 20, marginBottom: 6 }}>📷</span>
+                    <span style={{ fontSize: 12, color: "var(--color-text-muted)" }}>Klik om foto te uploaden</span>
+                  </>
+              }
+            </label>
+          )}
           <input
             type="text"
             value={veld.ogAfbeelding}
             onChange={e => update("ogAfbeelding", e.target.value)}
-            placeholder="https://..."
+            placeholder="Of plak een URL..."
             className="input-base"
-            style={{ fontSize: 13 }}
+            style={{ fontSize: 12 }}
           />
         </div>
 
