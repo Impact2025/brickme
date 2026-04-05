@@ -107,26 +107,41 @@ function ReflectiePaginaInner() {
   if (stemmingNaFase) {
     return (
       <main className="min-h-dvh bg-secondary flex flex-col items-center justify-center px-6">
-        <div className="max-w-md w-full">
-          <p className="text-xs text-muted uppercase tracking-wider mb-2">Sessie afgerond</p>
-          <h2 className="text-3xl font-serif text-bricktext mb-2">Hoe voel je je nu?</h2>
-          <p className="text-muted text-sm mb-8">Vergelijk met hoe je je voelde voor de sessie.</p>
+        <div className="max-w-md w-full space-y-6">
+          {/* Voltooiing header */}
+          <div className="text-center">
+            <div className="w-14 h-14 bg-accent/10 rounded-3xl mx-auto mb-4 flex items-center justify-center">
+              <span className="text-2xl text-accent">◆</span>
+            </div>
+            <p className="text-xs text-muted uppercase tracking-wider mb-1">Je hebt het gedaan</p>
+            <h2 className="text-3xl font-serif text-bricktext">Hoe voel je je nu?</h2>
+            <p className="text-muted text-sm mt-2 leading-relaxed">
+              Vul in hoe je je nu voelt — we vergelijken het met het begin van je sessie.
+            </p>
+          </div>
 
-          <div className="flex gap-2 flex-wrap mb-8">
-            {[1,2,3,4,5,6,7,8,9,10].map((n) => (
-              <button
-                key={n}
-                onClick={() => setStemmingNa(n)}
-                className={cn(
-                  "w-12 h-12 rounded-2xl border-2 font-medium transition-all duration-200",
-                  stemmingNa === n
-                    ? "border-primary bg-primary text-white"
-                    : "border-border bg-surface text-bricktext hover:border-primary"
-                )}
-              >
-                {n}
-              </button>
-            ))}
+          {/* Stemming schaal */}
+          <div>
+            <div className="flex items-center justify-between text-xs text-muted mb-3">
+              <span>Zwaar</span>
+              <span>Lekker in je vel</span>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              {[1,2,3,4,5,6,7,8,9,10].map((n) => (
+                <button
+                  key={n}
+                  onClick={() => setStemmingNa(n)}
+                  className={cn(
+                    "w-12 h-12 rounded-2xl border-2 font-medium transition-all duration-200",
+                    stemmingNa === n
+                      ? "border-primary bg-primary text-white scale-110"
+                      : "border-border bg-surface text-bricktext hover:border-primary"
+                  )}
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
           </div>
 
           {stemmingNa && (
@@ -139,7 +154,7 @@ function ReflectiePaginaInner() {
           )}
           <button
             onClick={() => router.push(`/sessie/${id}/rapport`)}
-            className="btn-ghost w-full mt-3 text-sm"
+            className="block text-center text-sm text-muted hover:text-bricktext transition-colors pt-1"
           >
             Sla over
           </button>

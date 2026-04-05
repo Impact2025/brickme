@@ -43,7 +43,7 @@ function BetalenForm() {
 
     if (gratis) {
       // Geen betaling nodig — direct door
-      window.location.href = `/sessie/nieuw?thema=${themaId}`;
+      window.location.href = `/sessie/nieuw?thema=${themaId}&betaald=1`;
       return;
     }
 
@@ -140,9 +140,23 @@ function BetalenForm() {
             : `Betalen €${(prijsNaKorting / 100).toFixed(2).replace(".", ",")} →`}
         </button>
 
-        <p className="text-xs text-muted text-center mt-4">
-          Veilig betalen via Stripe. Eenmalige betaling, geen abonnement.
-        </p>
+        {/* Trust signals */}
+        <div className="mt-4 space-y-2">
+          <div className="flex items-center justify-center gap-4 text-xs text-muted">
+            <span className="flex items-center gap-1">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              Veilig via Stripe
+            </span>
+            <span className="flex items-center gap-1">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+              Eenmalig, geen abo
+            </span>
+            <span className="flex items-center gap-1">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              30–45 min sessie
+            </span>
+          </div>
+        </div>
       </div>
     </main>
   );

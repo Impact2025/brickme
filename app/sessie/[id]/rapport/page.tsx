@@ -62,15 +62,17 @@ export default function RapportPagina() {
   if (laden || genereren) {
     return (
       <div className="min-h-dvh bg-secondary flex flex-col items-center justify-center px-6">
-        <div className="w-10 h-10 bg-primary/10 rounded-2xl flex items-center justify-center mb-6 animate-pulse-soft">
-          <span className="text-2xl">◆</span>
+        <div className="w-14 h-14 bg-primary/8 rounded-3xl flex items-center justify-center mb-6 animate-pulse-soft">
+          <span className="text-3xl text-primary">◆</span>
         </div>
-        <h2 className="font-serif text-bricktext text-xl mb-2">
-          {genereren ? "Rapport wordt samengesteld..." : "Laden..."}
+        <h2 className="font-serif text-bricktext text-2xl mb-2 text-center">
+          {genereren ? "Jouw rapport wordt samengesteld" : "Laden..."}
         </h2>
-        <p className="text-muted text-sm">
-          {genereren ? "Brickme verbindt de draden. Even geduld." : ""}
-        </p>
+        {genereren && (
+          <p className="text-muted text-sm text-center max-w-xs leading-relaxed mt-1">
+            Brickme verbindt wat je bouwde, vertelde en voelde. Even geduld.
+          </p>
+        )}
       </div>
     );
   }
@@ -242,15 +244,23 @@ export default function RapportPagina() {
         </section>
 
         {/* Acties */}
-        <div className="flex gap-3 pt-4">
-          <button
-            onClick={() => window.print()}
-            className="btn-ghost flex-1 text-center"
+        <div className="space-y-3 pt-4">
+          <div className="flex gap-3">
+            <button
+              onClick={() => window.print()}
+              className="btn-ghost flex-1 text-center"
+            >
+              Opslaan als PDF
+            </button>
+            <a href="/start" className="btn-primary flex-1 text-center py-3">
+              Nieuwe sessie
+            </a>
+          </div>
+          <a
+            href="/dashboard"
+            className="block text-center text-sm text-muted hover:text-bricktext transition-colors py-2"
           >
-            Opslaan als PDF
-          </button>
-          <a href="/start" className="btn-primary flex-1 text-center py-3">
-            Nieuwe sessie
+            Terug naar mijn sessies →
           </a>
         </div>
 

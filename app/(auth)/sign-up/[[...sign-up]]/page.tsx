@@ -68,8 +68,14 @@ function SignUpForm() {
           <img src="/logo.png" alt="Brickme" width={56} height={56} className="mx-auto mb-4" />
           {!verzonden ? (
             <>
-              <h1 className="text-2xl font-serif text-bricktext">Maak een account</h1>
-              <p className="text-muted text-sm mt-1">Gratis beginnen, altijd jouw data</p>
+              <h1 className="text-2xl font-serif text-bricktext">
+                {callbackUrl.includes("/betalen") ? "Bijna klaar" : "Maak een account"}
+              </h1>
+              <p className="text-muted text-sm mt-1">
+                {callbackUrl.includes("/betalen")
+                  ? "Maak een account om je sessie te starten"
+                  : "Gratis beginnen, altijd jouw data"}
+              </p>
             </>
           ) : (
             <>
