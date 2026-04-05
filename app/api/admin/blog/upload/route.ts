@@ -26,10 +26,17 @@ export async function POST(req: NextRequest) {
   const extensie = bestand.name.split(".").pop() ?? "jpg";
   const bestandsnaam = `blog/${Date.now()}-${Math.random().toString(36).slice(2)}.${extensie}`;
 
-  const blob = await put(bestandsnaam, bestand, {
-    access: "public",
-    contentType: bestand.type,
-  });
-
-  return NextResponse.json({ url: blob.url });
+  try {
+    const blob = await put(bestandsnaam, bestand, {
+      access: "public",
+      contentType: bestand.type,
+    });
+    return NextResponse.json({ url: blob.url });
+  } catch (e) {
+    console.error("[blog/upload] Vercel Blob fout:", e);
+    return NextResponse.json(
+      { error: "Upload naar opslag mislukt. Controleer BLOB_READ_WRITE_TOKEN in .env.local." },
+      { status: 500 }
+    );
+  }
 }

@@ -201,7 +201,8 @@ export default function RijkeTekstEditor({ waarde, onChange, onPasteVerwerkt }: 
     form.append("bestand", bestand);
     try {
       const res = await fetch("/api/admin/blog/upload", { method: "POST", body: form });
-      const data = await res.json();
+      let data: Record<string, string> = {};
+      try { data = await res.json(); } catch { throw new Error("Upload mislukt (lege server response)"); }
       if (!res.ok) throw new Error(data.error ?? "Upload mislukt");
       setAfbeeldingUrl(data.url);
     } catch (e) {
