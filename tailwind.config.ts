@@ -29,6 +29,7 @@ const config: Config = {
         "fade-in": "fadeIn 0.4s ease-in-out",
         "slide-up": "slideUp 0.4s ease-out",
         "pulse-soft": "pulseSoft 2s ease-in-out infinite",
+        "spin-slow": "spin 8s linear infinite",
       },
       keyframes: {
         fadeIn: {

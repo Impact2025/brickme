@@ -99,7 +99,7 @@ export default function RapportPagina() {
         {/* Document header */}
         <header className="pt-10 pb-8 border-b border-border">
           <div className="flex items-center justify-between mb-4">
-            <Image src="/logo.png" alt="Brickme" width={32} height={32} unoptimized />
+            <Image src="/logo.png" alt="Brickme" width={32} height={32} unoptimized className="animate-spin-slow" />
             <p className="text-xs text-muted">{formatDatum(datum)}</p>
           </div>
           <p className="text-xs text-muted uppercase tracking-wider mb-1">{rapport.themaLabel}</p>

@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { sessies, fases, rapporten } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
 import Link from "next/link";
+import Image from "next/image";
 import { StatCard } from "@/components/admin/StatCard";
 
 type SessieMetInfo = {
@@ -95,9 +96,7 @@ export default async function DashboardPage() {
       <header className="bg-white border-b border-[#E8DDD0] px-6 py-5">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-[#C8583A] rounded-xl flex items-center justify-center">
-              <span className="text-white text-sm">◆</span>
-            </div>
+            <Image src="/logo.png" alt="Brickme" width={32} height={32} unoptimized className="animate-spin-slow" />
             <span className="font-serif text-xl text-[#2C1F14]">Brickme</span>
           </div>
           <div className="flex items-center gap-4">
