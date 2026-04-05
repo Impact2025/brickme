@@ -417,26 +417,24 @@ export default function HomePage() {
             </h2>
             <div className="space-y-5 font-serif text-lg text-muted leading-relaxed">
               <p>
-                Technologie belooft ons te verbinden. Maar te vaak maakt het ons eenzamer,
-                verslaafder en afhankelijker van systemen die ons niet kennen en er geen bal
-                om geven wie jij bent.
+                De meeste tools die je iets over jezelf moeten vertellen, zijn gemaakt om je
+                zo lang mogelijk op een scherm te houden. Dat ergerde me.
               </p>
               <p>
-                Ik ben geen standaard tech-ondernemer. Ik ben een sociaal architect. Mijn
-                missie is helder: ik bouw platforms en processen waarbij technologie mensen
-                dichter bij elkaar brengt, niet verder van elkaar af.
+                Ik werk al jaren met teams en individuen die vastzitten — niet omdat ze het
+                antwoord niet weten, maar omdat ze het nooit de ruimte geven om te verschijnen.
+                LSP leerde me dat bouwen met je handen dat wél doet.
               </p>
               <p className="border-l-2 border-primary pl-5 text-bricktext font-medium">
-                "Ik verkoop geen data. Ik verkoop impact. Ik ontwerp geen apps om je online
-                te houden, maar tools die je helpen offline te leven."
+                "Ik wilde iets bouwen dat je helpt offline te leven."
               </p>
             </div>
             <ul className="mt-8 space-y-3">
               {[
-                "LSP-methodiek van binnenuit — geen algoritme dat raadt, maar een methode die bewezen werkt",
-                "Jouw data is van jou. Altijd. We verkopen niets door, we analyseren niets voor adverteerders",
-                "Gemaakt in Nederland, voor mensen die écht verder willen — niet voor engagement-statistieken",
-                "Geen coach die je vertelt wat je moet doen. Een spiegel die laat zien wie je al bent",
+                "Geen app die je vasthoudt — één sessie kan al genoeg zijn",
+                "Gebouwd voor mensen die liever doen dan praten over wat ze moeten doen",
+                "Je data is van jou. Wij verdienen niet aan je aandacht",
+                "Geen coach die zegt wat je moet doen — een methode die laat zien wat je al weet",
               ].map((punt) => (
                 <li key={punt} className="flex items-start gap-3 text-sm text-muted">
                   <svg className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">

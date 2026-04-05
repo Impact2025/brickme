@@ -21,7 +21,7 @@ export default function AssistentChat() {
 
   // Laad chips bij eerste opening
   useEffect(() => {
-    if (open && !chipsGeladen) {
+    if (open && !chipsGeladen && status === "authenticated") {
       fetch("/api/assistent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -41,11 +41,17 @@ export default function AssistentChat() {
     onderRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [berichten, laden]);
 
-  if (status !== "authenticated") return null;
   if (ONBOARDING_ROUTES.some((r) => pathname?.startsWith(r))) return null;
 
+  const isIngelogd = status === "authenticated";
+
   async function verstuur(tekst: string) {
+    if (!isIngelogd) {
+      window.location.href = "/sign-in";
+      return;
+    }
     if (!tekst.trim() || laden) return;
+
     const nieuweBerichten: Bericht[] = [...berichten, { rol: "gebruiker", inhoud: tekst }];
     setBerichten(nieuweBerichten);
     setInput("");
@@ -167,7 +173,9 @@ export default function AssistentChat() {
           >
             {berichten.length === 0 && !laden && (
               <p style={{ color: "#8B7355", fontSize: "0.875rem", margin: 0, lineHeight: 1.5 }}>
-                Hoi! Ik ben je persoonlijke gids in Brickme. Stel een vraag of kies een onderwerp:
+                {isIngelogd
+                  ? "Hoi! Ik ben je persoonlijke gids in Brickme. Stel een vraag of kies een onderwerp:"
+                  : "Hoi! Ik ben je persoonlijke gids in Brickme. Log in om te chatten."}
               </p>
             )}
 
@@ -209,7 +217,7 @@ export default function AssistentChat() {
           </div>
 
           {/* Quick-start chips */}
-          {chips.length > 0 && berichten.length === 0 && (
+          {isIngelogd && chips.length > 0 && berichten.length === 0 && (
             <div
               style={{
                 padding: "0 1rem 0.75rem",
@@ -267,8 +275,8 @@ export default function AssistentChat() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && verstuur(input)}
-              placeholder="Stel een vraag..."
-              disabled={laden}
+              placeholder={isIngelogd ? "Stel een vraag..." : "Log in om te chatten..."}
+              disabled={laden || !isIngelogd}
               style={{
                 flex: 1,
                 border: "1px solid rgba(44,31,20,0.15)",
@@ -282,15 +290,15 @@ export default function AssistentChat() {
               }}
             />
             <button
-              onClick={() => verstuur(input)}
-              disabled={!input.trim() || laden}
+              onClick={() => isIngelogd ? verstuur(input) : (window.location.href = "/sign-in")}
+              disabled={isIngelogd && (!input.trim() || laden)}
               style={{
-                backgroundColor: input.trim() && !laden ? "#C8583A" : "#e0d5c8",
-                color: input.trim() && !laden ? "#F5F0E8" : "#8B7355",
+                backgroundColor: (!isIngelogd || (input.trim() && !laden)) ? "#C8583A" : "#e0d5c8",
+                color: (!isIngelogd || (input.trim() && !laden)) ? "#F5F0E8" : "#8B7355",
                 border: "none",
                 borderRadius: "0.5rem",
                 padding: "0.5rem 0.75rem",
-                cursor: input.trim() && !laden ? "pointer" : "default",
+                cursor: !isIngelogd || (input.trim() && !laden) ? "pointer" : "default",
                 transition: "background 150ms",
                 display: "flex",
                 alignItems: "center",
