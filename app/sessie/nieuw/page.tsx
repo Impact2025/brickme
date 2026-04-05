@@ -279,7 +279,7 @@ function NieuweSessieInner() {
               className={cn(
                 "max-w-[80%] px-4 py-3 rounded-2xl text-sm leading-relaxed",
                 bericht.rol === "ai"
-                  ? "bg-surface border border-border text-bricktext rounded-tl-sm"
+                  ? "bg-surface border border-border text-bricktext rounded-tl-sm whitespace-pre-line"
                   : "bg-primary text-white rounded-tr-sm"
               )}
             >
