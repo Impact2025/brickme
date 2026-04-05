@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-647VHR1NK5"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-647VHR1NK5');
+  </script>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Brickme — Bouw wat je niet kunt zeggen</title>
+  <meta name="description" content="Brickme helpt je grote dingen zichtbaar te maken. Door te bouwen, te fotograferen en een reflectie te ontvangen van Brickme."/>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,700;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            clay:    '#a03b1f',
+            'clay-light': '#ffdbd1',
+            'clay-dim':   '#ffb4a1',
+            forest:  '#2d5a3d',
+            'forest-mid': '#476558',
+            'forest-light': '#c9ead9',
+            cream:   '#fef9f1',
+            'cream-dim': '#f2ede5',
+            'cream-deep': '#e7e2da',
+            ink:     '#1d1c17',
+            'ink-muted': '#57423d',
+            'ink-faint': '#8a716b',
+          },
+          fontFamily: {
+            serif: ['Newsreader', 'Georgia', 'serif'],
+            sans:  ['Inter', 'system-ui', 'sans-serif'],
+          },
+          borderRadius: {
+            sm: '0.25rem',
+            DEFAULT: '0.5rem',
+            lg: '1rem',
+            xl: '1.5rem',
+            full: '9999px',
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+    }
+    .material-symbols-outlined.fill {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    /* Grain texture overlay */
+    .grain::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      pointer-events: none;
+    }
+
+    /* Smooth scroll */
+    html { scroll-behavior: smooth; }
+
+    /* Step connector line */
+    .step-line::before {
+      content: '';
+      position: absolute;
+      top: 2.5rem;
+      left: calc(50% + 2rem);
+      right: calc(-50% + 2rem);
+      height: 1px;
+      background: linear-gradient(to right, #dec0b9, transparent);
+    }
+
+    /* Accordion */
+    details summary::-webkit-details-marker { display: none; }
+    details[open] .chevron { transform: rotate(180deg); }
+    .chevron { transition: transform 0.3s ease; }
+
+    /* Soft fade in */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.7s ease both; }
+    .fade-up-delay-1 { animation-delay: 0.1s; }
+    .fade-up-delay-2 { animation-delay: 0.2s; }
+    .fade-up-delay-3 { animation-delay: 0.3s; }
+    .fade-up-delay-4 { animation-delay: 0.4s; }
+
+    body { background-color: #fef9f1; color: #1d1c17; font-family: 'Inter', sans-serif; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     NAVIGATIE
+═══════════════════════════════════════════ -->
+<nav id="nav" class="fixed top-0 w-full z-50 transition-all duration-300" style="background: rgba(254,249,241,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(222,192,185,0.2);">
+  <div class="max-w-7xl mx-auto px-6 md:px-10 py-4 flex items-center justify-between">
+    <!-- Logo -->
+    <a href="#" class="flex items-center gap-2 group">
+      <div class="w-8 h-8 rounded-sm bg-clay flex items-center justify-center">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="1" y="6" width="6" height="4" rx="0.5" fill="white" opacity="0.9"/>
+          <rect x="9" y="6" width="6" height="4" rx="0.5" fill="white" opacity="0.9"/>
+          <rect x="4" y="10" width="8" height="4" rx="0.5" fill="white"/>
+          <rect x="4" y="2" width="8" height="4" rx="0.5" fill="white" opacity="0.7"/>
+        </svg>
+      </div>
+      <span class="font-serif text-xl font-medium text-clay tracking-tight">Brickme</span>
+    </a>
+
+    <!-- Links -->
+    <div class="hidden md:flex items-center gap-8">
+      <a href="#hoe-het-werkt" class="text-sm text-ink-muted hover:text-ink transition-colors">Hoe het werkt</a>
+      <a href="#themas" class="text-sm text-ink-muted hover:text-ink transition-colors">Thema's</a>
+      <a href="#over" class="text-sm text-ink-muted hover:text-ink transition-colors">Over</a>
+      <a href="#prijzen" class="text-sm text-ink-muted hover:text-ink transition-colors">Prijzen</a>
+    </div>
+
+    <!-- CTA -->
+    <a href="#" class="bg-clay text-white text-sm font-medium px-5 py-2.5 rounded-full hover:bg-clay/90 active:scale-95 transition-all duration-150 shadow-sm shadow-clay/30">
+      Begin mijn sessie →
+    </a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ═══════════════════════════════════════════
+     HERO
+═══════════════════════════════════════════ -->
+<section class="min-h-screen flex flex-col items-center justify-center px-6 pt-24 pb-20 text-center relative overflow-hidden">
+
+  <!-- Background decoration -->
+  <div class="absolute inset-0 pointer-events-none overflow-hidden">
+    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full"
+         style="background: radial-gradient(circle, rgba(160,59,31,0.06) 0%, transparent 70%);"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full"
+         style="background: radial-gradient(circle, rgba(71,101,88,0.07) 0%, transparent 70%);"></div>
+    <!-- Subtle grid -->
+    <svg class="absolute inset-0 w-full h-full opacity-[0.025]" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+          <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#1d1c17" stroke-width="0.5"/>
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#grid)"/>
+    </svg>
+  </div>
+
+  <div class="relative z-10 max-w-4xl mx-auto">
+    <!-- Badge -->
+    <div class="inline-flex items-center gap-2 mb-8 fade-up">
+      <span class="text-xs font-medium text-forest-mid bg-forest-light/60 px-3 py-1 rounded-full border border-forest-light">
+        Een concept van WeAreImpact
+      </span>
+    </div>
+
+    <!-- Headline -->
+    <h1 class="font-serif text-[clamp(3rem,8vw,6.5rem)] leading-[1.0] tracking-tight text-ink mb-6 fade-up fade-up-delay-1">
+      Bouw wat je<br/>
+      <em class="text-clay not-italic" style="font-style: italic;">niet kunt zeggen</em>
+    </h1>
+
+    <!-- Subtitle -->
+    <p class="font-serif italic text-[clamp(1rem,2.5vw,1.35rem)] text-ink-muted leading-relaxed max-w-2xl mx-auto mb-10 fade-up fade-up-delay-2">
+      Sommige dingen zijn te groot voor woorden. Brickme helpt je ze zichtbaar te maken.
+      Door te bouwen, te fotograferen en een reflectie te ontvangen van Brickme.
+    </p>
+
+    <!-- Buttons -->
+    <div class="flex flex-col sm:flex-row gap-3 justify-center mb-16 fade-up fade-up-delay-3">
+      <a href="#" class="bg-clay text-white text-base font-medium px-8 py-4 rounded-full hover:bg-clay/90 active:scale-95 transition-all duration-150 shadow-lg shadow-clay/25">
+        Begin mijn sessie →
+      </a>
+      <a href="#hoe-het-werkt" class="text-clay text-base font-medium px-8 py-4 rounded-full border border-clay/30 hover:border-clay/60 hover:bg-clay/5 transition-all duration-150">
+        Hoe het werkt
+      </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-sm text-ink-muted fade-up fade-up-delay-4">
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-forest-mid text-base" style="font-size:18px;">layers</span>
+        <span>5 levensthema's</span>
+      </div>
+      <div class="w-px h-4 bg-cream-deep hidden sm:block"></div>
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-forest-mid text-base" style="font-size:18px;">timer</span>
+        <span>30–45 minuten per sessie</span>
+      </div>
+      <div class="w-px h-4 bg-cream-deep hidden sm:block"></div>
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-forest-mid text-base" style="font-size:18px;">flag</span>
+        <span>1 concrete eerste stap</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero visual — abstract LEGO bricks -->
+  <div class="absolute bottom-12 right-8 md:right-16 opacity-20 pointer-events-none hidden lg:block">
+    <svg width="140" height="120" viewBox="0 0 140 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="40" width="60" height="40" rx="3" fill="#a03b1f"/>
+      <rect x="10" y="30" width="14" height="14" rx="7" fill="#a03b1f"/>
+      <rect x="36" y="30" width="14" height="14" rx="7" fill="#a03b1f"/>
+      <rect x="70" y="20" width="60" height="40" rx="3" fill="#476558"/>
+      <rect x="80" y="10" width="14" height="14" rx="7" fill="#476558"/>
+      <rect x="106" y="10" width="14" height="14" rx="7" fill="#476558"/>
+      <rect x="30" y="80" width="80" height="40" rx="3" fill="#655a4b" opacity="0.6"/>
+      <rect x="42" y="70" width="14" height="14" rx="7" fill="#655a4b" opacity="0.6"/>
+      <rect x="68" y="70" width="14" height="14" rx="7" fill="#655a4b" opacity="0.6"/>
+      <rect x="94" y="70" width="14" height="14" rx="7" fill="#655a4b" opacity="0.6"/>
+    </svg>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     DE PIJN
+═══════════════════════════════════════════ -->
+<section class="py-24 md:py-32 px-6 relative overflow-hidden" style="background-color: #f5ede4;">
+  <div class="max-w-7xl mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+
+      <!-- Left text column -->
+      <div>
+        <span class="text-xs font-medium uppercase tracking-[0.18em] text-clay mb-4 block">Waarom Brickme bestaat</span>
+        <h2 class="font-serif text-[clamp(2rem,4vw,3.2rem)] leading-tight text-ink mb-8">
+          Praten over een probleem<br/>
+          <em>lost het zelden op</em>
+        </h2>
+        <div class="space-y-5 text-[1.0625rem] text-ink-muted leading-relaxed font-serif italic">
+          <p>
+            Je weet wat er speelt. Je hebt er al honderd keer over nagedacht. Misschien
+            heb je het uitgesproken, opgeschreven, besproken. En toch blijft het hangen.
+          </p>
+          <p>
+            Dat is geen onwil. Het is de manier waarop ons brein werkt. Grote emoties,
+            diepe overtuigingen en vastgelopen patronen wonen niet in het taalcentrum.
+            Ze wonen in je handen, je lichaam, je instinct.
+          </p>
+          <p>
+            Brickme is gebaseerd op LEGO® Serious Play, een methode die wereldwijd
+            gebruikt wordt door coaches, therapeuten en organisaties. Niet met LEGO
+            verplicht, maar met hetzelfde principe: <strong class="font-medium not-italic text-ink">bouw het, dan begrijp je het.</strong>
+          </p>
+        </div>
+      </div>
+
+      <!-- Right quote -->
+      <div class="flex flex-col gap-8">
+        <!-- Quote card -->
+        <blockquote class="relative bg-white rounded-xl p-8 md:p-10 shadow-sm border border-cream-deep">
+          <div class="absolute -top-4 -left-2 text-[5rem] leading-none text-clay/15 font-serif select-none">"</div>
+          <p class="font-serif italic text-xl md:text-2xl text-ink leading-relaxed mb-6 relative z-10">
+            Coaching is te duur. Journaling is te koud. Chatbots zijn te oppervlakkig.
+            Er was niets dat echt bij de kern kwam. Totdat ik het letterlijk
+            in mijn handen had.
+          </p>
+          <footer class="text-sm text-ink-faint font-sans">
+            Wat gebruikers zeggen na hun eerste sessie
+          </footer>
+        </blockquote>
+
+        <!-- Three pillars -->
+        <div class="grid grid-cols-3 gap-4">
+          <div class="bg-white rounded-xl p-5 border border-cream-deep text-center">
+            <span class="material-symbols-outlined text-clay mb-2 block" style="font-size:28px;">chat_bubble</span>
+            <p class="text-xs font-medium text-ink-muted leading-snug">Coaching is te duur</p>
+          </div>
+          <div class="bg-white rounded-xl p-5 border border-cream-deep text-center">
+            <span class="material-symbols-outlined text-forest-mid mb-2 block" style="font-size:28px;">edit_note</span>
+            <p class="text-xs font-medium text-ink-muted leading-snug">Journaling is te koud</p>
+          </div>
+          <div class="bg-white rounded-xl p-5 border border-cream-deep text-center">
+            <span class="material-symbols-outlined text-ink-faint mb-2 block" style="font-size:28px;">smart_toy</span>
+            <p class="text-xs font-medium text-ink-muted leading-snug">Chatbots zijn oppervlakkig</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     HOE HET WERKT
+═══════════════════════════════════════════ -->
+<section id="hoe-het-werkt" class="py-24 md:py-32 px-6">
+  <div class="max-w-7xl mx-auto">
+
+    <div class="text-center mb-16">
+      <span class="text-xs font-medium uppercase tracking-[0.18em] text-forest-mid mb-4 block">Hoe het werkt</span>
+      <h2 class="font-serif text-[clamp(2rem,4vw,3.2rem)] leading-tight text-ink mb-4">
+        Vier stappen. Eén echt inzicht.
+      </h2>
+      <p class="font-serif italic text-lg text-ink-muted max-w-2xl mx-auto">
+        Een Brickme-sessie duurt 30 tot 45 minuten. Je hebt alleen je telefoon
+        en iets om mee te bouwen nodig: LEGO, keukengerei, paperclips.
+        Het materiaal maakt niet uit.
+      </p>
+    </div>
+
+    <!-- Steps -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+      <!-- Step 1 -->
+      <div class="bg-white border border-cream-deep rounded-xl p-7 relative group hover:shadow-md hover:shadow-clay/10 transition-all duration-300">
+        <div class="flex items-start justify-between mb-5">
+          <div class="w-10 h-10 bg-clay/10 rounded-lg flex items-center justify-center">
+            <span class="material-symbols-outlined text-clay" style="font-size:20px;">topic</span>
+          </div>
+          <span class="text-4xl font-serif text-cream-deep font-bold select-none">01</span>
+        </div>
+        <h3 class="font-serif text-xl font-medium text-ink mb-3">Kies je thema</h3>
+        <p class="text-sm text-ink-muted leading-relaxed">
+          Carrière, liefde, identiteit, verbinding of een kruispunt in je leven.
+          Jij bepaalt waar je op dit moment mee zit. Er is geen goed of fout antwoord.
+          Alleen jouw waarheid.
+        </p>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="bg-white border border-cream-deep rounded-xl p-7 relative group hover:shadow-md hover:shadow-clay/10 transition-all duration-300">
+        <div class="flex items-start justify-between mb-5">
+          <div class="w-10 h-10 bg-forest-light/60 rounded-lg flex items-center justify-center">
+            <span class="material-symbols-outlined text-forest-mid" style="font-size:20px;">record_voice_over</span>
+          </div>
+          <span class="text-4xl font-serif text-cream-deep font-bold select-none">02</span>
+        </div>
+        <h3 class="font-serif text-xl font-medium text-ink mb-3">Een gesprek dat echt luistert</h3>
+        <p class="text-sm text-ink-muted leading-relaxed">
+          Brickme stelt vragen, niet als een formulier maar als een nieuwsgierig iemand
+          die echt wil begrijpen wat er speelt. Jouw antwoorden bepalen hoe de sessie
+          eruitziet. Geen standaard script, altijd op maat.
+        </p>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="bg-white border border-cream-deep rounded-xl p-7 relative group hover:shadow-md hover:shadow-clay/10 transition-all duration-300">
+        <div class="flex items-start justify-between mb-5">
+          <div class="w-10 h-10 bg-clay/10 rounded-lg flex items-center justify-center">
+            <span class="material-symbols-outlined text-clay" style="font-size:20px;">photo_camera</span>
+          </div>
+          <span class="text-4xl font-serif text-cream-deep font-bold select-none">03</span>
+        </div>
+        <h3 class="font-serif text-xl font-medium text-ink mb-3">Bouwen, fotograferen, beschrijven</h3>
+        <p class="text-sm text-ink-muted leading-relaxed">
+          Je krijgt een bouwopdracht: drie fases, elk met een verborgen vraag. Je bouwt
+          iets, fotografeert het met je telefoon en vertelt wat je ziet.
+          <em class="font-serif text-ink">Jouw handen weten dingen die je hoofd nog niet weet.</em>
+        </p>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="bg-clay text-white rounded-xl p-7 relative group hover:shadow-lg hover:shadow-clay/30 transition-all duration-300">
+        <div class="flex items-start justify-between mb-5">
+          <div class="w-10 h-10 bg-white/15 rounded-lg flex items-center justify-center">
+            <span class="material-symbols-outlined text-white" style="font-size:20px;">psychology</span>
+          </div>
+          <span class="text-4xl font-serif text-white/20 font-bold select-none">04</span>
+        </div>
+        <h3 class="font-serif text-xl font-medium text-white mb-3">Een reflectie die raak is</h3>
+        <p class="text-sm text-white/80 leading-relaxed">
+          Brickme kijkt naar je foto. Niet generiek, maar specifiek. Het beschrijft wat het
+          ziet in jouw bouwsel, verbindt het met wat jij hebt gezegd, en stelt één vraag.
+          Niet vijf. <em class="text-white">De ene vraag die overblijft.</em>
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     RAPPORT BLOK (donkergroen)
+═══════════════════════════════════════════ -->
+<section class="py-20 md:py-28 px-6 relative overflow-hidden" style="background-color: #1e3d2a;">
+  <!-- Subtle texture -->
+  <div class="absolute inset-0 opacity-5 pointer-events-none"
+       style="background-image: repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 50%); background-size: 12px 12px;"></div>
+
+  <div class="max-w-7xl mx-auto relative z-10">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+
+      <!-- Left: Report description -->
+      <div>
+        <span class="text-xs font-medium uppercase tracking-[0.18em] text-forest-light/70 mb-4 block">Aan het einde ontvang je</span>
+        <h2 class="font-serif text-[clamp(1.8rem,3.5vw,2.8rem)] leading-tight text-white mb-6">
+          Jouw persoonlijk<br/>reflectierapport
+        </h2>
+        <p class="font-serif italic text-lg text-white/70 mb-10 leading-relaxed">
+          Een mooi opgemaakt document met al je bouwfoto's, de reflecties van Brickme,
+          jouw antwoorden en één concrete eerste stap.
+          <strong class="text-white font-medium not-italic">Iets dat je bewaart.</strong>
+        </p>
+        <a href="#" class="inline-flex items-center gap-2 bg-white text-forest font-medium px-7 py-3.5 rounded-full hover:bg-cream transition-colors text-sm shadow-lg shadow-black/20">
+          Begin mijn sessie →
+        </a>
+      </div>
+
+      <!-- Right: Report contents list -->
+      <div class="bg-white/5 border border-white/10 rounded-xl p-8 backdrop-blur-sm">
+        <p class="text-sm font-medium text-forest-light/60 uppercase tracking-widest mb-6">Jouw rapport bevat</p>
+        <ul class="space-y-4">
+          <li class="flex items-start gap-3">
+            <span class="material-symbols-outlined text-forest-light mt-0.5 fill" style="font-size:20px;">photo_library</span>
+            <div>
+              <p class="text-white font-medium text-sm">Alle foto's van je bouwsels</p>
+              <p class="text-white/50 text-xs mt-0.5">Drie fases, drie beelden</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="material-symbols-outlined text-forest-light mt-0.5 fill" style="font-size:20px;">auto_stories</span>
+            <div>
+              <p class="text-white font-medium text-sm">Persoonlijke reflectie per fase</p>
+              <p class="text-white/50 text-xs mt-0.5">Specifiek op jouw bouwsel, niet generiek</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="material-symbols-outlined text-forest-light mt-0.5 fill" style="font-size:20px;">hub</span>
+            <div>
+              <p class="text-white font-medium text-sm">Drie kernthema's die naar voren kwamen</p>
+              <p class="text-white/50 text-xs mt-0.5">Samengesteld uit jouw hele sessie</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="material-symbols-outlined text-forest-light mt-0.5 fill" style="font-size:20px;">mood</span>
+            <div>
+              <p class="text-white font-medium text-sm">Jouw stemming voor én na de sessie</p>
+              <p class="text-white/50 text-xs mt-0.5">Merk het verschil</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-3 pb-1">
+            <span class="material-symbols-outlined text-clay-dim mt-0.5 fill" style="font-size:20px;">flag</span>
+            <div>
+              <p class="text-white font-medium text-sm">Één concrete eerste stap</p>
+              <p class="text-white/50 text-xs mt-0.5">Van jezelf, niet van een coach</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     DE 5 THEMA'S
+═══════════════════════════════════════════ -->
+<section id="themas" class="py-24 md:py-32 px-6">
+  <div class="max-w-7xl mx-auto">
+
+    <div class="text-center mb-14">
+      <span class="text-xs font-medium uppercase tracking-[0.18em] text-clay mb-4 block">De vijf thema's</span>
+      <h2 class="font-serif text-[clamp(2rem,4vw,3.2rem)] leading-tight text-ink mb-4">
+        Waar loop jij mee rond?
+      </h2>
+      <p class="font-serif italic text-lg text-ink-muted max-w-xl mx-auto">
+        Kies het thema dat het dichtst bij je zit. Brickme past de intake,
+        de bouwvragen en de reflectie volledig aan op jouw keuze.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+
+      <!-- Werk & energie -->
+      <a href="#" class="group relative bg-white border border-cream-deep rounded-xl p-6 hover:border-clay/40 hover:shadow-md hover:shadow-clay/10 transition-all duration-300 cursor-pointer overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-clay rounded-t-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <span class="material-symbols-outlined text-clay mb-4 block" style="font-size:32px;">battery_low</span>
+        <h3 class="font-serif text-base font-medium text-ink mb-2">Werk &amp; energie</h3>
+        <p class="text-sm text-ink-faint font-serif italic">"Ik loop leeg"</p>
+      </a>
+
+      <!-- Liefde & relatie -->
+      <a href="#" class="group relative bg-white border border-cream-deep rounded-xl p-6 hover:border-clay/40 hover:shadow-md hover:shadow-clay/10 transition-all duration-300 cursor-pointer overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-clay rounded-t-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <span class="material-symbols-outlined text-clay mb-4 block" style="font-size:32px;">favorite</span>
+        <h3 class="font-serif text-base font-medium text-ink mb-2">Liefde &amp; relatie</h3>
+        <p class="text-sm text-ink-faint font-serif italic">"Ik voel me niet gezien"</p>
+      </a>
+
+      <!-- Wie ben ik -->
+      <a href="#" class="group relative bg-clay text-white rounded-xl p-6 shadow-lg shadow-clay/20 cursor-pointer overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-white/30 rounded-t-xl"></div>
+        <span class="material-symbols-outlined text-white mb-4 block" style="font-size:32px;">person_search</span>
+        <h3 class="font-serif text-base font-medium text-white mb-2">Wie ben ik</h3>
+        <p class="text-sm text-white/70 font-serif italic">"Ik weet niet meer wie ik ben"</p>
+      </a>
+
+      <!-- Verbinding -->
+      <a href="#" class="group relative bg-white border border-cream-deep rounded-xl p-6 hover:border-clay/40 hover:shadow-md hover:shadow-clay/10 transition-all duration-300 cursor-pointer overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-clay rounded-t-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <span class="material-symbols-outlined text-clay mb-4 block" style="font-size:32px;">group</span>
+        <h3 class="font-serif text-base font-medium text-ink mb-2">Verbinding</h3>
+        <p class="text-sm text-ink-faint font-serif italic">"Ik sta er alleen voor"</p>
+      </a>
+
+      <!-- Kruispunt -->
+      <a href="#" class="group relative bg-white border border-cream-deep rounded-xl p-6 hover:border-clay/40 hover:shadow-md hover:shadow-clay/10 transition-all duration-300 cursor-pointer overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-clay rounded-t-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <span class="material-symbols-outlined text-clay mb-4 block" style="font-size:32px;">fork_right</span>
+        <h3 class="font-serif text-base font-medium text-ink mb-2">Kruispunt</h3>
+        <p class="text-sm text-ink-faint font-serif italic">"Ik weet niet welke kant ik op moet"</p>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     WIE WE ZIJN
+═══════════════════════════════════════════ -->
+<section id="over" class="py-24 md:py-32 px-6" style="background-color: #f5ede4;">
+  <div class="max-w-7xl mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+
+      <!-- Left -->
+      <div>
+        <span class="text-xs font-medium uppercase tracking-[0.18em] text-clay mb-4 block">Wie we zijn</span>
+        <h2 class="font-serif text-[clamp(2rem,4vw,3.2rem)] leading-tight text-ink mb-8">
+          Innovatie met een sociaal hart
+        </h2>
+        <div class="space-y-5 font-serif italic text-[1.0625rem] text-ink-muted leading-relaxed">
+          <p>
+            Brickme is een concept van WeAreImpact, het bureau van Vincent van Munster.
+            Vincent combineert 15 jaar ervaring als bestuurder in de zorg- en welzijnssector
+            met een scherp oog voor wat technologie écht kan betekenen voor mensen.
+          </p>
+          <p>
+            Brickme ontstond niet in een vergaderzaal. Het ontstond toen Vincent zelf
+            voor een persoonlijk kruispunt stond en ontdekte dat de methode die hij jarenlang
+            gebruikte in teambuilding ook voor individuen ongelooflijk krachtig is.
+          </p>
+          <p class="font-medium not-italic text-ink">
+            Niet als therapeut. Niet als chatbot. Maar als een gestructureerde ruimte
+            om jezelf te horen, via je handen.
+          </p>
+        </div>
+
+        <!-- Kernpunten -->
+        <ul class="mt-8 space-y-3">
+          <li class="flex items-start gap-3 text-sm text-ink-muted">
+            <span class="material-symbols-outlined text-forest-mid mt-0.5 fill" style="font-size:18px;">check_circle</span>
+            Gebaseerd op LEGO® Serious Play, een bewezen methode uit de organisatiepsychologie
+          </li>
+          <li class="flex items-start gap-3 text-sm text-ink-muted">
+            <span class="material-symbols-outlined text-forest-mid mt-0.5 fill" style="font-size:18px;">check_circle</span>
+            Observeert vóórdat het interpreteert, geen horoscopen maar echte reflectie
+          </li>
+          <li class="flex items-start gap-3 text-sm text-ink-muted">
+            <span class="material-symbols-outlined text-forest-mid mt-0.5 fill" style="font-size:18px;">check_circle</span>
+            Gebouwd voor de Nederlandse markt, in het Nederlands
+          </li>
+          <li class="flex items-start gap-3 text-sm text-ink-muted">
+            <span class="material-symbols-outlined text-forest-mid mt-0.5 fill" style="font-size:18px;">check_circle</span>
+            Privacyvriendelijk, jouw sessies zijn van jou
+          </li>
+        </ul>
+      </div>
+
+      <!-- Right: Vincent card -->
+      <div>
+        <div class="bg-white rounded-xl border border-cream-deep overflow-hidden shadow-sm">
+          <!-- Card header -->
+          <div class="h-32 relative" style="background: linear-gradient(135deg, #1e3d2a 0%, #2d5a3d 50%, #476558 100%);">
+            <div class="absolute bottom-0 left-8 translate-y-1/2">
+              <div class="w-20 h-20 rounded-full bg-clay flex items-center justify-center border-4 border-white shadow-lg">
+                <span class="text-2xl font-serif text-white font-bold">Vm</span>
+              </div>
+            </div>
+            <div class="absolute top-4 right-4">
+              <span class="text-xs font-medium text-white/60 bg-white/10 px-3 py-1 rounded-full">Oprichter</span>
+            </div>
+          </div>
+          <!-- Card body -->
+          <div class="pt-14 pb-8 px-8">
+            <h3 class="font-serif text-xl font-medium text-ink">Vincent van Munster</h3>
+            <p class="text-sm text-clay font-medium mt-1 mb-4">Welzijn Expert &amp; Ondernemer</p>
+            <p class="text-sm text-ink-muted leading-relaxed mb-6">
+              Directeur en bestuurder in de maatschappelijke sector (Zorg &amp; Welzijn).
+              Meer dan 15 jaar ervaring bij organisaties als Stichting de Baan, MeerWaarde
+              en C-Beta. Nu ondernemer, met als missie de kloof dichten tussen menselijk
+              welzijn en technologische innovatie.
+            </p>
+            <blockquote class="border-l-2 border-clay/30 pl-4 font-serif italic text-sm text-ink-muted mb-6">
+              "Ik spreek de taal van de bestuurder én kan zelf de technische oplossing bouwen.
+              Brickme is het bewijs dat die twee werelden elkaar versterken."
+            </blockquote>
+            <a href="https://weareimpact.nl" class="text-xs text-forest-mid hover:text-forest transition-colors font-medium flex items-center gap-1">
+              <span class="material-symbols-outlined" style="font-size:14px;">open_in_new</span>
+              Een WeAreImpact venture · weareimpact.nl
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PRIJZEN
+═══════════════════════════════════════════ -->
+<section id="prijzen" class="py-24 md:py-32 px-6">
+  <div class="max-w-7xl mx-auto">
+
+    <div class="text-center mb-14">
+      <span class="text-xs font-medium uppercase tracking-[0.18em] text-forest-mid mb-4 block">Prijzen</span>
+      <h2 class="font-serif text-[clamp(2rem,4vw,3.2rem)] leading-tight text-ink mb-4">
+        Eenvoudig en eerlijk
+      </h2>
+      <p class="font-serif italic text-lg text-ink-muted max-w-xl mx-auto">
+        Geen abonnement dat je vergeet op te zeggen. Betaal per sessie,
+        of kies een bundel als je dieper wil gaan.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+
+      <!-- Losse sessie -->
+      <div class="bg-white border border-cream-deep rounded-xl p-8 flex flex-col hover:shadow-md transition-shadow">
+        <div class="mb-6">
+          <p class="text-xs font-medium text-ink-faint uppercase tracking-widest mb-2">Losse sessie</p>
+          <div class="flex items-baseline gap-1 mb-3">
+            <span class="font-serif text-4xl font-medium text-ink">€&nbsp;14,95</span>
+          </div>
+          <p class="text-sm text-ink-muted">Eenmalig proberen. Geen account nodig, geen verplichtingen.</p>
+        </div>
+        <ul class="space-y-3 flex-grow mb-8 text-sm">
+          <li class="flex items-center gap-2.5 text-ink-muted">
+            <span class="material-symbols-outlined text-forest-mid fill" style="font-size:16px;">check_circle</span>
+            Volledige sessie van 30–45 min
+          </li>
+          <li class="flex items-center gap-2.5 text-ink-muted">
+            <span class="material-symbols-outlined text-forest-mid fill" style="font-size:16px;">check_circle</span>
+            Intake op maat
+          </li>
+          <li class="flex items-center gap-2.5 text-ink-muted">
+            <span class="material-symbols-outlined text-forest-mid fill" style="font-size:16px;">check_circle</span>
+            3 bouwfases met timer
+          </li>
+          <li class="flex items-center gap-2.5 text-ink-muted">
+            <span class="material-symbols-outlined text-forest-mid fill" style="font-size:16px;">check_circle</span>
+            Claude Vision reflectie per foto
+          </li>
+          <li class="flex items-center gap-2.5 text-ink-muted">
+            <span class="material-symbols-outlined text-forest-mid fill" style="font-size:16px;">check_circle</span>
+            Persoonlijk PDF-rapport
+          </li>
+        </ul>
+        <a href="#" class="w-full text-center py-3.5 bg-cream-dim text-ink text-sm font-medium rounded-full hover:bg-cream-deep transition-colors">
+          Probeer eenmalig
+        </a>
+      </div>
+
+      <!-- Maandabonnement (featured) -->
+      <div class="bg-clay text-white rounded-xl p-8 flex flex-col relative shadow-xl shadow-clay/30 ring-4 ring-clay ring-offset-4 ring-offset-cream">
+        <!-- Badge -->
+        <div class="absolute -top-4 left-1/2 -translate-x-1/2">
+          <span class="text-xs font-medium bg-forest text-white px-4 py-1.5 rounded-full shadow-sm whitespace-nowrap">
+            Meest gekozen
+          </span>
+        </div>
+        <div class="mb-6">
+          <p class="text-xs font-medium text-white/60 uppercase tracking-widest mb-2">Maandabonnement</p>
+          <div class="flex items-baseline gap-1 mb-1">
+            <span class="font-serif text-4xl font-medium text-white">€&nbsp;9,95</span>
+            <span class="text-sm text-white/70">/ mnd</span>
+          </div>
+          <p class="text-sm text-white/70">
+            Voor mensen die vaker willen reflecteren en hun groei willen volgen.
+          </p>
+        </div>
+        <ul class="space-y-3 flex-grow mb-8 text-sm">
+          <li class="flex items-center gap-2.5 text-white/90">
+            <span class="material-symbols-outlined text-clay-dim fill" style="font-size:16px;">check_circle</span>
+            Onbeperkt sessies
+          </li>
+          <li class="flex items-center gap-2.5 text-white/90">
+            <span class="material-symbols-outlined text-clay-dim fill" style="font-size:16px;">check_circle</span>
+            Bouwarchief, al je sessies bewaard
+          </li>
+          <li class="flex items-center gap-2.5 text-white/90">
+            <span class="material-symbols-outlined text-clay-dim fill" style="font-size:16px;">check_circle</span>
+            Stemming voor/na tracking
+          </li>
+          <li class="flex items-center gap-2.5 text-white/90">
+            <span class="material-symbols-outlined text-clay-dim fill" style="font-size:16px;">check_circle</span>
+            Check-ins na verloop van tijd
+          </li>
+          <li class="flex items-center gap-2.5 text-white/90">
+            <span class="material-symbols-outlined text-clay-dim fill" style="font-size:16px;">check_circle</span>
+            <strong>Eerste maand gratis</strong>
+          </li>
+        </ul>
+        <a href="#" class="w-full text-center py-3.5 bg-white text-clay text-sm font-medium rounded-full hover:bg-cream transition-colors shadow-sm">
+          Start gratis →
+        </a>
+      </div>
+
+      <!-- Coach licentie -->
+      <div class="bg-white border border-cream-deep rounded-xl p-8 flex flex-col hover:shadow-md transition-shadow">
+        <div class="mb-6">
+          <p class="text-xs font-medium text-ink-faint uppercase tracking-widest mb-2">Coach licentie</p>
+          <div class="flex items-baseline gap-1 mb-3">
+            <span class="font-serif text-4xl font-medium text-ink">€&nbsp;79</span>
+            <span class="text-sm text-ink-muted">/ mnd</span>
+          </div>
+          <p class="text-sm text-ink-muted">Voor LSP-facilitators en coaches die Brickme inzetten bij hun cliënten.</p>
+        </div>
+        <ul class="space-y-3 flex-grow mb-8 text-sm">
+          <li class="flex items-center gap-2.5 text-ink-muted">
+            <span class="material-symbols-outlined text-forest-mid fill" style="font-size:16px;">check_circle</span>
+            Onbeperkt cliëntsessies
+          </li>
+          <li class="flex items-center gap-2.5 text-ink-muted">
+            <span class="material-symbols-outlined text-forest-mid fill" style="font-size:16px;">check_circle</span>
+            Coach-dashboard (met toestemming cliënt)
+          </li>
+          <li class="flex items-center gap-2.5 text-ink-muted">
+            <span class="material-symbols-outlined text-forest-mid fill" style="font-size:16px;">check_circle</span>
+            Rapporten inzien vóór sessie
+          </li>
+          <li class="flex items-center gap-2.5 text-ink-muted">
+            <span class="material-symbols-outlined text-forest-mid fill" style="font-size:16px;">check_circle</span>
+            Wit-label mogelijkheid
+          </li>
+          <li class="flex items-center gap-2.5 text-ink-muted">
+            <span class="material-symbols-outlined text-forest-mid fill" style="font-size:16px;">check_circle</span>
+            Ondersteuning via WeAreImpact
+          </li>
+        </ul>
+        <a href="#" class="w-full text-center py-3.5 bg-cream-dim text-ink text-sm font-medium rounded-full hover:bg-cream-deep transition-colors">
+          Contact opnemen
+        </a>
+      </div>
+
+    </div>
+
+    <!-- Enterprise note -->
+    <p class="text-center text-sm text-ink-faint mt-8">
+      Organisaties &amp; welzijnspartners:
+      <a href="#" class="text-clay hover:underline">neem contact op voor maatwerk.</a>
+    </p>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     FAQ
+═══════════════════════════════════════════ -->
+<section class="py-24 md:py-32 px-6" style="background-color: #f5ede4;">
+  <div class="max-w-3xl mx-auto">
+
+    <div class="text-center mb-12">
+      <span class="text-xs font-medium uppercase tracking-[0.18em] text-clay mb-4 block">Veelgestelde vragen</span>
+      <h2 class="font-serif text-[clamp(1.8rem,3.5vw,2.8rem)] leading-tight text-ink">
+        Alles wat je wil weten
+      </h2>
+    </div>
+
+    <div class="space-y-3">
+
+      <details class="group bg-white rounded-xl border border-cream-deep overflow-hidden">
+        <summary class="flex items-center justify-between px-7 py-5 cursor-pointer list-none select-none">
+          <span class="font-serif text-base font-medium text-ink">Heb ik LEGO nodig?</span>
+          <span class="material-symbols-outlined text-ink-faint chevron transition-transform" style="font-size:20px;">expand_more</span>
+        </summary>
+        <div class="px-7 pb-6 text-sm text-ink-muted leading-relaxed font-serif italic border-t border-cream-deep pt-5">
+          LEGO is de ideale keuze, en de methode is er ook op gebouwd. Als LEGO-Serious-Play-facilitator geloof ik oprecht in wat LEGO doet met je handen en je hoofd. Heb je geen LEGO bij de hand? Dan kun je ook andere bouwmaterialen gebruiken. Maar investeer in een setje, het maakt het verschil.
+        </div>
+      </details>
+
+      <details class="group bg-white rounded-xl border border-cream-deep overflow-hidden">
+        <summary class="flex items-center justify-between px-7 py-5 cursor-pointer list-none select-none">
+          <span class="font-serif text-base font-medium text-ink">Is dit therapie?</span>
+          <span class="material-symbols-outlined text-ink-faint chevron transition-transform" style="font-size:20px;">expand_more</span>
+        </summary>
+        <div class="px-7 pb-6 text-sm text-ink-muted leading-relaxed font-serif italic border-t border-cream-deep pt-5">
+          Nee. Brickme is een reflectietool, geen behandeling. Als je kampt met ernstige
+          psychische klachten, raden wij altijd aan om professionele hulp te zoeken.
+          Brickme is bedoeld voor mensen die willen nadenken over hun leven, niet voor crisis.
+        </div>
+      </details>
+
+      <details class="group bg-white rounded-xl border border-cream-deep overflow-hidden">
+        <summary class="flex items-center justify-between px-7 py-5 cursor-pointer list-none select-none">
+          <span class="font-serif text-base font-medium text-ink">Wat gebeurt er met mijn foto's?</span>
+          <span class="material-symbols-outlined text-ink-faint chevron transition-transform" style="font-size:20px;">expand_more</span>
+        </summary>
+        <div class="px-7 pb-6 text-sm text-ink-muted leading-relaxed font-serif italic border-t border-cream-deep pt-5">
+          Je foto wordt alleen gebruikt om jouw reflectie te genereren. We slaan geen
+          afbeeldingen op buiten jouw eigen sessie-archief. Jouw data is van jou.
+        </div>
+      </details>
+
+      <details class="group bg-white rounded-xl border border-cream-deep overflow-hidden">
+        <summary class="flex items-center justify-between px-7 py-5 cursor-pointer list-none select-none">
+          <span class="font-serif text-base font-medium text-ink">Hoe verschilt dit van een chatbot?</span>
+          <span class="material-symbols-outlined text-ink-faint chevron transition-transform" style="font-size:20px;">expand_more</span>
+        </summary>
+        <div class="px-7 pb-6 text-sm text-ink-muted leading-relaxed font-serif italic border-t border-cream-deep pt-5">
+          Een chatbot praat met je. Brickme laat je bouwen. Het verschil is fundamenteel:
+          je handen activeren andere delen van je brein dan je taalcentrum. En de reflectie
+          is gericht op jouw specifieke foto, niet op generieke coachingsvragen.
+        </div>
+      </details>
+
+      <details class="group bg-white rounded-xl border border-cream-deep overflow-hidden">
+        <summary class="flex items-center justify-between px-7 py-5 cursor-pointer list-none select-none">
+          <span class="font-serif text-base font-medium text-ink">Kan mijn coach of therapeut mijn rapport zien?</span>
+          <span class="material-symbols-outlined text-ink-faint chevron transition-transform" style="font-size:20px;">expand_more</span>
+        </summary>
+        <div class="px-7 pb-6 text-sm text-ink-muted leading-relaxed font-serif italic border-t border-cream-deep pt-5">
+          Alleen als jij dat wil. Je kunt je rapport exporteren als PDF en delen met wie
+          jij kiest. Standaard is alles privé.
+        </div>
+      </details>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     CTA SECTIE
+═══════════════════════════════════════════ -->
+<section class="py-24 md:py-32 px-6">
+  <div class="max-w-4xl mx-auto text-center relative">
+
+    <!-- Background blob -->
+    <div class="absolute inset-0 -z-10 pointer-events-none overflow-hidden rounded-3xl">
+      <div class="absolute inset-0 bg-clay rounded-3xl"></div>
+      <div class="absolute -top-16 -right-16 w-64 h-64 bg-clay-dim/30 rounded-full blur-3xl"></div>
+      <div class="absolute -bottom-16 -left-16 w-64 h-64 bg-forest/30 rounded-full blur-3xl"></div>
+      <!-- Grid overlay -->
+      <svg class="absolute inset-0 w-full h-full opacity-10" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="ctogrid" width="32" height="32" patternUnits="userSpaceOnUse">
+            <path d="M 32 0 L 0 0 0 32" fill="none" stroke="white" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#ctogrid)"/>
+      </svg>
+    </div>
+
+    <div class="relative py-16 px-8 md:px-16">
+      <!-- LEGO brick deco -->
+      <div class="flex justify-center mb-8 opacity-50">
+        <svg width="80" height="52" viewBox="0 0 80 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="12" width="80" height="40" rx="4" fill="white" opacity="0.2"/>
+          <rect x="8" y="2" width="16" height="16" rx="8" fill="white" opacity="0.3"/>
+          <rect x="32" y="2" width="16" height="16" rx="8" fill="white" opacity="0.3"/>
+          <rect x="56" y="2" width="16" height="16" rx="8" fill="white" opacity="0.3"/>
+        </svg>
+      </div>
+
+      <h2 class="font-serif text-[clamp(2rem,5vw,3.5rem)] leading-tight text-white mb-4">
+        Klaar om te bouwen?
+      </h2>
+      <p class="font-serif italic text-xl text-white/80 mb-10 max-w-lg mx-auto">
+        Je eerste sessie kost € 14,95. Of start vandaag gratis
+        met de eerste maand van je abonnement.
+      </p>
+      <a href="#" class="inline-flex items-center gap-2 bg-white text-clay font-medium text-lg px-10 py-4 rounded-full hover:bg-cream active:scale-95 transition-all duration-150 shadow-xl shadow-black/20">
+        Begin mijn sessie →
+      </a>
+    </div>
+
+  </div>
+</section>
+
+</main>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════ -->
+<footer class="border-t border-cream-deep" style="background-color: #1d1c17;">
+  <div class="max-w-7xl mx-auto px-6 md:px-10 py-12">
+    <div class="flex flex-col md:flex-row justify-between items-start gap-8">
+
+      <!-- Brand -->
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-7 h-7 rounded-sm bg-clay flex items-center justify-center">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="1" y="6" width="6" height="4" rx="0.5" fill="white" opacity="0.9"/>
+              <rect x="9" y="6" width="6" height="4" rx="0.5" fill="white" opacity="0.9"/>
+              <rect x="4" y="10" width="8" height="4" rx="0.5" fill="white"/>
+              <rect x="4" y="2" width="8" height="4" rx="0.5" fill="white" opacity="0.7"/>
+            </svg>
+          </div>
+          <span class="font-serif text-lg font-medium text-white/90">Brickme.nl</span>
+        </div>
+        <p class="text-xs text-white/40 max-w-xs leading-relaxed">
+          Een concept van WeAreImpact door Vincent van Munster
+        </p>
+        <p class="text-xs text-white/25 mt-4 max-w-xs leading-relaxed">
+          LEGO® is een trademark van The LEGO Group. Brickme is hier niet aan verbonden.
+        </p>
+      </div>
+
+      <!-- Links -->
+      <div class="flex flex-wrap gap-6 text-sm text-white/50">
+        <a href="#" class="hover:text-white/80 transition-colors">Privacy</a>
+        <a href="#" class="hover:text-white/80 transition-colors">Voorwaarden</a>
+        <a href="#" class="hover:text-white/80 transition-colors">Contact</a>
+        <a href="https://weareimpact.nl" class="hover:text-white/80 transition-colors">WeAreImpact.nl</a>
+      </div>
+
+    </div>
+
+    <div class="border-t border-white/10 mt-10 pt-6 text-xs text-white/25">
+      © 2025 Brickme · WeAreImpact
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Navbar shadow on scroll
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 24) {
+      nav.style.borderBottomColor = 'rgba(222,192,185,0.35)';
+      nav.style.boxShadow = '0 1px 24px rgba(45,30,20,0.08)';
+    } else {
+      nav.style.borderBottomColor = 'rgba(222,192,185,0.2)';
+      nav.style.boxShadow = 'none';
+    }
+  });
+</script>
+
+</body>
+</html>

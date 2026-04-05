@@ -125,6 +125,7 @@ export const artikelen = pgTable("artikelen", {
   schemaMarkup: jsonb("schema_markup"),
   leestijd: integer("leestijd"),
   seoScore: integer("seo_score"),
+  weergaven: integer("weergaven").notNull().default(0),
   gepubliceerd: boolean("gepubliceerd").notNull().default(false),
   gepubliceerdOp: timestamp("gepubliceerd_op"),
   aangemaktOp: timestamp("aangemakt_op").defaultNow().notNull(),

@@ -123,6 +123,8 @@ export default function RijkeTekstEditor({ waarde, onChange, onPasteVerwerkt }: 
   const [afbeeldingDialoog, setAfbeeldingDialoog] = useState(false);
   const [afbeeldingUrl, setAfbeeldingUrl] = useState("");
   const [afbeeldingAlt, setAfbeeldingAlt] = useState("");
+  const [uploaden, setUploaden] = useState(false);
+  const [uploadFout, setUploadFout] = useState("");
 
   const editor = useEditor({
     extensions: [
@@ -191,6 +193,23 @@ export default function RijkeTekstEditor({ waarde, onChange, onPasteVerwerkt }: 
     setAfbeeldingUrl("");
     setAfbeeldingAlt("");
   }, [editor, afbeeldingUrl, afbeeldingAlt]);
+
+  const handleUpload = useCallback(async (bestand: File) => {
+    setUploaden(true);
+    setUploadFout("");
+    const form = new FormData();
+    form.append("bestand", bestand);
+    try {
+      const res = await fetch("/api/admin/blog/upload", { method: "POST", body: form });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Upload mislukt");
+      setAfbeeldingUrl(data.url);
+    } catch (e) {
+      setUploadFout(e instanceof Error ? e.message : "Upload mislukt");
+    } finally {
+      setUploaden(false);
+    }
+  }, []);
 
   if (!editor) return null;
 
@@ -314,12 +333,53 @@ export default function RijkeTekstEditor({ waarde, onChange, onPasteVerwerkt }: 
           position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 1000,
           display: "flex", alignItems: "center", justifyContent: "center",
         }}>
-          <div style={{ background: "var(--color-surface-bright)", borderRadius: 16, padding: 28, width: 420, boxShadow: "0 8px 32px rgba(0,0,0,0.15)" }}>
+          <div style={{ background: "var(--color-surface-bright)", borderRadius: 16, padding: 28, width: 440, boxShadow: "0 8px 32px rgba(0,0,0,0.15)" }}>
             <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 20, color: "var(--color-text)" }}>Afbeelding invoegen</div>
-            <div style={{ marginBottom: 14 }}>
-              <label style={{ fontSize: 12, color: "var(--color-text-muted)", display: "block", marginBottom: 6 }}>Afbeelding URL</label>
+
+            {/* Upload zone */}
+            <label style={{
+              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+              border: "2px dashed var(--color-outline)", borderRadius: 12, padding: "24px 16px",
+              marginBottom: 16, cursor: uploaden ? "not-allowed" : "pointer",
+              background: uploaden ? "var(--color-surface-low)" : "var(--color-surface)",
+              transition: "background 150ms",
+            }}
+              onDragOver={e => e.preventDefault()}
+              onDrop={e => {
+                e.preventDefault();
+                const f = e.dataTransfer.files[0];
+                if (f) handleUpload(f);
+              }}
+            >
               <input
-                autoFocus
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                disabled={uploaden}
+                onChange={e => { const f = e.target.files?.[0]; if (f) handleUpload(f); }}
+              />
+              {uploaden ? (
+                <span style={{ fontSize: 13, color: "var(--color-text-muted)" }}>Uploaden...</span>
+              ) : afbeeldingUrl ? (
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={afbeeldingUrl} alt="" style={{ maxHeight: 120, maxWidth: "100%", borderRadius: 8, marginBottom: 8 }} />
+                  <span style={{ fontSize: 12, color: "var(--color-primary)" }}>Andere foto kiezen</span>
+                </>
+              ) : (
+                <>
+                  <span style={{ fontSize: 24, marginBottom: 8 }}>📷</span>
+                  <span style={{ fontSize: 13, color: "var(--color-text-muted)" }}>Klik om foto te uploaden of sleep hierheen</span>
+                  <span style={{ fontSize: 11, color: "var(--color-text-muted)", marginTop: 4 }}>JPG, PNG, WebP — max 5 MB</span>
+                </>
+              )}
+            </label>
+
+            {uploadFout && <p style={{ fontSize: 12, color: "#a03b1f", marginBottom: 12 }}>{uploadFout}</p>}
+
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ fontSize: 12, color: "var(--color-text-muted)", display: "block", marginBottom: 6 }}>Of plak een URL</label>
+              <input
                 type="url"
                 value={afbeeldingUrl}
                 onChange={e => setAfbeeldingUrl(e.target.value)}
@@ -332,6 +392,7 @@ export default function RijkeTekstEditor({ waarde, onChange, onPasteVerwerkt }: 
             <div style={{ marginBottom: 20 }}>
               <label style={{ fontSize: 12, color: "var(--color-text-muted)", display: "block", marginBottom: 6 }}>Alt-tekst (voor SEO)</label>
               <input
+                autoFocus
                 type="text"
                 value={afbeeldingAlt}
                 onChange={e => setAfbeeldingAlt(e.target.value)}
@@ -341,8 +402,8 @@ export default function RijkeTekstEditor({ waarde, onChange, onPasteVerwerkt }: 
               />
             </div>
             <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-              <button onClick={() => setAfbeeldingDialoog(false)} className="btn-secondary" style={{ fontSize: 13 }}>Annuleer</button>
-              <button onClick={voegAfbeeldingIn} className="btn-primary" style={{ fontSize: 13 }}>Invoegen</button>
+              <button onClick={() => { setAfbeeldingDialoog(false); setAfbeeldingUrl(""); setAfbeeldingAlt(""); setUploadFout(""); }} className="btn-secondary" style={{ fontSize: 13 }}>Annuleer</button>
+              <button onClick={voegAfbeeldingIn} disabled={!afbeeldingUrl || uploaden} className="btn-primary" style={{ fontSize: 13, opacity: (!afbeeldingUrl || uploaden) ? 0.5 : 1 }}>Invoegen</button>
             </div>
           </div>
         </div>

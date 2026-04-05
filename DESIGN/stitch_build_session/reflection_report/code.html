@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+
+<html class="light" lang="nl"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Inter:wght@100..900&amp;family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;family=DM+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary": "#ffffff",
+              "surface-variant": "#e7e2da",
+              "background": "#fef9f1",
+              "secondary": "#476558",
+              "on-secondary-container": "#4d6b5d",
+              "on-error-container": "#93000a",
+              "on-primary-container": "#fffbff",
+              "primary-fixed-dim": "#ffb4a1",
+              "primary-fixed": "#ffdbd1",
+              "surface": "#fef9f1",
+              "inverse-surface": "#32302b",
+              "on-primary-fixed": "#3c0800",
+              "inverse-on-surface": "#f5f0e8",
+              "secondary-fixed-dim": "#adcebe",
+              "on-surface-variant": "#57423d",
+              "primary-container": "#c05235",
+              "tertiary-fixed-dim": "#d3c4b1",
+              "on-surface": "#1d1c17",
+              "surface-container": "#f2ede5",
+              "error": "#ba1a1a",
+              "surface-bright": "#fef9f1",
+              "on-secondary-fixed": "#022016",
+              "surface-container-lowest": "#ffffff",
+              "on-secondary": "#ffffff",
+              "primary": "#a03b1f",
+              "on-error": "#ffffff",
+              "surface-dim": "#ded9d2",
+              "on-primary-fixed-variant": "#83260c",
+              "on-secondary-fixed-variant": "#304d40",
+              "on-tertiary-container": "#fffbff",
+              "on-tertiary": "#ffffff",
+              "surface-container-highest": "#e7e2da",
+              "tertiary": "#655a4b",
+              "on-tertiary-fixed": "#221a0e",
+              "tertiary-container": "#7e7362",
+              "tertiary-fixed": "#f0e0cc",
+              "outline": "#8a716b",
+              "surface-tint": "#a33d21",
+              "surface-container-high": "#ece8e0",
+              "outline-variant": "#dec0b9",
+              "secondary-fixed": "#c9ead9",
+              "secondary-container": "#c9ead9",
+              "inverse-primary": "#ffb4a1",
+              "on-tertiary-fixed-variant": "#4f4537",
+              "surface-container-low": "#f8f3eb",
+              "error-container": "#ffdad6",
+              "on-background": "#1d1c17"
+            },
+            fontFamily: {
+              "headline": ["Playfair Display", "serif"],
+              "body": ["Inter", "sans-serif"],
+              "label": ["DM Sans", "sans-serif"],
+              "serif-alt": ["Newsreader", "serif"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #F5F0E8;
+            color: #1d1c17;
+            -webkit-font-smoothing: antialiased;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+            font-size: 20px;
+        }
+        .page-canvas {
+            max-width: 430px; /* iPhone 15 Pro width */
+            margin: 0 auto;
+            min-height: 100vh;
+            padding: 2rem;
+            display: flex;
+            flex-col;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body selection:bg-primary/10">
+<div class="page-canvas">
+<!-- Header: Name + Date in small elegant header -->
+<header class="flex justify-between items-baseline mb-16">
+<div class="flex flex-col">
+<span class="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant/60">Journal Entry</span>
+<h1 class="font-label text-sm font-medium tracking-tight text-on-surface">Reflectie — 12 Maart</h1>
+</div>
+<button class="p-2 opacity-40 hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined" data-icon="ios_share">ios_share</span>
+</button>
+</header>
+<!-- Main Content Section: Editorial Layout -->
+<main class="flex-grow">
+<div class="mb-12">
+<h2 class="font-headline text-4xl leading-tight mb-4 italic font-light text-on-surface">De stilte van de ochtend.</h2>
+<p class="font-serif-alt text-lg leading-relaxed text-on-surface-variant max-w-[90%]">
+                    Een moment vastgelegd tussen het eerste licht en de dagelijkse routine. Een herinnering aan de ruimte die we voor onszelf creëren.
+                </p>
+</div>
+<!-- 2-column photo grid -->
+<div class="grid grid-cols-2 gap-x-6 gap-y-12 items-start mb-20">
+<!-- Column 1 -->
+<div class="flex flex-col gap-4">
+<div class="aspect-[3/4] overflow-hidden bg-surface-container">
+<img alt="Journaling on a wooden desk" class="w-full h-full object-cover" data-alt="Close-up of an open linen journal on a warm wooden table with a ceramic coffee mug and soft morning sunlight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC04WGq1x1ZIgDyKJoyOZ9gAoPSebiG6n_OfRejgo5CUuyy1DGEhOI1Q4PRq9O-PYkuWr-U2PulXolhEwntB-NddYELpyFNqqwW77XY7yaXA4h4eR0LyBqRN--bxLvgjnxzCNRcQLIz7uRu3mzmttPhinDixrf-BAzbhLiCOGmtzGACFcmJaEldKJW3bz4frgOHWFUHZ7dGKMDh1aIwUpZC7vCvVw47spkU3RPVJQceIQyOrp8a0VrLCkdom8yHoeZyXBHDHDT3VnLw"/>
+</div>
+<p class="font-headline text-sm leading-relaxed italic text-on-surface/80">
+                        Het begin van een nieuwe dialoog met mezelf.
+                    </p>
+</div>
+<!-- Column 2 (Asymmetric shift) -->
+<div class="flex flex-col gap-4 mt-8">
+<div class="aspect-[3/4] overflow-hidden bg-surface-container">
+<img alt="Soft window light" class="w-full h-full object-cover" data-alt="Soft sunlight streaming through a linen curtain into a minimalist room with a single green plant in the corner" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjxZx8xV0PesWzQZCh72cSRdtWQu2yo_fq-vgpjMv7ptV-JFG-Ue3gHbwWaaiy7O9Vb5ua8omUXkyh-5w4Z1B-wijUBUlSoZMRFwrwrbeA2amFKRDhi1cGcMnLxYtK4MixhR6iUQ9VbRct5RqCecWpTi_R3ccPorxyF-l8B0cEW58JPX5C_c0tCMiox2GHMkaH2Dq1YG15o4OSbHuIm02060lW6wOza5HzuzRUOodH3xQUNt0AjndLT7FKvWQpeYycFPCDzRq0Mo3C"/>
+</div>
+<p class="font-headline text-sm leading-relaxed italic text-on-surface/80">
+                        Licht dat de kamer langzaam vult.
+                    </p>
+</div>
+<!-- Row 2 Column 1 -->
+<div class="flex flex-col gap-4 -mt-4">
+<div class="aspect-square overflow-hidden bg-surface-container">
+<img alt="Yoga mat" class="w-full h-full object-cover" data-alt="A rolled yoga mat resting against a textured wall in a bright studio with warm shadows and organic materials" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4CaCOT1rAOc69rIGPPlb6JwC2HKq6t2z66I7vmdNDcqsyXM5PGz_zKFGoZg1Mtv9skrb7Eag98aEzps6BKKFXzY0BFpymhsbNRKLrxO6nW6NZUNfn1KQdpHg02dnpdnkF830mQuDi053iu_u9TmxXVGqFPcDuiBLo6dlsRdeS6sF8z26UdYX1YYnsr0r9TogoTqtwvBJUBUKrxbhsY78zHWY_ACGzW9wwjaS8pKw76bLt7W_se3X0sk1PJzoq8M-mwXktEzgA1jqL"/>
+</div>
+<p class="font-headline text-sm leading-relaxed italic text-on-surface/80">
+                        Beweging als vorm van meditatie.
+                    </p>
+</div>
+<!-- Row 2 Column 2 -->
+<div class="flex flex-col gap-4 mt-12">
+<div class="aspect-[2/3] overflow-hidden bg-surface-container">
+<img alt="Meditation space" class="w-full h-full object-cover" data-alt="A peaceful outdoor meditation spot with a stone lantern and lush green moss under a canopy of trees" src="https://lh3.googleusercontent.com/aida-public/AB6AXuACA6Cm3oA2LQhZ6wsFnAEmiyg3YJrhwQJ-FinS0Ag-vNxpqdcp-ndKFiM3xcILp26eo4Jsl7-VmRNBfJRs2-NSiMDkw6I8OQpbHVjCar_4F0bud_BU351GUkxMiYta_SFs0So5o-VMLHhl4iIHquYcQDxvNp_uysAGAnXAjteklEzxk7cWA9AqUrAd1d-vWw8kbWHStGJA4fYCs_uZFKMJ5aKPJJg2LtF5jNZKz0M9-NeO7CABbriqa5gD__weUaaJuMRCO77Bk59L"/>
+</div>
+<p class="font-headline text-sm leading-relaxed italic text-on-surface/80">
+                        Verbinding met de natuur om me heen.
+                    </p>
+</div>
+</div>
+</main>
+<!-- Bottom Card: 'Jouw eerste stap' -->
+<footer class="mt-auto">
+<div class="bg-[#2D4A3E] p-8 rounded-none flex flex-col items-center text-center">
+<span class="font-label text-[10px] uppercase tracking-[0.3em] text-white/50 mb-3">Continuïteit</span>
+<h3 class="font-headline text-2xl text-white mb-6 font-light">Jouw eerste stap</h3>
+<p class="font-serif-alt text-white/80 text-sm mb-8 leading-relaxed max-w-[80%]">
+                    Morgen begint bij de intentie die je vandaag zet. Wat is de kleinste handeling die je rust brengt?
+                </p>
+<button class="border border-white/20 px-8 py-3 text-white font-label text-xs uppercase tracking-widest hover:bg-white/10 transition-colors">
+                    Plan Moment
+                </button>
+</div>
+<div class="py-12 flex justify-center opacity-20">
+<div class="w-12 h-[1px] bg-on-surface"></div>
+</div>
+</footer>
+</div>
+<!-- No-line rule spacer at very bottom -->
+<div class="h-8"></div>
+</body></html>

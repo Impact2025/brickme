@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+
+<html class="light" lang="nl"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,300;0,400;0,700;1,300;1,400&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-primary": "#ffffff",
+            "surface-variant": "#e7e2da",
+            "background": "#fef9f1",
+            "secondary": "#476558",
+            "on-secondary-container": "#4d6b5d",
+            "on-error-container": "#93000a",
+            "on-primary-container": "#fffbff",
+            "primary-fixed-dim": "#ffb4a1",
+            "primary-fixed": "#ffdbd1",
+            "surface": "#fef9f1",
+            "inverse-surface": "#32302b",
+            "on-primary-fixed": "#3c0800",
+            "inverse-on-surface": "#f5f0e8",
+            "secondary-fixed-dim": "#adcebe",
+            "on-surface-variant": "#57423d",
+            "primary-container": "#c05235",
+            "tertiary-fixed-dim": "#d3c4b1",
+            "on-surface": "#1d1c17",
+            "surface-container": "#f2ede5",
+            "error": "#ba1a1a",
+            "surface-bright": "#fef9f1",
+            "on-secondary-fixed": "#022016",
+            "surface-container-lowest": "#ffffff",
+            "on-secondary": "#ffffff",
+            "primary": "#a03b1f",
+            "on-error": "#ffffff",
+            "surface-dim": "#ded9d2",
+            "on-primary-fixed-variant": "#83260c",
+            "on-secondary-fixed-variant": "#304d40",
+            "on-tertiary-container": "#fffbff",
+            "on-tertiary": "#ffffff",
+            "surface-container-highest": "#e7e2da",
+            "tertiary": "#655a4b",
+            "on-tertiary-fixed": "#221a0e",
+            "tertiary-container": "#7e7362",
+            "tertiary-fixed": "#f0e0cc",
+            "outline": "#8a716b",
+            "surface-tint": "#a33d21",
+            "surface-container-high": "#ece8e0",
+            "outline-variant": "#dec0b9",
+            "secondary-fixed": "#c9ead9",
+            "secondary-container": "#c9ead9",
+            "inverse-primary": "#ffb4a1",
+            "on-tertiary-fixed-variant": "#4f4537",
+            "surface-container-low": "#f8f3eb",
+            "error-container": "#ffdad6",
+            "on-background": "#1d1c17"
+          },
+          fontFamily: {
+            "headline": ["Newsreader", "serif"],
+            "body": ["Inter", "sans-serif"],
+            "label": ["Inter", "sans-serif"]
+          },
+          borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+    }
+    .clock-arc {
+      stroke-dasharray: 283;
+      stroke-dashoffset: 70;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+    }
+    .card-texture {
+      background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-[#f5f0e8] text-on-surface font-body selection:bg-primary/10 min-h-screen flex flex-col items-center overflow-hidden">
+<!-- Top Navigation Shell -->
+<header class="flex justify-between items-center w-full px-8 py-4 fixed top-0 z-50">
+<button class="text-primary hover:bg-secondary/5 transition-colors p-2 rounded-full active:scale-95 duration-200 ease-in-out">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-headline text-3xl font-light tracking-tight text-primary">Reflections</h1>
+<div class="w-10 h-10 rounded-full bg-surface-container-high border border-outline-variant/20 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="close-up portrait of a serene man with a soft smile in warm, natural window lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRf3WstDxVRQVgzfPJl8YJIQfkUhw2mgQGVnX8-zYiu0s3I7ikZ9bXGVOozuf63A7B4bVx7B1UqGtju6W0NNOc_1UtRaKM-oxOeaY1_3YnI61r1VaL5AhHv5CbAzg1oQX7aNwARflXpiWvYji7BsV4ISe9-G-mynj7DTvpa7bHtY6nXKf6mdOCxBIwuWdBrljIdx5BzUnUsukymsYqc0N-FEnNOX6yNZcvDD0McUonpe8CR3jNpgMp9L2XrCyk4Ozj_VMMX0CoI3lQ"/>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 flex flex-col items-center justify-center w-full max-w-[430px] px-8 relative">
+<!-- Large Analog Clock Arc Countdown -->
+<div class="absolute top-24 flex flex-col items-center">
+<div class="relative w-48 h-48 flex items-center justify-center">
+<svg class="w-full h-full" viewbox="0 0 100 100">
+<!-- Background Circle (Ghost Border) -->
+<circle cx="50" cy="50" fill="none" r="45" stroke="#dec0b9" stroke-opacity="0.3" stroke-width="0.5"></circle>
+<!-- Active Arc (Terracotta #C8583A mapping to primary variant) -->
+<circle class="clock-arc" cx="50" cy="50" fill="none" r="45" stroke="#a03b1f" stroke-linecap="round" stroke-width="1.5"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center pt-2">
+<span class="font-headline italic text-4xl text-primary">08:42</span>
+</div>
+</div>
+<span class="mt-4 font-label text-[10px] tracking-[0.2em] uppercase text-on-surface-variant font-medium">STILTE</span>
+</div>
+<!-- Center Card: Face-down Editorial Card -->
+<div class="group cursor-pointer">
+<div class="w-64 h-80 bg-surface-container-low rounded-[2.5rem] flex flex-col items-center justify-center text-center p-8 border border-outline-variant/10 card-texture relative overflow-hidden transition-transform duration-500 active:scale-[0.98]">
+<!-- Subtle Pattern for 'Face Down' Aesthetic -->
+<div class="absolute inset-0 opacity-[0.03] pointer-events-none">
+<svg height="100%" width="100%">
+<pattern height="20" id="cardPattern" patternunits="userSpaceOnUse" width="20">
+<circle cx="2" cy="2" fill="#a03b1f" r="1"></circle>
+</pattern>
+<rect fill="url(#cardPattern)" height="100%" width="100%"></rect>
+</svg>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-4xl mb-6 opacity-40">filter_vintage</span>
+<p class="font-body text-sm text-on-surface-variant/60 leading-relaxed tracking-wide">
+          Tik om te onthullen
+        </p>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Shell: The Bottom Dock -->
+<footer class="fixed bottom-0 left-0 w-full flex justify-around items-end px-12 pb-12 pt-4 z-50">
+<!-- Secondary Actions -->
+<div class="flex items-center justify-between w-full max-w-sm mb-2">
+<button class="flex flex-col items-center justify-center text-secondary opacity-60 hover:opacity-100 transition-opacity p-3 active:scale-95">
+<span class="material-symbols-outlined" data-icon="edit_note">edit_note</span>
+</button>
+<!-- Oversized Camera Button -->
+<button class="relative group active:scale-95 transition-transform duration-200">
+<div class="absolute -inset-4 bg-primary/5 rounded-full scale-0 group-hover:scale-100 transition-transform duration-300"></div>
+<div class="w-[72px] h-[72px] bg-primary rounded-full flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">photo_camera</span>
+</div>
+</button>
+<button class="flex flex-col items-center justify-center text-secondary opacity-60 hover:opacity-100 transition-opacity p-3 active:scale-95">
+<span class="material-symbols-outlined" data-icon="mic">mic</span>
+</button>
+</div>
+</footer>
+<!-- Floating Navigation Indicator (Invisible context for prompt) -->
+<nav class="hidden md:flex fixed right-8 top-1/2 -translate-y-1/2 flex-col gap-8 items-center bg-surface-bright/80 backdrop-blur-xl p-4 rounded-full border border-outline-variant/10">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">auto_stories</span>
+<span class="material-symbols-outlined text-secondary/60">history_edu</span>
+<span class="material-symbols-outlined text-secondary/60">settings</span>
+</nav>
+</body></html>

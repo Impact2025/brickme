@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-primary": "#ffffff",
+                        "surface-variant": "#e7e2da",
+                        "background": "#fef9f1",
+                        "secondary": "#476558",
+                        "on-secondary-container": "#4d6b5d",
+                        "on-error-container": "#93000a",
+                        "on-primary-container": "#fffbff",
+                        "primary-fixed-dim": "#ffb4a1",
+                        "primary-fixed": "#ffdbd1",
+                        "surface": "#fef9f1",
+                        "inverse-surface": "#32302b",
+                        "on-primary-fixed": "#3c0800",
+                        "inverse-on-surface": "#f5f0e8",
+                        "secondary-fixed-dim": "#adcebe",
+                        "on-surface-variant": "#57423d",
+                        "primary-container": "#c05235",
+                        "tertiary-fixed-dim": "#d3c4b1",
+                        "on-surface": "#1d1c17",
+                        "surface-container": "#f2ede5",
+                        "error": "#ba1a1a",
+                        "surface-bright": "#fef9f1",
+                        "on-secondary-fixed": "#022016",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "primary": "#a03b1f",
+                        "on-error": "#ffffff",
+                        "surface-dim": "#ded9d2",
+                        "on-primary-fixed-variant": "#83260c",
+                        "on-secondary-fixed-variant": "#304d40",
+                        "on-tertiary-container": "#fffbff",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-highest": "#e7e2da",
+                        "tertiary": "#655a4b",
+                        "on-tertiary-fixed": "#221a0e",
+                        "tertiary-container": "#7e7362",
+                        "tertiary-fixed": "#f0e0cc",
+                        "outline": "#8a716b",
+                        "surface-tint": "#a33d21",
+                        "surface-container-high": "#ece8e0",
+                        "outline-variant": "#dec0b9",
+                        "secondary-fixed": "#c9ead9",
+                        "secondary-container": "#c9ead9",
+                        "inverse-primary": "#ffb4a1",
+                        "on-tertiary-fixed-variant": "#4f4537",
+                        "surface-container-low": "#f8f3eb",
+                        "error-container": "#ffdad6",
+                        "on-background": "#1d1c17"
+                    },
+                    fontFamily: {
+                        "headline": ["Playfair Display", "serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"],
+                        "serif": ["Newsreader", "serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .noise-overlay {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3仿真%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+        }
+        .card-inner-path {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 0;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-[#F5F0E8] text-[#2C1F14] font-body min-h-screen relative overflow-x-hidden selection:bg-primary/20">
+<div class="fixed inset-0 noise-overlay z-50"></div>
+<!-- Top App Bar (Shared Component Logic) -->
+<header class="flex justify-between items-center w-full px-8 py-8 fixed top-0 left-0 z-40 bg-[#F5F0E8]/40 backdrop-blur-md">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#a03b1f]">menu</span>
+<h1 class="font-serif text-3xl font-light tracking-tight text-[#a03b1f]">Reflections</h1>
+</div>
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-variant flex items-center justify-center border border-primary/10">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="Soft-lit portrait of a person with calm expression against a warm neutral background, editorial photography style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDiukSQlIeiEjHj_T-nRo2mvh0m_kE0Hfo8RzFE6GQS5VzNtafuWdNHJIcXm34IkVxyB6IUaNxwJyBhKuGJC--GjPyyalSLHj9u7axI4SMd5r_MpDMTb5JiNvj6ofFgX0JTwEANYtuCq5sljW7bTJGfljnIR2b3NvZ0LBrynDN7GmuzaEawYjnu4hkL5YpcEFYfI5GIlABLMdHmv6nbQL7f50QLBdXKu8njOaDD0baWRDRbpmnTtLu2XH6MO3dgiYuGBetDgmXXAjvb"/>
+</div>
+</header>
+<main class="pt-28 pb-40 px-6 space-y-12">
+<header class="max-w-xs mx-auto text-center space-y-2">
+<h2 class="font-headline text-4xl italic font-medium tracking-tight">Choose your intent</h2>
+<p class="font-body text-sm opacity-60 tracking-wide uppercase">Select a resonance to begin your session</p>
+</header>
+<!-- Vertical Scroll Cards Section -->
+<section class="space-y-6 max-w-md mx-auto">
+<!-- Card 1: Gratitude -->
+<div class="relative group cursor-pointer">
+<div class="h-[24rem] w-full rounded-[2.5rem] bg-gradient-to-br from-[#E9DCC9] to-[#D6C1A7] p-10 flex flex-col justify-between overflow-hidden transition-all duration-500 border-2 border-transparent hover:border-primary/20 ring-primary/5 group-active:scale-[0.98]">
+<div class="space-y-4">
+<span class="font-label text-[10px] tracking-[0.2em] uppercase opacity-60">Session 01</span>
+<h3 class="font-headline text-5xl font-light">Gratitude</h3>
+</div>
+<div class="flex-grow flex items-center justify-center">
+<svg class="w-full h-32 opacity-40" fill="none" viewbox="0 0 200 100">
+<path class="card-inner-path" d="M10 80C40 80 60 20 100 20C140 20 160 80 190 80" stroke="#a03b1f" stroke-linecap="round" stroke-width="1.5"></path>
+</svg>
+</div>
+<p class="font-serif italic text-lg opacity-80">Rooting into the gifts of the present.</p>
+</div>
+</div>
+<!-- Card 2: Inner Peace -->
+<div class="relative group cursor-pointer">
+<div class="h-[24rem] w-full rounded-[2.5rem] bg-gradient-to-br from-[#DEC0B9] to-[#C9A59E] p-10 flex flex-col justify-between overflow-hidden transition-all duration-500 border-2 border-transparent hover:border-primary/20 ring-primary/5 group-active:scale-[0.98]">
+<div class="space-y-4">
+<span class="font-label text-[10px] tracking-[0.2em] uppercase opacity-60">Session 02</span>
+<h3 class="font-headline text-5xl font-light">Inner Peace</h3>
+</div>
+<div class="flex-grow flex items-center justify-center">
+<svg class="w-full h-32 opacity-40" fill="none" viewbox="0 0 200 100">
+<path class="card-inner-path" d="M20 50Q100 0 180 50" stroke="#a03b1f" stroke-linecap="round" stroke-width="1.5"></path>
+</svg>
+</div>
+<p class="font-serif italic text-lg opacity-80">Quiet the noise of the outside world.</p>
+</div>
+</div>
+<!-- Card 3: Clarity -->
+<div class="relative group cursor-pointer border-2 border-primary/30 rounded-[2.5rem]">
+<!-- Selected State Example -->
+<div class="h-[24rem] w-full rounded-[2.3rem] bg-gradient-to-br from-[#E2D5C3] to-[#C8B8A3] p-10 flex flex-col justify-between overflow-hidden relative shadow-[0_0_40px_rgba(160,59,31,0.1)]">
+<div class="space-y-4">
+<span class="font-label text-[10px] tracking-[0.2em] uppercase text-primary font-bold">Current Select</span>
+<h3 class="font-headline text-5xl font-light">Clarity</h3>
+</div>
+<div class="flex-grow flex items-center justify-center">
+<svg class="w-full h-32 opacity-60" fill="none" viewbox="0 0 200 100">
+<path class="card-inner-path" d="M10 50C10 50 40 10 100 10C160 10 190 50 190 50" stroke="#a03b1f" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</div>
+<p class="font-serif italic text-lg opacity-80">Seeing through the lens of stillness.</p>
+</div>
+</div>
+<!-- Card 4: Ambition -->
+<div class="relative group cursor-pointer">
+<div class="h-[24rem] w-full rounded-[2.5rem] bg-gradient-to-br from-[#DBC7B8] to-[#C2A898] p-10 flex flex-col justify-between overflow-hidden transition-all duration-500 border-2 border-transparent hover:border-primary/20 ring-primary/5 group-active:scale-[0.98]">
+<div class="space-y-4">
+<span class="font-label text-[10px] tracking-[0.2em] uppercase opacity-60">Session 04</span>
+<h3 class="font-headline text-5xl font-light">Ambition</h3>
+</div>
+<div class="flex-grow flex items-center justify-center">
+<svg class="w-full h-32 opacity-40" fill="none" viewbox="0 0 200 100">
+<path class="card-inner-path" d="M20 80L180 20" stroke="#a03b1f" stroke-linecap="round" stroke-width="1.5"></path>
+</svg>
+</div>
+<p class="font-serif italic text-lg opacity-80">Fueling the fire with gentle breath.</p>
+</div>
+</div>
+<!-- Card 5: Focus -->
+<div class="relative group cursor-pointer">
+<div class="h-[24rem] w-full rounded-[2.5rem] bg-gradient-to-br from-[#E7E2DA] to-[#D2CBC0] p-10 flex flex-col justify-between overflow-hidden transition-all duration-500 border-2 border-transparent hover:border-primary/20 ring-primary/5 group-active:scale-[0.98]">
+<div class="space-y-4">
+<span class="font-label text-[10px] tracking-[0.2em] uppercase opacity-60">Session 05</span>
+<h3 class="font-headline text-5xl font-light">Focus</h3>
+</div>
+<div class="flex-grow flex items-center justify-center">
+<svg class="w-full h-32 opacity-40" fill="none" viewbox="0 0 200 100">
+<circle class="card-inner-path" cx="100" cy="50" r="30" stroke="#a03b1f" stroke-width="1.5"></circle>
+</svg>
+</div>
+<p class="font-serif italic text-lg opacity-80">A single point of luminous attention.</p>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Sheet (Rising on selection) -->
+<div class="fixed bottom-0 left-0 w-full z-[60] px-4 pb-12 transition-transform duration-700 translate-y-0">
+<div class="max-w-md mx-auto bg-surface-bright/80 backdrop-blur-2xl rounded-[2.5rem] p-8 shadow-[0_-20px_60px_rgba(44,31,20,0.08)] border border-primary/5">
+<div class="w-12 h-1 bg-primary/20 rounded-full mx-auto mb-8"></div>
+<div class="flex items-center justify-between">
+<div>
+<h4 class="font-headline text-2xl">Clarity</h4>
+<p class="font-body text-xs opacity-50 uppercase tracking-widest">15 Minute Session</p>
+</div>
+<button class="bg-primary text-on-primary px-8 py-4 rounded-full font-serif text-xl flex items-center gap-3 active:scale-95 transition-all shadow-lg shadow-primary/20">
+                    Begin <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Bottom Nav Bar (Shared Component - Hidden in focused transactional view but kept as blueprint) -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-6 pb-8 pt-4 bg-[#fef9f1]/80 dark:bg-[#1a1816]/80 backdrop-blur-xl z-50 md:hidden opacity-0 pointer-events-none">
+<div class="flex flex-col items-center justify-center text-[#a03b1f] bg-[#a03b1f]/10 rounded-full w-12 h-12">
+<span class="material-symbols-outlined">auto_stories</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#476558] opacity-60">
+<span class="material-symbols-outlined">edit_note</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#476558] opacity-60">
+<span class="material-symbols-outlined">history_edu</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#476558] opacity-60">
+<span class="material-symbols-outlined">settings</span>
+</div>
+</nav>
+</body></html>
