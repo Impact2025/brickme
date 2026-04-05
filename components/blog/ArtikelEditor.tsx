@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { Artikel, SeoResultaat } from "@/types";
 import type { InterneLink } from "@/lib/db/schema";
+import RijkeTekstEditor from "./RijkeTekstEditor";
 
 interface ArtikelEditorProps {
   initieel?: Partial<Artikel>;
@@ -29,7 +30,7 @@ type Veld = {
   gepubliceerd: boolean;
 };
 
-function seoScoreKleur(score: number) {
+function seoScoreKleur(score: number): string {
   if (score >= 80) return "#476558";
   if (score >= 60) return "#a03b1f";
   return "#8B7355";
@@ -64,112 +65,6 @@ function SerpPreview({ metaTitel, metaBeschrijving, slug }: { metaTitel: string;
   );
 }
 
-function markdownNaarHtml(md: string): string {
-  const regels = md.split("\n");
-  const html: string[] = [];
-  let inLijst = false;
-  let lijstType = "";
-
-  function sluitLijst() {
-    if (inLijst) { html.push(lijstType === "ul" ? "</ul>" : "</ol>"); inLijst = false; lijstType = ""; }
-  }
-
-  function inline(tekst: string) {
-    return tekst
-      .replace(/\*\*\*(.+?)\*\*\*/g, "<strong><em>$1</em></strong>")
-      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-      .replace(/\*(.+?)\*/g, "<em>$1</em>")
-      .replace(/`(.+?)`/g, "<code>$1</code>")
-      .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>');
-  }
-
-  for (let i = 0; i < regels.length; i++) {
-    const r = regels[i];
-    const trimmed = r.trim();
-
-    if (!trimmed) { sluitLijst(); continue; }
-
-    if (/^#{1,6}\s/.test(trimmed)) {
-      sluitLijst();
-      const niveau = trimmed.match(/^(#{1,6})\s/)![1].length;
-      const tekst = inline(trimmed.replace(/^#{1,6}\s/, ""));
-      html.push(`<h${niveau}>${tekst}</h${niveau}>`);
-      continue;
-    }
-
-    if (/^[-*+]\s/.test(trimmed)) {
-      if (!inLijst || lijstType !== "ul") { sluitLijst(); html.push("<ul>"); inLijst = true; lijstType = "ul"; }
-      html.push(`<li>${inline(trimmed.replace(/^[-*+]\s/, ""))}</li>`);
-      continue;
-    }
-
-    if (/^\d+\.\s/.test(trimmed)) {
-      if (!inLijst || lijstType !== "ol") { sluitLijst(); html.push("<ol>"); inLijst = true; lijstType = "ol"; }
-      html.push(`<li>${inline(trimmed.replace(/^\d+\.\s/, ""))}</li>`);
-      continue;
-    }
-
-    if (/^---+$/.test(trimmed)) { sluitLijst(); html.push("<hr>"); continue; }
-
-    sluitLijst();
-    html.push(`<p>${inline(trimmed)}</p>`);
-  }
-
-  sluitLijst();
-  return html.join("\n");
-}
-
-function isWaarschijnlijkMarkdown(tekst: string) {
-  return /^#{1,6}\s|^\*\*|^[-*+]\s|\d+\.\s/m.test(tekst) && !/<[a-z][\s\S]*>/i.test(tekst);
-}
-
-type GeparsdeInhoud = {
-  titel?: string;
-  metaTitel?: string;
-  metaBeschrijving?: string;
-  slug?: string;
-  inhoud: string;
-};
-
-function parsClaudeOutput(tekst: string): GeparsdeInhoud {
-  const regels = tekst.split("\n");
-  let titel: string | undefined;
-  let metaTitel: string | undefined;
-  let metaBeschrijving: string | undefined;
-  let slug: string | undefined;
-  let artikelStart = 0;
-
-  for (let i = 0; i < Math.min(regels.length, 20); i++) {
-    const r = regels[i].trim();
-    if (!r) continue;
-
-    if (!titel && /^#{1,2}\s/.test(r)) {
-      titel = r.replace(/^#{1,2}\s/, "").replace(/\*\*/g, "").trim();
-      artikelStart = i + 1;
-      continue;
-    }
-    if (!titel && /^\*\*(.+)\*\*$/.test(r)) {
-      titel = r.replace(/^\*\*/, "").replace(/\*\*$/, "").trim();
-      artikelStart = i + 1;
-      continue;
-    }
-
-    const mtMatch = r.match(/^(?:\*\*)?Meta-?titel(?:\*\*)?[:\s]+(.+)/i);
-    if (mtMatch) { metaTitel = mtMatch[1].replace(/\*\*/g, "").trim(); artikelStart = i + 1; continue; }
-
-    const mbMatch = r.match(/^(?:\*\*)?Meta-?(?:omschrijving|beschrijving|description)(?:\*\*)?[:\s]+(.+)/i);
-    if (mbMatch) { metaBeschrijving = mbMatch[1].replace(/\*\*/g, "").trim(); artikelStart = i + 1; continue; }
-
-    const urlMatch = r.match(/^(?:\*\*)?URL(?:\*\*)?[:\s]+(?:https?:\/\/[^/]+)?\/blog\/([a-z0-9-]+)/i);
-    if (urlMatch) { slug = urlMatch[1]; artikelStart = i + 1; continue; }
-
-    if (/^---+$/.test(r)) { artikelStart = i + 1; break; }
-  }
-
-  const artikelRegels = regels.slice(artikelStart).join("\n").trim();
-  const inhoud = markdownNaarHtml(artikelRegels || tekst);
-  return { titel, metaTitel, metaBeschrijving, slug, inhoud };
-}
 
 export default function ArtikelEditor({ initieel, artikelId }: ArtikelEditorProps) {
   const router = useRouter();
@@ -198,7 +93,6 @@ export default function ArtikelEditor({ initieel, artikelId }: ArtikelEditorProp
   const [fout, setFout] = useState<string | null>(null);
   const [succes, setSucces] = useState<string | null>(null);
   const [nieuwTrefwoord, setNieuwTrefwoord] = useState("");
-  const [toonInhoudVoorvertoning, setToonInhoudVoorvertoning] = useState(false);
 
   const update = useCallback(<K extends keyof Veld>(key: K, value: Veld[K]) => {
     setVeld(v => ({ ...v, [key]: value }));
@@ -406,93 +300,22 @@ export default function ArtikelEditor({ initieel, artikelId }: ArtikelEditorProp
           />
         </div>
 
-        {/* Content toggle */}
-        <div style={{ padding: "12px 28px 0", display: "flex", gap: 12 }}>
-          <button
-            onClick={() => setToonInhoudVoorvertoning(false)}
-            style={{
-              fontSize: 12, fontWeight: 500, padding: "4px 12px", borderRadius: 6, border: "none", cursor: "pointer",
-              background: !toonInhoudVoorvertoning ? "var(--color-surface-high)" : "transparent",
-              color: "var(--color-text-muted)",
-            }}
-          >
-            Bewerken
-          </button>
-          <button
-            onClick={() => setToonInhoudVoorvertoning(true)}
-            style={{
-              fontSize: 12, fontWeight: 500, padding: "4px 12px", borderRadius: 6, border: "none", cursor: "pointer",
-              background: toonInhoudVoorvertoning ? "var(--color-surface-high)" : "transparent",
-              color: "var(--color-text-muted)",
-            }}
-          >
-            Voorvertoning
-          </button>
-          {isWaarschijnlijkMarkdown(veld.inhoud) && (
-            <button
-              onClick={() => update("inhoud", markdownNaarHtml(veld.inhoud))}
-              style={{
-                fontSize: 12, fontWeight: 500, padding: "4px 14px", borderRadius: 6, border: "none", cursor: "pointer",
-                background: "var(--color-primary)", color: "white", marginLeft: "auto",
-              }}
-            >
-              Markdown → HTML
-            </button>
-          )}
-        </div>
-
         {/* Content area */}
         <div style={{ flex: 1, overflow: "hidden", padding: "16px 28px 28px" }}>
-          {toonInhoudVoorvertoning ? (
-            <div
-              style={{
-                height: "100%",
-                overflow: "auto",
-                background: "var(--color-surface-bright)",
-                borderRadius: 12,
-                padding: "24px 32px",
-                fontSize: 16,
-                lineHeight: 1.7,
-                color: "var(--color-text)",
-              }}
-              className="prose"
-              dangerouslySetInnerHTML={{ __html: veld.inhoud }}
-            />
-          ) : (
-            <textarea
-              value={veld.inhoud}
-              onChange={e => update("inhoud", e.target.value)}
-              onPaste={e => {
-                const tekst = e.clipboardData.getData("text/plain");
-                if (!tekst) return;
-                e.preventDefault();
-                const parsed = parsClaudeOutput(tekst);
-                setVeld(v => ({
-                  ...v,
-                  inhoud: parsed.inhoud,
-                  titel: parsed.titel || v.titel,
-                  metaTitel: parsed.metaTitel || v.metaTitel,
-                  metaBeschrijving: parsed.metaBeschrijving || v.metaBeschrijving,
-                  slug: parsed.slug || v.slug,
-                }));
-              }}
-              placeholder="Plak hier je Claude artikel — meta-titel, omschrijving en headers worden automatisch herkend..."
-              style={{
-                width: "100%",
-                height: "100%",
-                border: "1px solid var(--color-outline)",
-                borderRadius: 12,
-                padding: "20px",
-                fontSize: 14,
-                fontFamily: "monospace",
-                lineHeight: 1.6,
-                color: "var(--color-text)",
-                background: "var(--color-surface-bright)",
-                resize: "none",
-                outline: "none",
-              }}
-            />
-          )}
+          <RijkeTekstEditor
+            waarde={veld.inhoud}
+            onChange={html => update("inhoud", html)}
+            onPasteVerwerkt={parsed => {
+              setVeld(v => ({
+                ...v,
+                inhoud: parsed.inhoud,
+                titel: parsed.titel || v.titel,
+                metaTitel: parsed.metaTitel || v.metaTitel,
+                metaBeschrijving: parsed.metaBeschrijving || v.metaBeschrijving,
+                slug: parsed.slug || v.slug,
+              }));
+            }}
+          />
         </div>
       </div>
 
