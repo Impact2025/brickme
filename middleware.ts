@@ -15,6 +15,9 @@ const publicRoutes = [
   "/api/stripe/webhook",
   "/blog",
   "/api/blog",
+  "/privacy",
+  "/voorwaarden",
+  "/professionals",
 ];
 
 export default auth((req) => {
