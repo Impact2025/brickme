@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Zap, Heart, User, Users, GitFork, Feather, MessageCircle, BookOpen, Bot } from "lucide-react";
 import FaqAccordion from "@/components/FaqAccordion";
 import { MobileNav } from "@/components/MobileNav";
+import { AbonnementButton } from "@/components/AbonnementButton";
 
 export default function HomePage() {
   return (
@@ -559,9 +560,7 @@ export default function HomePage() {
                   </li>
                 ))}
               </ul>
-              <Link href="/start" className="bg-white text-primary font-medium text-sm text-center py-3.5 rounded-2xl hover:bg-secondary transition-colors shadow-sm">
-                Start gratis →
-              </Link>
+              <AbonnementButton />
             </div>
 
             {/* Coach licentie */}

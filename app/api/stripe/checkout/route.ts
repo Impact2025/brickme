@@ -14,27 +14,50 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Niet ingelogd" }, { status: 401 });
   }
 
-  const { thema, coupon } = await req.json();
+  const { thema, coupon, type } = await req.json();
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
-  const params: Stripe.Checkout.SessionCreateParams = {
-    mode: "payment",
-    line_items: [
-      {
-        price: process.env.STRIPE_PRICE_ID!,
-        quantity: 1,
-      },
-    ],
-    success_url: `${appUrl}/sessie/nieuw?thema=${thema}&betaald=1`,
-    cancel_url: `${appUrl}/betalen?thema=${thema}`,
-    metadata: { userId: session.user.id, thema },
-  };
+  let params: Stripe.Checkout.SessionCreateParams;
 
-  // Coupon toepassen via Stripe promotion codes
-  if (coupon) {
-    const codes = await stripe.promotionCodes.list({ code: coupon, limit: 1, active: true });
-    if (codes.data.length > 0) {
-      params.discounts = [{ promotion_code: codes.data[0].id }];
+  if (type === "abonnement") {
+    // Subscriptie checkout — eerste maand gratis (30 dagen proefperiode)
+    params = {
+      mode: "subscription",
+      line_items: [
+        {
+          price: process.env.STRIPE_PRICE_ID_SUBSCRIPTION!,
+          quantity: 1,
+        },
+      ],
+      subscription_data: {
+        trial_period_days: 30,
+        metadata: { userId: session.user.id },
+      },
+      success_url: `${appUrl}/dashboard?abonnement=gestart`,
+      cancel_url: `${appUrl}/#prijzen`,
+      metadata: { userId: session.user.id, type: "abonnement" },
+    };
+  } else {
+    // Eenmalige betaling per sessie
+    params = {
+      mode: "payment",
+      line_items: [
+        {
+          price: process.env.STRIPE_PRICE_ID!,
+          quantity: 1,
+        },
+      ],
+      success_url: `${appUrl}/sessie/nieuw?thema=${thema}&betaald=1`,
+      cancel_url: `${appUrl}/betalen?thema=${thema}`,
+      metadata: { userId: session.user.id, thema },
+    };
+
+    // Coupon toepassen via Stripe promotion codes
+    if (coupon) {
+      const codes = await stripe.promotionCodes.list({ code: coupon, limit: 1, active: true });
+      if (codes.data.length > 0) {
+        params.discounts = [{ promotion_code: codes.data[0].id }];
+      }
     }
   }
 

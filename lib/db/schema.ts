@@ -13,6 +13,10 @@ export const gebruikers = pgTable("gebruikers", {
   actief: boolean("actief").notNull().default(true),
   verificatieCode: text("verificatie_code"),
   verificatieVerloptOp: timestamp("verificatie_verlopt_op"),
+  // Stripe abonnement
+  stripeCustomerId: text("stripe_customer_id"),
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  abonnementStatus: text("abonnement_status"), // actief | gepauzeerd | geannuleerd
   aangemaktOp: timestamp("aangemakt_op").defaultNow().notNull(),
 });
 
