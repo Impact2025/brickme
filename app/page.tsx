@@ -410,30 +410,25 @@ export default function HomePage() {
 
           <div>
             <span className="text-xs font-medium uppercase tracking-[0.18em] text-primary mb-4 block">
-              Wie we zijn
+              Vincent van Munster · oprichter
             </span>
             <h2 className="font-serif text-4xl md:text-5xl leading-tight text-bricktext mb-8">
-              Innovatie met een sociaal hart
+              Ik geloof dat het anders kan.
             </h2>
             <div className="space-y-5 font-serif text-lg text-muted leading-relaxed">
               <p>
-                Ik heb jaren gewerkt in het welzijn. Als sociaal ondernemer, bestuurder, als kwartiermaker,
-                als iemand die gelooft dat technologie mensen verder kan helpen als je haar
-                met een sociaal hart inzet.
+                Technologie belooft ons te verbinden. Maar te vaak maakt het ons eenzamer,
+                verslaafder en afhankelijker van systemen die ons niet kennen en er geen bal
+                om geven wie jij bent.
               </p>
               <p>
-                Brickme bouwde ik voor mezelf. Ik stond op een kruispunt, zakelijk én privé.
-                En ergens tussen de blokjes ontdekte ik waar ik energie van krijg, hoe ik
-                in mijn relatie sta, wat ik werkelijk wil. Niet door erover te praten.
-                Door het te bouwen.
+                Ik ben geen standaard tech-ondernemer. Ik ben een sociaal architect. Mijn
+                missie is helder: ik bouw platforms en processen waarbij technologie mensen
+                dichter bij elkaar brengt, niet verder van elkaar af.
               </p>
-              <p>
-                Dat gevoel wil ik voor zoveel mogelijk mensen creëren. Geen grote woorden.
-                Gewoon een uur de tijd nemen voor jezelf, en daarna net iets scherper weten
-                wie je bent en wat je wil.
-              </p>
-              <p className="font-medium text-bricktext">
-                Dat is mijn missie. Dat is Brickme.
+              <p className="border-l-2 border-primary pl-5 text-bricktext font-medium">
+                "Ik verkoop geen data. Ik verkoop impact. Ik ontwerp geen apps om je online
+                te houden, maar tools die je helpen offline te leven."
               </p>
             </div>
             <ul className="mt-8 space-y-3">
