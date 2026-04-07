@@ -3,8 +3,10 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
 // Interne couponcodes — werken altijd zonder Stripe
-const INTERNE_COUPONS: Record<string, number> = {
-  VRIEND2026: 100,
+// verlooptDatum: optioneel, YYYY-MM-DD (tot en met die dag geldig)
+const INTERNE_COUPONS: Record<string, { kortingPercent: number; verlooptDatum?: string }> = {
+  VRIEND2026: { kortingPercent: 100 },
+  DELEN26: { kortingPercent: 100, verlooptDatum: "2026-04-30" },
 };
 
 export async function POST(req: NextRequest) {
@@ -14,7 +16,14 @@ export async function POST(req: NextRequest) {
   const upper = code.toUpperCase().trim();
 
   if (upper in INTERNE_COUPONS) {
-    return NextResponse.json({ geldig: true, kortingPercent: INTERNE_COUPONS[upper] });
+    const intern = INTERNE_COUPONS[upper];
+    if (intern.verlooptDatum) {
+      const vandaag = new Date().toISOString().slice(0, 10);
+      if (vandaag > intern.verlooptDatum) {
+        return NextResponse.json({ geldig: false });
+      }
+    }
+    return NextResponse.json({ geldig: true, kortingPercent: intern.kortingPercent });
   }
 
   try {
