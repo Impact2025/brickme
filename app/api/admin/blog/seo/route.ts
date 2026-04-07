@@ -71,7 +71,7 @@ Geef ALLEEN een JSON-object terug (geen markdown, geen uitleg):
   "metaTitel": "exact 50-60 tekens, primair zoekwoord vooraan",
   "metaBeschrijving": "exact 145-155 tekens, zoekwoord aanwezig + CTA",
   "slug": "seo-slug-max-60-tekens",
-  "excerpt": "2-3 zinnen, maximaal 280 tekens",
+  "excerpt": "2-3 zinnen, maximaal 280 tekens, ALLEEN platte tekst (geen markdown, geen links, geen opsommingstekens, geen vetgedrukte tekst)",
   "categorie": "1 of 2 woorden, hoofdcategorie van dit artikel (bv. 'Zelfreflectie', 'LEGO Serious Play', 'Persoonlijke groei', 'Loopbaan')",
   "trefwoorden": ["5-8", "semantische", "zoekwoorden"],
   "interneLinks": [{"ankerTekst": "...", "href": "/blog/slug", "context": "De zin uit het artikel"}],
@@ -100,6 +100,17 @@ Geef ALLEEN de JSON terug.`;
     seoData = JSON.parse(jsonMatch[0]);
   } catch {
     return NextResponse.json({ error: "JSON parse mislukt" }, { status: 500 });
+  }
+
+  // Strip markdown uit excerpt (vangnet als AI toch markdown teruggeeft)
+  if (typeof seoData.excerpt === "string") {
+    seoData.excerpt = seoData.excerpt
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")  // [tekst](url) → tekst
+      .replace(/\*\*(.+?)\*\*/g, "$1")           // **bold** → bold
+      .replace(/\*(.+?)\*/g, "$1")               // *italic* → italic
+      .replace(/^[-*+]\s/gm, "")                 // lijstpunten
+      .replace(/\n/g, " ")                        // newlines → spatie
+      .trim();
   }
 
   return NextResponse.json({ ...seoData, leestijd });
