@@ -25,7 +25,7 @@ export default function PrivacyPage() {
         <div className="mb-10 pb-8 border-b border-border">
           <p className="text-xs text-muted uppercase tracking-wider mb-2">Juridisch</p>
           <h1 className="text-4xl font-serif text-bricktext mb-3">Privacyverklaring</h1>
-          <p className="text-sm text-muted">Versie 1.1 — 1 januari 2026 · WeAreImpact B.V.</p>
+          <p className="text-sm text-muted">Versie 1.2 — 7 april 2026 · WeAreImpact B.V.</p>
         </div>
 
         <div className="legal">
@@ -63,7 +63,7 @@ export default function PrivacyPage() {
           <strong>Bewaarperiode:</strong> foto&apos;s staan in jouw sessie-archief. Je kunt ze op elk moment verwijderen. Bij verwijdering van je account worden foto&apos;s binnen 30 dagen gewist.</p>
 
           <div className="notice">
-            <strong>Let op:</strong> Jouw foto&apos;s worden tijdelijk gedeeld met Anthropic (de maker van Claude) voor het genereren van jouw reflectie. Anthropic verwerkt deze data als subverwerker onder een verwerkersovereenkomst. Anthropic gebruikt jouw data <strong>niet</strong> voor het trainen van hun modellen wanneer dit via de API wordt aangeboden — zie <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener noreferrer">anthropic.com/privacy</a>. Wij sturen nooit meer data dan strikt noodzakelijk.
+            <strong>Let op:</strong> Jouw foto&apos;s worden tijdelijk gedeeld met Anthropic (de maker van Claude) via OpenRouter voor het genereren van jouw reflectie. Beide partijen verwerken deze data als subverwerker onder een verwerkersovereenkomst. Anthropic gebruikt jouw data <strong>niet</strong> voor het trainen van hun modellen wanneer dit via de API wordt aangeboden — zie <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener noreferrer">anthropic.com/privacy</a>. Wij sturen nooit meer data dan strikt noodzakelijk.
           </div>
 
           <h3>4. Gevoelige inhoud (bijzondere persoonsgegevens)</h3>
@@ -96,9 +96,11 @@ export default function PrivacyPage() {
             </thead>
             <tbody>
               <tr><td>Anthropic</td><td>Analyse van foto&apos;s en tekst voor reflecties</td><td>VS</td><td>Standard Contractual Clauses</td></tr>
+              <tr><td>OpenRouter Inc.</td><td>API-tussenlaag voor AI-verwerking (routeert naar Anthropic)</td><td>VS</td><td>Standard Contractual Clauses</td></tr>
               <tr><td>Neon Inc.</td><td>Databaseopslag</td><td>VS / EU</td><td>Standard Contractual Clauses</td></tr>
               <tr><td>Vercel Inc.</td><td>Hosting van de applicatie</td><td>VS / EU</td><td>Standard Contractual Clauses</td></tr>
               <tr><td>Stripe Inc.</td><td>Betalingsverwerking</td><td>VS</td><td>Standard Contractual Clauses</td></tr>
+              <tr><td>Resend Inc.</td><td>Verzenden van transactionele e-mails (verificatie, rapporten)</td><td>VS</td><td>Standard Contractual Clauses</td></tr>
             </tbody>
           </table>
 

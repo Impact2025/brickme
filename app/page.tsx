@@ -76,9 +76,9 @@ export default function HomePage() {
 
           {/* statistieken */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-sm text-muted">
-            <span>5 levensthema&apos;s</span>
+            <span>6 levensthema&apos;s</span>
             <span className="hidden sm:block w-px h-4 bg-border"/>
-            <span>30–45 minuten per sessie</span>
+            <span>45–75 minuten per sessie</span>
             <span className="hidden sm:block w-px h-4 bg-border"/>
             <span>1 concrete eerste stap</span>
           </div>
@@ -162,7 +162,7 @@ export default function HomePage() {
               Vier stappen. Eén echt inzicht.
             </h2>
             <p className="font-serif text-lg text-muted max-w-2xl mx-auto">
-              Een Brickme-sessie duurt 30 tot 45 minuten. Je hebt alleen je telefoon
+              Een Brickme-sessie duurt 45 tot 75 minuten. Je hebt alleen je telefoon
               en LEGO nodig. De methode is gebouwd op wat LEGO met je handen en je hoofd doet.
             </p>
           </div>

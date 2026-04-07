@@ -17,7 +17,17 @@ const VRAGEN = [
   {
     vraag: "Wat gebeurt er met mijn foto's?",
     antwoord:
-      "Je foto wordt alleen gebruikt om jouw reflectie te genereren. We slaan geen afbeeldingen op buiten jouw eigen sessie-archief. Jouw data is van jou.",
+      "Je foto wordt alleen gebruikt om jouw reflectie te genereren. Daarvoor wordt de foto tijdelijk gedeeld met Anthropic (de maker van Claude) via een beveiligde API. Anthropic gebruikt jouw foto niet voor het trainen van modellen. Buiten die verwerking staat de afbeelding uitsluitend in jouw eigen sessie-archief — onzichtbaar voor anderen. Je kunt sessies en foto's op elk moment zelf verwijderen.",
+  },
+  {
+    vraag: "Zijn mijn gegevens veilig?",
+    antwoord:
+      "Ja. Alle verbindingen zijn versleuteld via HTTPS/TLS. Betaalgegevens worden volledig verwerkt door Stripe — wij zien nooit jouw kaartgegevens. Jouw wachtwoord slaan wij niet leesbaar op. Toegang tot jouw sessie-inhoud is beperkt tot jou; coaches zien alleen wat jij actief deelt. Bij een datalek dat jouw rechten raakt, informeren wij je binnen 72 uur.",
+  },
+  {
+    vraag: "Wie ziet mijn sessie-inhoud?",
+    antwoord:
+      "Alleen jij. Standaard is alles privé. Een coach ziet jouw sessies alleen als jij die relatie actief aangaat via de app. Medewerkers van Brickme hebben geen toegang tot jouw sessie-inhoud, alleen tot technische gegevens die nodig zijn voor ondersteuning. Je volledige privacyverklaring staat op brickme.nl/privacy.",
   },
   {
     vraag: "Hoe verschilt dit van een chatbot?",

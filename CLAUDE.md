@@ -32,12 +32,13 @@ Een LSP-geïnspireerde zelfreflectie-webapp. Gebruikers kiezen een levensthema, 
 4. **Reflectie** `/sessie/[id]/reflectie` — AI kijkt naar foto, geeft 1 vraag terug
 5. **Rapport** `/sessie/[id]/rapport` — mooi PDF-rapport
 
-## De 5 Thema's
+## De 6 Thema's
 1. **Werk & energie** — "Ik loop leeg"
 2. **Liefde & relatie** — "Ik voel me niet gezien"  
-3. **Wie ben ik** — "Ik weet niet meer wie ik ben"
+3. **Identiteit** — "Ik weet niet meer wie ik ben"
 4. **Verbinding** — "Ik sta er alleen voor"
 5. **Kruispunt** — "Ik weet niet welke kant ik op moet"
+6. **Rouw** — (zie themas.ts)
 
 ## AI Principes (BELANGRIJK)
 - De AI stelt altijd maar ÉÉN vervolgvraag na een reflectie
