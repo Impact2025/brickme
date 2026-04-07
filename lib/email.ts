@@ -4,6 +4,22 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = "Brickme <hello@brickme.nl>";
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://brickme.nl";
 
+// Strip HTML tags voor plain-text fallback
+function htmlNaarTekst(html: string): string {
+  return html
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n\n")
+    .replace(/<\/h[1-6]>/gi, "\n\n")
+    .replace(/<\/li>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 // Gedeelde layout wrapper
 function layout(inhoud: string): string {
   return `<!DOCTYPE html>
@@ -42,6 +58,32 @@ function knop(tekst: string, href: string): string {
   return `<a href="${href}" style="display:inline-block;margin-top:24px;padding:14px 28px;background:#C8583A;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;font-size:15px;">${tekst}</a>`;
 }
 
+function knopTekst(tekst: string, href: string): string {
+  return `\n${tekst}: ${href}\n`;
+}
+
+type EmailResult = { ok: boolean; error?: string };
+
+async function stuurEmail(opts: {
+  to: string;
+  subject: string;
+  inhoud: string;
+}): Promise<EmailResult> {
+  const html = layout(opts.inhoud);
+  const text = htmlNaarTekst(opts.inhoud) + `\n\n—\nJe ontvangt dit bericht omdat je een account hebt bij Brickme.\n${APP_URL}`;
+  try {
+    const result = await resend.emails.send({ from: FROM, to: opts.to, subject: opts.subject, html, text });
+    if (result.error) {
+      console.error("[email] mislukt:", opts.subject, result.error);
+      return { ok: false, error: result.error.message };
+    }
+    return { ok: true };
+  } catch (err) {
+    console.error("[email] exception:", opts.subject, err);
+    return { ok: false, error: String(err) };
+  }
+}
+
 // ─── Magic link ──────────────────────────────────────────────────────────────
 
 export async function sendMagicLinkEmail(naam: string, email: string, token: string): Promise<void> {
@@ -54,17 +96,13 @@ export async function sendMagicLinkEmail(naam: string, email: string, token: str
       Klik op de knop hieronder om in te loggen. De link is 15 minuten geldig.
     </p>
     ${knop("Inloggen →", url)}
+    ${knopTekst("Inloggen", url)}
     <p style="margin:24px 0 0;font-size:13px;line-height:1.6;color:#8B7355;">
       Heb je dit niet aangevraagd? Dan kun je deze mail negeren.
     </p>
   `;
 
-  await resend.emails.send({
-    from: FROM,
-    to: email,
-    subject: "Jouw Brickme inloglink",
-    html: layout(inhoud),
-  }).catch((err) => console.error("[email] sendMagicLinkEmail mislukt:", err));
+  await stuurEmail({ to: email, subject: "Jouw Brickme inloglink", inhoud });
 }
 
 // ─── Verificatiemail (registratie) ───────────────────────────────────────────
@@ -86,12 +124,7 @@ export async function sendVerificatieEmail(naam: string, email: string, code: st
     </p>
   `;
 
-  await resend.emails.send({
-    from: FROM,
-    to: email,
-    subject: `${code} — jouw Brickme verificatiecode`,
-    html: layout(inhoud),
-  }).catch((err) => console.error("[email] sendVerificatieEmail mislukt:", err));
+  await stuurEmail({ to: email, subject: "Jouw Brickme verificatiecode", inhoud });
 }
 
 // ─── Inlogcode ────────────────────────────────────────────────────────────────
@@ -113,22 +146,7 @@ export async function sendInlogcodeEmail(naam: string, email: string, code: stri
     </p>
   `;
 
-  try {
-    const result = await resend.emails.send({
-      from: FROM,
-      to: email,
-      subject: "Jouw inlogcode voor Brickme",
-      html: layout(inhoud),
-    });
-    if (result.error) {
-      console.error("[email] sendInlogcodeEmail mislukt:", result.error);
-      return { ok: false, error: result.error.message };
-    }
-    return { ok: true };
-  } catch (err) {
-    console.error("[email] sendInlogcodeEmail exception:", err);
-    return { ok: false, error: String(err) };
-  }
+  return stuurEmail({ to: email, subject: "Jouw inlogcode voor Brickme", inhoud });
 }
 
 // ─── Welkomstmail ─────────────────────────────────────────────────────────────
@@ -145,12 +163,7 @@ export async function sendWelkomEmail(naam: string, email: string): Promise<void
     ${knop("Begin je eerste sessie", `${APP_URL}/sessie/nieuw`)}
   `;
 
-  await resend.emails.send({
-    from: FROM,
-    to: email,
-    subject: "Welkom bij Brickme",
-    html: layout(inhoud),
-  }).catch((err) => console.error("[email] sendWelkomEmail mislukt:", err));
+  await stuurEmail({ to: email, subject: "Welkom bij Brickme", inhoud });
 }
 
 // ─── Workshop uitnodiging ─────────────────────────────────────────────────────
@@ -174,12 +187,7 @@ export async function sendWorkshopUitnodigingEmail(
     ${knop("Workshop openen", `${APP_URL}/facilitator/deelnemen?code=${code}`)}
   `;
 
-  await resend.emails.send({
-    from: FROM,
-    to: email,
-    subject: `Uitnodiging: ${workshopNaam}`,
-    html: layout(inhoud),
-  }).catch((err) => console.error("[email] sendWorkshopUitnodigingEmail mislukt:", err));
+  await stuurEmail({ to: email, subject: `Uitnodiging: ${workshopNaam}`, inhoud });
 }
 
 // ─── Rapport gereed ───────────────────────────────────────────────────────────
@@ -215,12 +223,7 @@ export async function sendRapportGereedEmail(
     ${knop("Bekijk je volledige rapport", `${APP_URL}`)}
   `;
 
-  await resend.emails.send({
-    from: FROM,
-    to: email,
-    subject: `Je Brickme rapport — ${themaLabel}`,
-    html: layout(inhoud),
-  }).catch((err) => console.error("[email] sendRapportGereedEmail mislukt:", err));
+  await stuurEmail({ to: email, subject: `Je Brickme rapport — ${themaLabel}`, inhoud });
 }
 
 // ─── Nieuw account notificatie (intern) ──────────────────────────────────────
@@ -235,12 +238,7 @@ export async function sendNieuwAccountNotificatie(naam: string | null, email: st
     </p>
   `;
 
-  await resend.emails.send({
-    from: FROM,
-    to: "hello@brickme.nl",
-    subject: `Nieuw account: ${naam ?? email}`,
-    html: layout(inhoud),
-  }).catch((err) => console.error("[email] sendNieuwAccountNotificatie mislukt:", err));
+  await stuurEmail({ to: "hello@brickme.nl", subject: `Nieuw account: ${naam ?? email}`, inhoud });
 }
 
 // ─── Coach koppeling ──────────────────────────────────────────────────────────
@@ -263,10 +261,5 @@ export async function sendCoachKoppelingEmail(
     ${knop("Open Brickme", APP_URL)}
   `;
 
-  await resend.emails.send({
-    from: FROM,
-    to: email,
-    subject: "Je bent gekoppeld aan een coach",
-    html: layout(inhoud),
-  }).catch((err) => console.error("[email] sendCoachKoppelingEmail mislukt:", err));
+  await stuurEmail({ to: email, subject: "Je bent gekoppeld aan een coach", inhoud });
 }
