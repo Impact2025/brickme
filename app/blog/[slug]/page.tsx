@@ -7,6 +7,16 @@ import { artikelen } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { ViewTracker } from "@/components/blog/ViewTracker";
 
+export const revalidate = 3600; // hervalideer elk uur
+
+export async function generateStaticParams() {
+  const slugs = await db
+    .select({ slug: artikelen.slug })
+    .from(artikelen)
+    .where(eq(artikelen.gepubliceerd, true));
+  return slugs.map((a) => ({ slug: a.slug }));
+}
+
 interface Props {
   params: Promise<{ slug: string }>;
 }

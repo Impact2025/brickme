@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { db } from "@/lib/db";
 import { artikelen } from "@/lib/db/schema";
 import { eq, desc, sql, and, ne } from "drizzle-orm";
@@ -118,10 +119,13 @@ export default async function BlogPage({ searchParams }: Props) {
                 }}>
                   {uitgelicht.ogAfbeelding && (
                     <div style={{ position: "relative", minHeight: 340 }}>
-                      <img
+                      <Image
                         src={uitgelicht.ogAfbeelding}
                         alt={uitgelicht.titel}
-                        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        style={{ objectFit: "cover" }}
+                        priority
                       />
                     </div>
                   )}
@@ -346,11 +350,13 @@ function ArtikelKaart({ artikel }: ArtikelKaartProps) {
         transition: "box-shadow 0.2s, transform 0.2s",
       }}>
         {artikel.ogAfbeelding ? (
-          <div style={{ aspectRatio: "16/9", overflow: "hidden" }}>
-            <img
+          <div style={{ position: "relative", aspectRatio: "16/9", overflow: "hidden" }}>
+            <Image
               src={artikel.ogAfbeelding}
               alt={artikel.titel}
-              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1100px) 50vw, 380px"
+              style={{ objectFit: "cover" }}
             />
           </div>
         ) : artikel.kaartTitel ? (
