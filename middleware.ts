@@ -19,6 +19,9 @@ const publicRoutes = [
   "/voorwaarden",
   "/professionals",
   "/api/assistent-publiek",
+  "/sitemap.xml",
+  "/robots.txt",
+  "/feed.xml",
 ];
 
 export default auth((req) => {
