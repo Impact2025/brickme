@@ -22,8 +22,8 @@ const config: Config = {
         border: "#E8DDD0",
       },
       fontFamily: {
-        serif: ["Playfair Display", "Georgia", "serif"],
-        sans: ["Inter", "system-ui", "sans-serif"],
+        serif: ["var(--font-serif)", "Georgia", "serif"],
+        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
       },
       animation: {
         "fade-in": "fadeIn 0.4s ease-in-out",

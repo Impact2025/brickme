@@ -1,9 +1,103 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { Zap, Heart, User, Users, GitFork, Feather, MessageCircle, BookOpen, Bot } from "lucide-react";
 import FaqAccordion from "@/components/FaqAccordion";
 import { MobileNav } from "@/components/MobileNav";
 import { AbonnementButton } from "@/components/AbonnementButton";
+
+export const metadata: Metadata = {
+  title: "Brickme — Bouw wat je niet kunt zeggen",
+  description:
+    "Een persoonlijke reflectiesessie waarbij je bouwt met LEGO, fotografeert en een AI-reflectie ontvangt. Nederlandstalig, methodologisch gegrond, voor mensen op een kruispunt.",
+  alternates: { canonical: "https://brickme.nl" },
+  openGraph: {
+    title: "Brickme — Bouw wat je niet kunt zeggen",
+    description: "Een nieuwe manier van zelfreflectie. Bouw, fotografeer, begrijp.",
+    url: "https://brickme.nl",
+    siteName: "Brickme",
+    type: "website",
+    locale: "nl_NL",
+    images: [{ url: "https://brickme.nl/og-image.png", width: 1200, height: 630 }],
+  },
+};
+
+const FAQ_SCHEMA = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: [
+    {
+      "@type": "Question",
+      name: "Heb ik LEGO nodig?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "LEGO is de ideale keuze, en de methode is er ook op gebouwd. Heb je geen LEGO bij de hand? Dan kun je ook andere bouwmaterialen gebruiken. Maar investeer in een setje, het maakt het verschil.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Is dit therapie?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Nee. Brickme is een reflectietool, geen behandeling. Als je kampt met ernstige psychische klachten, raden wij altijd aan om professionele hulp te zoeken.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Wat gebeurt er met mijn foto's?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Je foto wordt alleen gebruikt om jouw reflectie te genereren. Daarvoor wordt de foto tijdelijk gedeeld met Anthropic via een beveiligde API. Anthropic gebruikt jouw foto niet voor het trainen van modellen. De afbeelding staat uitsluitend in jouw eigen sessie-archief.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Zijn mijn gegevens veilig?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Ja. Alle verbindingen zijn versleuteld via HTTPS/TLS. Betaalgegevens worden volledig verwerkt door Stripe — wij zien nooit jouw kaartgegevens. Jouw wachtwoord slaan wij niet leesbaar op.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Wie ziet mijn sessie-inhoud?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Alleen jij. Standaard is alles privé. Een coach ziet jouw sessies alleen als jij die relatie actief aangaat via de app.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Hoe verschilt dit van een chatbot?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Een chatbot praat met je. Brickme laat je bouwen. Je handen activeren andere delen van je brein dan je taalcentrum. De reflectie is gericht op jouw specifieke foto, niet op generieke coachingsvragen.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Kan mijn coach of therapeut mijn rapport zien?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Alleen als jij dat wil. Je kunt je rapport exporteren als PDF en delen met wie jij kiest. Standaard is alles privé.",
+      },
+    },
+  ],
+};
+
+const WEBSITE_SCHEMA = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Brickme",
+  url: "https://brickme.nl",
+  description:
+    "Een persoonlijke reflectiesessie waarbij je bouwt met LEGO, fotografeert en een AI-reflectie ontvangt.",
+  publisher: {
+    "@type": "Organization",
+    name: "WeAreImpact B.V.",
+    url: "https://weareimpact.nl",
+  },
+};
 
 export default function HomePage() {
   return (
@@ -700,6 +794,14 @@ export default function HomePage() {
         </div>
       </footer>
 
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_SCHEMA) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(WEBSITE_SCHEMA) }}
+      />
     </div>
   );
 }
