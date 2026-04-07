@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
 
   // Eerste bericht — maak direct een draft sessie aan in de DB
   if (fase === "start" || berichten.length === 0) {
-    const eersteVraag = `Fijn dat je er bent.\n\nJe hebt gekozen voor "${thema.label}" — ${thema.ondertitel.toLowerCase()}.\n\nHoe lang speelt dit al bij jou?`;
+    const eersteVraag = `Fijn dat je er bent.\n\nJe hebt gekozen voor "${thema.label}" — ${thema.ondertitel.toLowerCase()}.\n\nNeem even een moment om hier te zijn. Er is geen haast.\n\nWat brengt je hier vandaag?`;
 
     // Bij resume: gebruik bestaande sessie
     if (sessieId) {

@@ -113,6 +113,7 @@ export default function BouwenPage() {
   const [vraagZichtbaar, setVraagZichtbaar] = useState(false);
   const [secondenOver, setSecondenOver] = useState(FASE_DUUR);
   const [foto, setFoto] = useState<string | null>(null);
+  const [zijfoto, setZijfoto] = useState<string | null>(null);
   const [beschrijving, setBeschrijving] = useState("");
   const [stap, setStap] = useState<Stap>("foto");
   const [probeVraag, setProbeVraag] = useState("");
@@ -120,6 +121,7 @@ export default function BouwenPage() {
   const [fout, setFout] = useState("");
   const [laden, setLaden] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const zijfotoInputRef = useRef<HTMLInputElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -139,6 +141,7 @@ export default function BouwenPage() {
   useEffect(() => {
     setStap("foto");
     setFoto(null);
+    setZijfoto(null);
     setBeschrijving("");
     setProbeVraag("");
     setProbeAntwoord("");
@@ -182,6 +185,13 @@ export default function BouwenPage() {
     setFoto(base64);
   }
 
+  async function zijfotoGekozen(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const base64 = await compressImage(file, 800, 0.78);
+    setZijfoto(base64);
+  }
+
   async function laadProbeVraag() {
     const fase = fases[huidigeFase];
     setStap("probe-laden");
@@ -222,6 +232,7 @@ export default function BouwenPage() {
           sessieId: id,
           faseId: fase.id,
           fotoBase64: foto,
+          zijfotoBase64: zijfoto,
           beschrijving,
           probeVraag,
           probeAntwoord,
@@ -363,7 +374,8 @@ export default function BouwenPage() {
 
             {/* Foto upload */}
             <div>
-              <p className="text-xs text-muted uppercase tracking-wider mb-3">Fotografeer je bouwsel</p>
+              <p className="text-xs text-muted uppercase tracking-wider mb-1">Fotografeer je bouwsel</p>
+              <p className="text-sm text-muted mb-3">Fotografeer van de kant die jij als voorkant ziet — er is geen juiste kant.</p>
 
               {foto ? (
                 <div className="relative rounded-3xl overflow-hidden aspect-square">
@@ -398,6 +410,40 @@ export default function BouwenPage() {
               />
             </div>
 
+            {/* Zijfoto — optioneel, zichtbaar zodra voorkant gekozen */}
+            {foto && (
+              <div className="animate-slide-up">
+                <p className="text-xs text-muted uppercase tracking-wider mb-1">Zijkant <span className="normal-case">(optioneel)</span></p>
+                <p className="text-sm text-muted mb-3">Voeg een tweede foto toe zodat de AI je bouwsel beter begrijpt.</p>
+                {zijfoto ? (
+                  <div className="relative rounded-2xl overflow-hidden" style={{ aspectRatio: "4/3" }}>
+                    <img src={zijfoto} alt="Zijkant bouwsel" className="w-full h-full object-cover" />
+                    <button
+                      onClick={() => setZijfoto(null)}
+                      className="absolute top-3 right-3 bg-white/80 text-bricktext rounded-full w-8 h-8 flex items-center justify-center text-sm hover:bg-white transition-colors"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => zijfotoInputRef.current?.click()}
+                    className="w-full rounded-2xl border-2 border-dashed border-border bg-surface flex items-center justify-center gap-3 py-4 hover:border-primary transition-colors duration-200"
+                  >
+                    <span className="text-xl">📐</span>
+                    <span className="text-bricktext text-sm">Voeg zijfoto toe</span>
+                  </button>
+                )}
+                <input
+                  ref={zijfotoInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={zijfotoGekozen}
+                  className="hidden"
+                />
+              </div>
+            )}
+
             {/* Doorgaan naar beschrijving */}
             {foto && (
               <div className="animate-slide-up">
@@ -428,7 +474,7 @@ export default function BouwenPage() {
             <div>
               <p className="text-xs text-muted uppercase tracking-wider mb-1">Beschrijf je bouwsel</p>
               <p className="text-sm text-bricktext mb-3 leading-relaxed">
-                Begin bij het element dat het meest opvalt. Wat is het? Waar staat het? Wat doet het?
+                Begin bij de voorkant van je bouwsel. Wat staat er? Wat valt het meest op?
               </p>
               <textarea
                 value={beschrijving}

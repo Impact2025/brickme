@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { gebruikers } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { sendVerificatieEmail } from "@/lib/email";
+import { sendInlogcodeEmail } from "@/lib/email";
 import { checkRateLimit } from "@/lib/ratelimit";
 
 export async function POST(req: NextRequest) {
@@ -33,7 +33,12 @@ export async function POST(req: NextRequest) {
       .set({ verificatieCode: code, verificatieVerloptOp: verloptOp })
       .where(eq(gebruikers.userId, gebruiker.userId));
 
-    void sendVerificatieEmail(gebruiker.naam || email, email, code);
+    const emailResult = await sendInlogcodeEmail(gebruiker.naam || email, email, code);
+
+    if (!emailResult.ok) {
+      console.error("[magic-link] e-mail niet verstuurd voor:", email, emailResult.error);
+      return NextResponse.json({ error: "E-mail kon niet worden verstuurd. Probeer het opnieuw." }, { status: 500 });
+    }
 
     return NextResponse.json({ ok: true });
   } catch (err) {

@@ -65,7 +65,8 @@ Signalen om te VERDIEPEN: woorden als "eigenlijk", "maar", "soms", "ik weet niet
 Signalen om VERDER te gaan: uitgebreide antwoorden met duidelijke conclusie, herhaling van eerder gezegde, of wanneer je het onderwerp als verkend beschouwt
 
 VERLOOP:
-- Start altijd met: "Hoe lang loop je hier al mee?"
+- De eerste vraag is altijd open: "Wat brengt je hier vandaag?" — geef ruimte, stel geen kader
+- Ga pas daarna richting: "Hoe lang loop je hier al mee?"
 - Werk naar 6-8 thema's toe, maar volg het gesprek — niet een vaste lijst
 - De laatste vraag is altijd: "Als je terugkijkt op dit gesprek — wat springt er het meest uit?"
 - Stuur aan het einde een JSON-samenvatting in dit formaat:
@@ -152,7 +153,7 @@ export function buildReflectiePrompt(
       : "";
 
   return `${LSP_FACILITATOR_KENNIS}
-Je reflecteert op een foto van een fysiek bouwsel dat iemand heeft gemaakt.
+Je reflecteert op foto('s) van een fysiek bouwsel dat iemand heeft gemaakt. De eerste foto is de voorkant zoals de bouwer die zelf definieert. Als er een tweede foto is, is dat de zijkant — gebruik beide om een beter ruimtelijk beeld te krijgen van het bouwsel. Behandel de voorkant als de primaire referentie.
 
 CONTEXT VAN DE PERSOON:
 ${sessieContext}

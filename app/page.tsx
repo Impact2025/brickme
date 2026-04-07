@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Zap, Heart, User, Users, GitFork, Feather, MessageCircle, BookOpen, Bot } from "lucide-react";
 import FaqAccordion from "@/components/FaqAccordion";
 import { MobileNav } from "@/components/MobileNav";
+import { NavAuth } from "@/components/NavAuth";
 import { AbonnementButton } from "@/components/AbonnementButton";
 
 export const metadata: Metadata = {
@@ -120,9 +121,7 @@ export default function HomePage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Link href="/start" className="hidden md:inline-flex btn-primary text-sm px-5 py-2.5">
-              Begin mijn sessie →
-            </Link>
+            <NavAuth />
             <MobileNav />
           </div>
         </div>

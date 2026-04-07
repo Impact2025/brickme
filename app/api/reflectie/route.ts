@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
   const { ok } = checkRateLimit(`reflectie:${userId}`, 20, 60 * 60 * 1000); // 20 per uur per gebruiker
   if (!ok) return NextResponse.json({ error: "Te veel pogingen. Probeer later opnieuw." }, { status: 429 });
 
-  const { sessieId, faseId, fotoBase64, beschrijving, probeVraag, probeAntwoord } = await req.json();
+  const { sessieId, faseId, fotoBase64, zijfotoBase64, beschrijving, probeVraag, probeAntwoord } = await req.json();
 
   const [sessie] = await db.select().from(sessies).where(and(eq(sessies.id, sessieId), eq(sessies.userId, userId)));
   const [fase] = await db.select().from(fases).where(and(eq(fases.id, faseId), eq(fases.sessieId, sessieId)));
@@ -43,10 +43,10 @@ export async function POST(req: NextRequest) {
       aiReflectie: f.aiReflectie || "",
     }));
 
-  // Sla foto op vóór AI-call zodat data nooit verloren gaat
+  // Sla foto's op vóór AI-call zodat data nooit verloren gaat
   await db
     .update(fases)
-    .set({ fotoBase64, gebruikersBeschrijving: beschrijving })
+    .set({ fotoBase64, zijfotoBase64: zijfotoBase64 || null, gebruikersBeschrijving: beschrijving })
     .where(eq(fases.id, faseId));
 
   const themaConfig = THEMAS[sessie.thema as ThemaId];
@@ -68,6 +68,22 @@ export async function POST(req: NextRequest) {
   const imageData = stripBase64Prefix(fotoBase64);
   const mediaType = fotoBase64.startsWith("data:image/png") ? "image/png" : "image/jpeg";
 
+  type ContentPart =
+    | { type: "image_url"; image_url: { url: string } }
+    | { type: "text"; text: string };
+
+  const imageContent: ContentPart[] = [
+    { type: "image_url", image_url: { url: `data:${mediaType};base64,${imageData}` } },
+  ];
+
+  if (zijfotoBase64) {
+    const zijImageData = stripBase64Prefix(zijfotoBase64);
+    const zijMediaType = zijfotoBase64.startsWith("data:image/png") ? "image/png" : "image/jpeg";
+    imageContent.push({ type: "image_url", image_url: { url: `data:${zijMediaType};base64,${zijImageData}` } });
+  }
+
+  imageContent.push({ type: "text", text: prompt });
+
   let volledigeTekst = "";
   try {
     const response = await openai.chat.completions.create({
@@ -76,13 +92,7 @@ export async function POST(req: NextRequest) {
       messages: [
         {
           role: "user",
-          content: [
-            {
-              type: "image_url",
-              image_url: { url: `data:${mediaType};base64,${imageData}` },
-            },
-            { type: "text", text: prompt },
-          ],
+          content: imageContent,
         },
       ],
     });

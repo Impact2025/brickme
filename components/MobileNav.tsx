@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 
 const NAV_LINKS = [
@@ -13,6 +14,7 @@ const NAV_LINKS = [
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
+  const { data: session } = useSession();
 
   // Sluit menu bij resize naar desktop
   useEffect(() => {
@@ -63,7 +65,32 @@ export function MobileNav() {
                   {link.label}
                 </a>
               ))}
-              <div className="mt-3 pt-3 border-t border-border">
+              <div className="mt-3 pt-3 border-t border-border flex flex-col gap-2">
+                {session?.user ? (
+                  <>
+                    <Link
+                      href="/dashboard"
+                      onClick={() => setOpen(false)}
+                      className="text-muted hover:text-bricktext hover:bg-surface transition-all duration-150 py-3 px-3 rounded-xl text-base text-center"
+                    >
+                      Mijn sessies
+                    </Link>
+                    <button
+                      onClick={() => { setOpen(false); signOut({ callbackUrl: "/" }); }}
+                      className="text-muted hover:text-bricktext hover:bg-surface transition-all duration-150 py-3 px-3 rounded-xl text-base text-center w-full"
+                    >
+                      Uitloggen
+                    </button>
+                  </>
+                ) : (
+                  <Link
+                    href="/sign-in"
+                    onClick={() => setOpen(false)}
+                    className="text-muted hover:text-bricktext hover:bg-surface transition-all duration-150 py-3 px-3 rounded-xl text-base text-center"
+                  >
+                    Inloggen
+                  </Link>
+                )}
                 <Link
                   href="/start"
                   onClick={() => setOpen(false)}

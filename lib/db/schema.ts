@@ -83,6 +83,7 @@ export const fases = pgTable("fases", {
   vraag: text("vraag").notNull(),
   fotoUrl: text("foto_url"),
   fotoBase64: text("foto_base64"),
+  zijfotoBase64: text("zijfoto_base64"),
   gebruikersBeschrijving: text("gebruikers_beschrijving"),
   aiReflectie: text("ai_reflectie"),
   aiVervolgvraag: text("ai_vervolgvraag"),

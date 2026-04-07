@@ -67,7 +67,7 @@ export async function sendMagicLinkEmail(naam: string, email: string, token: str
   }).catch((err) => console.error("[email] sendMagicLinkEmail mislukt:", err));
 }
 
-// ─── Verificatiemail ─────────────────────────────────────────────────────────
+// ─── Verificatiemail (registratie) ───────────────────────────────────────────
 
 export async function sendVerificatieEmail(naam: string, email: string, code: string): Promise<void> {
   const inhoud = `
@@ -92,6 +92,43 @@ export async function sendVerificatieEmail(naam: string, email: string, code: st
     subject: `${code} — jouw Brickme verificatiecode`,
     html: layout(inhoud),
   }).catch((err) => console.error("[email] sendVerificatieEmail mislukt:", err));
+}
+
+// ─── Inlogcode ────────────────────────────────────────────────────────────────
+
+export async function sendInlogcodeEmail(naam: string, email: string, code: string): Promise<{ ok: boolean; error?: string }> {
+  const inhoud = `
+    <h1 style="margin:0 0 16px;font-size:26px;font-weight:700;color:#2C1F14;">Jouw inlogcode</h1>
+    <p style="margin:0 0 24px;font-size:16px;line-height:1.6;color:#2C1F14;">
+      Hoi${naam ? ` ${naam}` : ""},<br/><br/>
+      Gebruik onderstaande code om in te loggen bij Brickme. De code is 15 minuten geldig.
+    </p>
+    <div style="text-align:center;margin:0 0 24px;">
+      <div style="display:inline-block;padding:20px 40px;background:#F5F0E8;border-radius:12px;">
+        <span style="font-size:40px;font-weight:700;letter-spacing:12px;color:#C8583A;">${code}</span>
+      </div>
+    </div>
+    <p style="margin:0;font-size:14px;line-height:1.6;color:#8B7355;">
+      Heb je dit niet aangevraagd? Dan kun je deze mail negeren.
+    </p>
+  `;
+
+  try {
+    const result = await resend.emails.send({
+      from: FROM,
+      to: email,
+      subject: "Jouw inlogcode voor Brickme",
+      html: layout(inhoud),
+    });
+    if (result.error) {
+      console.error("[email] sendInlogcodeEmail mislukt:", result.error);
+      return { ok: false, error: result.error.message };
+    }
+    return { ok: true };
+  } catch (err) {
+    console.error("[email] sendInlogcodeEmail exception:", err);
+    return { ok: false, error: String(err) };
+  }
 }
 
 // ─── Welkomstmail ─────────────────────────────────────────────────────────────
