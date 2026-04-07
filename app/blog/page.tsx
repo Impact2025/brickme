@@ -41,6 +41,7 @@ export default async function BlogPage({ searchParams }: Props) {
       tags: artikelen.tags,
       leestijd: artikelen.leestijd,
       ogAfbeelding: artikelen.ogAfbeelding,
+      kaartTitel: artikelen.kaartTitel,
       gepubliceerdOp: artikelen.gepubliceerdOp,
       weergaven: artikelen.weergaven,
     })
@@ -324,6 +325,7 @@ type ArtikelKaartProps = {
     tags: string[] | null;
     leestijd: number | null;
     ogAfbeelding: string | null;
+    kaartTitel: string | null;
     gepubliceerdOp: Date | null;
     weergaven: number;
   };
@@ -350,6 +352,25 @@ function ArtikelKaart({ artikel }: ArtikelKaartProps) {
               alt={artikel.titel}
               style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
             />
+          </div>
+        ) : artikel.kaartTitel ? (
+          <div style={{
+            background: "linear-gradient(135deg, var(--color-primary) 0%, #e8875c 100%)",
+            padding: "28px 22px 20px",
+            minHeight: 90,
+            display: "flex",
+            alignItems: "flex-end",
+          }}>
+            <p style={{
+              margin: 0,
+              fontSize: 16,
+              fontWeight: 500,
+              color: "white",
+              lineHeight: 1.3,
+              fontFamily: "var(--font-serif)",
+            }}>
+              {artikel.kaartTitel}
+            </p>
           </div>
         ) : (
           <div style={{

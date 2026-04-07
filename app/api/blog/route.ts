@@ -15,6 +15,7 @@ export async function GET() {
       tags: artikelen.tags,
       leestijd: artikelen.leestijd,
       ogAfbeelding: artikelen.ogAfbeelding,
+      kaartTitel: artikelen.kaartTitel,
       gepubliceerdOp: artikelen.gepubliceerdOp,
       aangemaktOp: artikelen.aangemaktOp,
     })

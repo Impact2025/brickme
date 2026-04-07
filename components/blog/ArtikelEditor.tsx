@@ -23,6 +23,7 @@ type Veld = {
   categorie: string;
   tags: string[];
   ogAfbeelding: string;
+  kaartTitel: string;
   interneLinks: InterneLink[];
   leestijd: number;
   seoScore: number;
@@ -81,6 +82,7 @@ export default function ArtikelEditor({ initieel, artikelId }: ArtikelEditorProp
     categorie: initieel?.categorie ?? "",
     tags: initieel?.tags ?? [],
     ogAfbeelding: initieel?.ogAfbeelding ?? "",
+    kaartTitel: initieel?.kaartTitel ?? "",
     interneLinks: initieel?.interneLinks ?? [],
     schemaMarkup: initieel?.schemaMarkup ?? null,
     leestijd: initieel?.leestijd ?? 0,
@@ -92,6 +94,9 @@ export default function ArtikelEditor({ initieel, artikelId }: ArtikelEditorProp
       : "",
   });
 
+  const [headerType, setHeaderType] = useState<"afbeelding" | "titel">(
+    initieel?.kaartTitel && !initieel?.ogAfbeelding ? "titel" : "afbeelding"
+  );
   const [aiLaden, setAiLaden] = useState(false);
   const [verbeteringLaden, setVerbeteringLaden] = useState<number | null>(null);
   const [opslaan, setOpslaan] = useState(false);
@@ -271,6 +276,7 @@ export default function ArtikelEditor({ initieel, artikelId }: ArtikelEditorProp
       metaBeschrijving: veld.metaBeschrijving || null,
       trefwoorden: veld.trefwoorden.length ? veld.trefwoorden : null,
       ogAfbeelding: veld.ogAfbeelding || null,
+      kaartTitel: veld.kaartTitel || null,
       categorie: veld.categorie || null,
       tags: veld.tags.length ? veld.tags : null,
       interneLinks: veld.interneLinks.length ? veld.interneLinks : null,
@@ -624,62 +630,112 @@ export default function ArtikelEditor({ initieel, artikelId }: ArtikelEditorProp
           </div>
         </div>
 
-        {/* OG Afbeelding */}
+        {/* Kaart header: afbeelding of eigen titel */}
         <div style={{ marginBottom: 14 }}>
-          <label style={{ fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--color-text-muted)", display: "block", marginBottom: 6 }}>
-            Blog afbeelding
+          <label style={{ fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--color-text-muted)", display: "block", marginBottom: 8 }}>
+            Kaart header
           </label>
-          {veld.ogAfbeelding ? (
-            <div style={{ marginBottom: 8, position: "relative" }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={veld.ogAfbeelding}
-                alt="Blog afbeelding"
-                style={{ width: "100%", height: 140, objectFit: "cover", borderRadius: 10, display: "block" }}
-              />
+          {/* Toggle */}
+          <div style={{ display: "flex", gap: 4, marginBottom: 12, background: "var(--color-surface-high)", borderRadius: 8, padding: 3 }}>
+            {(["afbeelding", "titel"] as const).map(type => (
               <button
-                onClick={() => update("ogAfbeelding", "")}
+                key={type}
+                onClick={() => setHeaderType(type)}
                 style={{
-                  position: "absolute", top: 6, right: 6,
-                  background: "rgba(0,0,0,0.5)", color: "white", border: "none",
-                  borderRadius: "50%", width: 24, height: 24, cursor: "pointer",
-                  fontSize: 14, lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center",
+                  flex: 1, padding: "6px 0", fontSize: 12, fontWeight: 500,
+                  border: "none", borderRadius: 6, cursor: "pointer",
+                  background: headerType === type ? "var(--color-surface-bright)" : "transparent",
+                  color: headerType === type ? "var(--color-text)" : "var(--color-text-muted)",
+                  boxShadow: headerType === type ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+                  transition: "all 150ms",
                 }}
               >
-                ×
+                {type === "afbeelding" ? "Afbeelding" : "Eigen titel"}
               </button>
-            </div>
-          ) : (
-            <label style={{
-              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-              border: "2px dashed var(--color-outline)", borderRadius: 10, padding: "20px 12px",
-              cursor: ogUploaden ? "not-allowed" : "pointer", marginBottom: 8,
-              background: ogUploaden ? "var(--color-surface-low)" : "var(--color-surface)",
-            }}>
+            ))}
+          </div>
+
+          {headerType === "afbeelding" ? (
+            <>
+              {veld.ogAfbeelding ? (
+                <div style={{ marginBottom: 8, position: "relative" }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={veld.ogAfbeelding}
+                    alt="Blog afbeelding"
+                    style={{ width: "100%", height: 140, objectFit: "cover", borderRadius: 10, display: "block" }}
+                  />
+                  <button
+                    onClick={() => update("ogAfbeelding", "")}
+                    style={{
+                      position: "absolute", top: 6, right: 6,
+                      background: "rgba(0,0,0,0.5)", color: "white", border: "none",
+                      borderRadius: "50%", width: 24, height: 24, cursor: "pointer",
+                      fontSize: 14, lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center",
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+              ) : (
+                <label style={{
+                  display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                  border: "2px dashed var(--color-outline)", borderRadius: 10, padding: "20px 12px",
+                  cursor: ogUploaden ? "not-allowed" : "pointer", marginBottom: 8,
+                  background: ogUploaden ? "var(--color-surface-low)" : "var(--color-surface)",
+                }}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    disabled={ogUploaden}
+                    onChange={e => { const f = e.target.files?.[0]; if (f) handleOgUpload(f); }}
+                  />
+                  {ogUploaden
+                    ? <span style={{ fontSize: 13, color: "var(--color-text-muted)" }}>Uploaden...</span>
+                    : <>
+                        <span style={{ fontSize: 20, marginBottom: 6 }}>📷</span>
+                        <span style={{ fontSize: 12, color: "var(--color-text-muted)" }}>Klik om foto te uploaden</span>
+                      </>
+                  }
+                </label>
+              )}
               <input
-                type="file"
-                accept="image/*"
-                style={{ display: "none" }}
-                disabled={ogUploaden}
-                onChange={e => { const f = e.target.files?.[0]; if (f) handleOgUpload(f); }}
+                type="text"
+                value={veld.ogAfbeelding}
+                onChange={e => update("ogAfbeelding", e.target.value)}
+                placeholder="Of plak een URL..."
+                className="input-base"
+                style={{ fontSize: 12 }}
               />
-              {ogUploaden
-                ? <span style={{ fontSize: 13, color: "var(--color-text-muted)" }}>Uploaden...</span>
-                : <>
-                    <span style={{ fontSize: 20, marginBottom: 6 }}>📷</span>
-                    <span style={{ fontSize: 12, color: "var(--color-text-muted)" }}>Klik om foto te uploaden</span>
-                  </>
-              }
-            </label>
+            </>
+          ) : (
+            <>
+              <input
+                type="text"
+                value={veld.kaartTitel}
+                onChange={e => update("kaartTitel", e.target.value)}
+                placeholder="Korte titel voor de kaart..."
+                className="input-base"
+                style={{ fontSize: 13, marginBottom: 8 }}
+                maxLength={200}
+              />
+              {veld.kaartTitel && (
+                <div style={{
+                  background: "linear-gradient(135deg, var(--color-primary) 0%, #e8875c 100%)",
+                  padding: "18px 16px 14px",
+                  borderRadius: 8,
+                  minHeight: 70,
+                  display: "flex",
+                  alignItems: "flex-end",
+                }}>
+                  <p style={{ margin: 0, fontSize: 14, fontWeight: 500, color: "white", lineHeight: 1.3, fontFamily: "var(--font-serif)" }}>
+                    {veld.kaartTitel}
+                  </p>
+                </div>
+              )}
+            </>
           )}
-          <input
-            type="text"
-            value={veld.ogAfbeelding}
-            onChange={e => update("ogAfbeelding", e.target.value)}
-            placeholder="Of plak een URL..."
-            className="input-base"
-            style={{ fontSize: 12 }}
-          />
         </div>
 
         {/* Interne Links */}

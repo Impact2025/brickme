@@ -38,6 +38,7 @@ export interface Artikel {
   metaBeschrijving: string | null;
   trefwoorden: string[] | null;
   ogAfbeelding: string | null;
+  kaartTitel: string | null;
   categorie: string | null;
   tags: string[] | null;
   interneLinks: InterneLink[] | null;
