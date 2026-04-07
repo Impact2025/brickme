@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { artikelen } from "@/lib/db/schema";
@@ -54,24 +55,44 @@ export default async function ArtikelPage({ params }: Props) {
   const [artikel] = await db.select().from(artikelen).where(and(eq(artikelen.slug, slug), eq(artikelen.gepubliceerd, true)));
   if (!artikel) notFound();
 
+  const artikelUrl = `https://brickme.nl/blog/${slug}`;
+
   const jsonLd = artikel.schemaMarkup ?? {
     "@context": "https://schema.org", "@type": "Article",
     headline: artikel.metaTitel ?? artikel.titel,
     description: artikel.metaBeschrijving ?? artikel.excerpt ?? "",
     author: { "@type": "Organization", name: "Brickme", url: "https://brickme.nl" },
-    publisher: { "@type": "Organization", name: "Brickme", url: "https://brickme.nl" },
+    publisher: {
+      "@type": "Organization", name: "Brickme", url: "https://brickme.nl",
+      logo: { "@type": "ImageObject", url: "https://brickme.nl/og-image.png" },
+    },
     datePublished: artikel.gepubliceerdOp?.toISOString(),
     dateModified: artikel.bijgewerktOp.toISOString(),
-    url: `https://brickme.nl/blog/${slug}`,
-    ...(artikel.ogAfbeelding ? { image: artikel.ogAfbeelding } : {}),
+    url: artikelUrl,
+    ...(artikel.ogAfbeelding ? {
+      image: { "@type": "ImageObject", url: artikel.ogAfbeelding, width: 1200, height: 630 }
+    } : {}),
     keywords: artikel.trefwoorden?.join(", "),
+    ...(artikel.leestijd ? { timeRequired: `PT${artikel.leestijd}M` } : {}),
+    ...(artikel.categorie ? { articleSection: artikel.categorie } : {}),
+    inLanguage: "nl-NL",
+    mainEntityOfPage: { "@type": "WebPage", "@id": artikelUrl },
   };
 
-  const artikelUrl = `https://brickme.nl/blog/${slug}`;
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Brickme", item: "https://brickme.nl" },
+      { "@type": "ListItem", position: 2, name: "Blog", item: "https://brickme.nl/blog" },
+      { "@type": "ListItem", position: 3, name: artikel.titel, item: artikelUrl },
+    ],
+  };
 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <ViewTracker slug={slug} />
       <main style={{ minHeight: "100vh", background: "var(--color-surface)" }}>
         {/* Breadcrumb */}
@@ -118,7 +139,14 @@ export default async function ArtikelPage({ params }: Props) {
         </header>
         {artikel.ogAfbeelding && (
           <div style={{ maxWidth: 760, margin: "0 auto", padding: "0 40px 40px" }}>
-            <img src={artikel.ogAfbeelding} alt={artikel.titel} style={{ width: "100%", borderRadius: 16, aspectRatio: "16/9", objectFit: "cover" }} />
+            <Image
+              src={artikel.ogAfbeelding}
+              alt={artikel.titel}
+              width={1200}
+              height={675}
+              priority
+              style={{ width: "100%", height: "auto", borderRadius: 16, objectFit: "cover" }}
+            />
           </div>
         )}
         <article className="blog-prose" style={{ maxWidth: 760, margin: "0 auto", padding: "0 40px 80px" }}

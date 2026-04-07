@@ -25,7 +25,10 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "*.neon.tech" },
+      { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
+      { protocol: "https", hostname: "*.vercel-storage.com" },
     ],
+    formats: ["image/avif", "image/webp"],
   },
   experimental: {
     serverActions: { allowedOrigins: ["localhost:3000", "brickme-seven.vercel.app", "brickme.nl", "www.brickme.nl"] },

@@ -55,9 +55,38 @@ export const metadata: Metadata = {
   },
 };
 
+const organisatieLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Brickme",
+  url: "https://brickme.nl",
+  logo: "https://brickme.nl/og-image.png",
+  sameAs: [
+    "https://www.instagram.com/brickme.nl",
+    "https://www.linkedin.com/company/brickme",
+  ],
+};
+
+const websiteLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Brickme",
+  url: "https://brickme.nl",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: "https://brickme.nl/blog?q={search_term_string}",
+    "query-input": "required name=search_term_string",
+  },
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="nl" className={`${playfair.variable} ${inter.variable}`}>
+      <head>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organisatieLd) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }} />
+        <link rel="alternate" type="application/rss+xml" title="Brickme Blog" href="https://brickme.nl/feed.xml" />
+      </head>
       <body>
         <SessionProvider>
           {children}
