@@ -43,7 +43,7 @@ const artikelSchema = z.object({
   slug: z.string().min(1).max(200).regex(/^[a-z0-9-]+$/),
   titel: z.string().min(1).max(200),
   inhoud: z.string().min(1),
-  excerpt: z.string().max(300).optional().nullable(),
+  excerpt: z.string().max(500).optional().nullable(),
   metaTitel: z.string().max(120).optional().nullable(),
   metaBeschrijving: z.string().max(320).optional().nullable(),
   trefwoorden: z.array(z.string()).optional().nullable(),

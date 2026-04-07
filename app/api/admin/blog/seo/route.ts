@@ -71,7 +71,7 @@ Geef ALLEEN een JSON-object terug (geen markdown, geen uitleg):
   "metaTitel": "exact 50-60 tekens, primair zoekwoord vooraan",
   "metaBeschrijving": "exact 145-155 tekens, zoekwoord aanwezig + CTA",
   "slug": "seo-slug-max-60-tekens",
-  "excerpt": "2-3 zinnen, 120-160 tekens",
+  "excerpt": "2-3 zinnen, maximaal 280 tekens",
   "categorie": "1 of 2 woorden, hoofdcategorie van dit artikel (bv. 'Zelfreflectie', 'LEGO Serious Play', 'Persoonlijke groei', 'Loopbaan')",
   "trefwoorden": ["5-8", "semantische", "zoekwoorden"],
   "interneLinks": [{"ankerTekst": "...", "href": "/blog/slug", "context": "De zin uit het artikel"}],

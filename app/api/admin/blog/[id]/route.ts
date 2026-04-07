@@ -27,7 +27,7 @@ const updateSchema = z.object({
   slug: z.string().min(1).max(200).regex(/^[a-z0-9-]+$/).optional(),
   titel: z.string().min(1).max(200).optional(),
   inhoud: z.string().min(1).optional(),
-  excerpt: z.string().max(300).nullable().optional(),
+  excerpt: z.string().max(500).nullable().optional(),
   metaTitel: z.string().max(120).nullable().optional(),
   metaBeschrijving: z.string().max(320).nullable().optional(),
   trefwoorden: z.array(z.string()).nullable().optional(),
