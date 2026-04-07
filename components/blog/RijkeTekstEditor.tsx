@@ -95,6 +95,80 @@ function isWaarschijnlijkMarkdown(tekst: string) {
   return /^#{1,6}\s|^\*\*|^[-*+]\s|\d+\.\s/m.test(tekst) && !/<[a-z][\s\S]*>/i.test(tekst);
 }
 
+function wordHtmlNaarHtml(html: string): string {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, "text/html");
+  const result: string[] = [];
+
+  function inline(el: Element): string {
+    let out = "";
+    for (const node of Array.from(el.childNodes)) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        out += node.textContent ?? "";
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        const tag = (node as Element).tagName.toLowerCase();
+        const child = inline(node as Element);
+        if (tag === "b" || tag === "strong") out += `<strong>${child}</strong>`;
+        else if (tag === "i" || tag === "em") out += `<em>${child}</em>`;
+        else if (tag === "a") {
+          const href = (node as HTMLAnchorElement).href;
+          out += href ? `<a href="${href}">${child}</a>` : child;
+        } else {
+          out += child;
+        }
+      }
+    }
+    return out;
+  }
+
+  function verwerkElement(el: Element) {
+    const tag = el.tagName.toLowerCase();
+    const className = el.className ?? "";
+    const stijl = (el as HTMLElement).getAttribute("style") ?? "";
+
+    // Echte heading tags
+    if (/^h[1-6]$/.test(tag)) {
+      const niveau = tag[1];
+      const tekst = inline(el).trim();
+      if (tekst) result.push(`<h${niveau}>${tekst}</h${niveau}>`);
+      return;
+    }
+
+    // Word heading classes / stijlen
+    if (tag === "p") {
+      const cls = className.toLowerCase();
+      const isH1 = /msoheading1|heading1|heading 1/i.test(cls + stijl);
+      const isH2 = /msoheading2|heading2|heading 2/i.test(cls + stijl);
+      const isH3 = /msoheading3|heading3|heading 3/i.test(cls + stijl);
+      const tekst = inline(el).trim();
+      if (!tekst) return;
+      if (isH1) { result.push(`<h1>${tekst}</h1>`); return; }
+      if (isH2) { result.push(`<h2>${tekst}</h2>`); return; }
+      if (isH3) { result.push(`<h3>${tekst}</h3>`); return; }
+      result.push(`<p>${tekst}</p>`);
+      return;
+    }
+
+    if (tag === "ul" || tag === "ol") {
+      const items = Array.from(el.querySelectorAll("li")).map(li => `<li>${inline(li).trim()}</li>`).join("");
+      if (items) result.push(`<${tag}>${items}</${tag}>`);
+      return;
+    }
+
+    // Doorloop children voor andere container-elementen
+    for (const child of Array.from(el.children)) {
+      verwerkElement(child);
+    }
+  }
+
+  const body = doc.body;
+  for (const child of Array.from(body.children)) {
+    verwerkElement(child);
+  }
+
+  return result.join("\n") || body.innerText;
+}
+
 const knopStijl = (actief?: boolean): React.CSSProperties => ({
   padding: "5px 9px",
   borderRadius: 6,
@@ -145,7 +219,20 @@ export default function RijkeTekstEditor({ waarde, onChange, onPasteVerwerkt }: 
     },
     editorProps: {
       handlePaste(view, event) {
+        const clipHtml = event.clipboardData?.getData("text/html") ?? "";
         const tekst = event.clipboardData?.getData("text/plain") ?? "";
+
+        // Word-document plakken (herkent aan "mso-" of "MsoNormal" in de HTML)
+        if (clipHtml && /mso-|MsoNormal|MsoHeading/i.test(clipHtml)) {
+          event.preventDefault();
+          const inhoud = wordHtmlNaarHtml(clipHtml);
+          editor?.commands.setContent(inhoud);
+          onChange(inhoud);
+          if (onPasteVerwerkt) onPasteVerwerkt({ inhoud });
+          return true;
+        }
+
+        // Markdown (bv. van Claude)
         if (!tekst || !isWaarschijnlijkMarkdown(tekst)) return false;
         event.preventDefault();
         const parsed = parsClaudeOutput(tekst);

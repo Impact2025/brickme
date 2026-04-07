@@ -28,6 +28,7 @@ type Veld = {
   seoScore: number;
   verbeteringen: string[];
   gepubliceerd: boolean;
+  gepubliceerdOp: string;
 };
 
 function seoScoreKleur(score: number): string {
@@ -86,9 +87,13 @@ export default function ArtikelEditor({ initieel, artikelId }: ArtikelEditorProp
     seoScore: initieel?.seoScore ?? 0,
     verbeteringen: [],
     gepubliceerd: initieel?.gepubliceerd ?? false,
+    gepubliceerdOp: initieel?.gepubliceerdOp
+      ? new Date(initieel.gepubliceerdOp).toISOString().slice(0, 16)
+      : "",
   });
 
   const [aiLaden, setAiLaden] = useState(false);
+  const [verbeteringLaden, setVerbeteringLaden] = useState<number | null>(null);
   const [opslaan, setOpslaan] = useState(false);
   const [fout, setFout] = useState<string | null>(null);
   const [succes, setSucces] = useState<string | null>(null);
@@ -137,26 +142,103 @@ export default function ArtikelEditor({ initieel, artikelId }: ArtikelEditorProp
         throw new Error(err.error ?? "SEO genereren mislukt");
       }
       const data: SeoResultaat & { leestijd: number } = await res.json();
-      setVeld(v => ({
-        ...v,
-        metaTitel: data.metaTitel ?? v.metaTitel,
-        metaBeschrijving: data.metaBeschrijving ?? v.metaBeschrijving,
-        slug: v.slug || data.slug || v.slug,
-        categorie: data.categorie ?? v.categorie,
-        excerpt: data.excerpt ?? v.excerpt,
-        trefwoorden: data.trefwoorden ?? v.trefwoorden,
-        interneLinks: data.interneLinks ?? v.interneLinks,
-        schemaMarkup: data.schemaMarkup ?? v.schemaMarkup,
-        leestijd: data.leestijd ?? v.leestijd,
-        seoScore: data.seoScore ?? v.seoScore,
-        verbeteringen: data.verbeteringen ?? [],
-      }));
-      setSucces("AI SEO gegenereerd!");
+
+      // Sla basisdata op
+      let huidigState = {
+        metaTitel: data.metaTitel ?? veld.metaTitel,
+        metaBeschrijving: data.metaBeschrijving ?? veld.metaBeschrijving,
+        slug: veld.slug || data.slug || veld.slug,
+        categorie: data.categorie ?? veld.categorie,
+        excerpt: data.excerpt ?? veld.excerpt,
+        trefwoorden: data.trefwoorden ?? veld.trefwoorden,
+        interneLinks: data.interneLinks ?? veld.interneLinks,
+        schemaMarkup: data.schemaMarkup ?? veld.schemaMarkup,
+        leestijd: data.leestijd ?? veld.leestijd,
+        seoScore: data.seoScore ?? veld.seoScore,
+      };
+
+      setVeld(v => ({ ...v, ...huidigState, verbeteringen: [] }));
+
+      // Verbeteringen direct automatisch toepassen
+      const verbeteringen = data.verbeteringen ?? [];
+      for (const verbetering of verbeteringen) {
+        try {
+          const vRes = await fetch("/api/admin/blog/seo", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              verbetering,
+              titel: veld.titel,
+              inhoud: veld.inhoud,
+              huidigMetaTitel: huidigState.metaTitel,
+              huidigMetaBeschrijving: huidigState.metaBeschrijving,
+              huidigExcerpt: huidigState.excerpt,
+              huidigeTrefwoorden: huidigState.trefwoorden,
+              huidigSlug: huidigState.slug,
+            }),
+          });
+          if (vRes.ok) {
+            const vData = await vRes.json();
+            huidigState = {
+              ...huidigState,
+              metaTitel: vData.metaTitel ?? huidigState.metaTitel,
+              metaBeschrijving: vData.metaBeschrijving ?? huidigState.metaBeschrijving,
+              excerpt: vData.excerpt ?? huidigState.excerpt,
+              trefwoorden: vData.trefwoorden ?? huidigState.trefwoorden,
+              slug: vData.slug ?? huidigState.slug,
+            };
+            setVeld(v => ({ ...v, ...huidigState }));
+          }
+        } catch { /* sla mislukte verbetering over */ }
+      }
+
+      setSucces("AI SEO volledig toegepast!");
       setTimeout(() => setSucces(null), 3000);
     } catch (e) {
       setFout(e instanceof Error ? e.message : "Onbekende fout");
     } finally {
       setAiLaden(false);
+    }
+  }
+
+  async function handleVerbeteringToepassen(verbetering: string, index: number) {
+    setVerbeteringLaden(index);
+    setFout(null);
+    try {
+      const res = await fetch("/api/admin/blog/seo", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          verbetering,
+          titel: veld.titel,
+          inhoud: veld.inhoud,
+          huidigMetaTitel: veld.metaTitel,
+          huidigMetaBeschrijving: veld.metaBeschrijving,
+          huidigExcerpt: veld.excerpt,
+          huidigeTrefwoorden: veld.trefwoorden,
+          huidigSlug: veld.slug,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error ?? "Verbetering toepassen mislukt");
+      }
+      const data = await res.json();
+      setVeld(v => ({
+        ...v,
+        metaTitel: data.metaTitel ?? v.metaTitel,
+        metaBeschrijving: data.metaBeschrijving ?? v.metaBeschrijving,
+        excerpt: data.excerpt ?? v.excerpt,
+        trefwoorden: data.trefwoorden ?? v.trefwoorden,
+        slug: data.slug ?? v.slug,
+        verbeteringen: v.verbeteringen.filter((_, i) => i !== index),
+      }));
+      setSucces("Verbetering toegepast!");
+      setTimeout(() => setSucces(null), 3000);
+    } catch (e) {
+      setFout(e instanceof Error ? e.message : "Onbekende fout");
+    } finally {
+      setVerbeteringLaden(null);
     }
   }
 
@@ -196,6 +278,7 @@ export default function ArtikelEditor({ initieel, artikelId }: ArtikelEditorProp
       leestijd: veld.leestijd || null,
       seoScore: veld.seoScore || null,
       gepubliceerd,
+      gepubliceerdOp: veld.gepubliceerdOp ? new Date(veld.gepubliceerdOp).toISOString() : null,
     };
 
     try {
@@ -367,7 +450,7 @@ export default function ArtikelEditor({ initieel, artikelId }: ArtikelEditorProp
               AI analyseert...
             </>
           ) : (
-            "✦ Genereer AI SEO"
+            "✦ Genereer & Pas AI SEO toe"
           )}
         </button>
 
@@ -630,11 +713,11 @@ export default function ArtikelEditor({ initieel, artikelId }: ArtikelEditorProp
           </div>
         )}
 
-        {/* Verbeteringen */}
+        {/* Verbeteringen — toon resterende aandachtspunten die content-wijzigingen vereisen */}
         {veld.verbeteringen.length > 0 && (
           <div style={{ marginBottom: 16 }}>
             <label style={{ fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--color-text-muted)", display: "block", marginBottom: 8 }}>
-              SEO Verbeteringen
+              Aandachtspunten
             </label>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               {veld.verbeteringen.map((v, i) => (
@@ -648,13 +731,30 @@ export default function ArtikelEditor({ initieel, artikelId }: ArtikelEditorProp
                   borderRadius: 8,
                   padding: "8px 12px",
                 }}>
-                  <span style={{ color: "#a03b1f", flexShrink: 0 }}>→</span>
-                  {v}
+                  <span style={{ color: "#a03b1f", flexShrink: 0, marginTop: 1 }}>→</span>
+                  <span style={{ flex: 1, lineHeight: 1.5 }}>{v}</span>
                 </div>
               ))}
             </div>
           </div>
         )}
+
+        {/* Publicatiedatum */}
+        <div style={{ marginBottom: 16 }}>
+          <label style={{ fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--color-text-muted)", display: "block", marginBottom: 6 }}>
+            Publicatiedatum
+          </label>
+          <input
+            type="datetime-local"
+            value={veld.gepubliceerdOp}
+            onChange={e => update("gepubliceerdOp", e.target.value)}
+            className="input-base"
+            style={{ fontSize: 13 }}
+          />
+          <div style={{ fontSize: 11, color: "var(--color-text-muted)", marginTop: 4 }}>
+            Leeg = wordt automatisch ingesteld bij publicatie
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -55,6 +55,7 @@ const artikelSchema = z.object({
   leestijd: z.number().int().min(1).optional().nullable(),
   seoScore: z.number().int().min(0).max(100).optional().nullable(),
   gepubliceerd: z.boolean().optional(),
+  gepubliceerdOp: z.string().datetime().optional().nullable(),
 });
 
 export async function POST(req: NextRequest) {
@@ -67,11 +68,13 @@ export async function POST(req: NextRequest) {
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 });
 
   const now = new Date();
+  const { gepubliceerdOp: gepubliceerdOpRaw, ...restData } = parsed.data;
+  const handmatigDatum = gepubliceerdOpRaw ? new Date(gepubliceerdOpRaw) : null;
   const [artikel] = await db.insert(artikelen).values({
-    ...parsed.data,
-    ogAfbeelding: parsed.data.ogAfbeelding || null,
-    gepubliceerd: parsed.data.gepubliceerd ?? false,
-    gepubliceerdOp: parsed.data.gepubliceerd ? now : null,
+    ...restData,
+    ogAfbeelding: restData.ogAfbeelding || null,
+    gepubliceerd: restData.gepubliceerd ?? false,
+    gepubliceerdOp: handmatigDatum ?? (restData.gepubliceerd ? now : null),
     aangemaktOp: now,
     bijgewerktOp: now,
   }).returning();

@@ -104,3 +104,72 @@ Geef ALLEEN de JSON terug.`;
 
   return NextResponse.json({ ...seoData, leestijd });
 }
+
+const verbeteringSchema = z.object({
+  verbetering: z.string().min(1),
+  titel: z.string().min(1).max(200),
+  inhoud: z.string().min(1),
+  huidigMetaTitel: z.string().optional(),
+  huidigMetaBeschrijving: z.string().optional(),
+  huidigExcerpt: z.string().optional(),
+  huidigeTrefwoorden: z.array(z.string()).optional(),
+  huidigSlug: z.string().optional(),
+});
+
+export async function PATCH(req: NextRequest) {
+  if (!await checkAdmin()) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const body = await req.json().catch(() => null);
+  if (!body) return NextResponse.json({ error: "Ongeldige JSON" }, { status: 400 });
+
+  const parsed = verbeteringSchema.safeParse(body);
+  if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 });
+
+  const { verbetering, titel, inhoud, huidigMetaTitel, huidigMetaBeschrijving, huidigExcerpt, huidigeTrefwoorden, huidigSlug } = parsed.data;
+  const plainTekst = stripHtml(inhoud);
+
+  const prompt = `Je bent een SEO-expert voor Nederlandse content. Pas ALLEEN de volgende verbetering toe op de huidige SEO-data.
+
+VERBETERING: ${verbetering}
+
+ARTIKEL TITEL: ${titel}
+ARTIKEL INHOUD (eerste 2000 tekens): ${plainTekst.slice(0, 2000)}
+
+HUIDIGE SEO-DATA:
+- Meta Titel: ${huidigMetaTitel || "(leeg)"}
+- Meta Beschrijving: ${huidigMetaBeschrijving || "(leeg)"}
+- Excerpt: ${huidigExcerpt || "(leeg)"}
+- Trefwoorden: ${huidigeTrefwoorden?.join(", ") || "(leeg)"}
+- Slug: ${huidigSlug || "(leeg)"}
+
+Geef ALLEEN een JSON-object terug met de velden die je aanpast (laat ongewijzigde velden weg):
+{
+  "metaTitel": "...",
+  "metaBeschrijving": "...",
+  "excerpt": "...",
+  "trefwoorden": ["..."],
+  "slug": "..."
+}
+
+Pas ALLEEN aan wat nodig is voor de genoemde verbetering. Geef ALLEEN de JSON terug.`;
+
+  const response = await openai.chat.completions.create({
+    model: AI_MODEL,
+    messages: [{ role: "user", content: prompt }],
+    temperature: 0.2,
+    max_tokens: 800,
+  });
+
+  const rawContent = response.choices[0]?.message?.content ?? "";
+  const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) return NextResponse.json({ error: "AI gaf geen valide JSON terug" }, { status: 500 });
+
+  let resultaat: Record<string, unknown>;
+  try {
+    resultaat = JSON.parse(jsonMatch[0]);
+  } catch {
+    return NextResponse.json({ error: "JSON parse mislukt" }, { status: 500 });
+  }
+
+  return NextResponse.json(resultaat);
+}

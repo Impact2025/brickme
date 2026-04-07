@@ -39,6 +39,7 @@ const updateSchema = z.object({
   leestijd: z.number().int().min(1).nullable().optional(),
   seoScore: z.number().int().min(0).max(100).nullable().optional(),
   gepubliceerd: z.boolean().optional(),
+  gepubliceerdOp: z.string().datetime().nullable().optional(),
 });
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -54,9 +55,17 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (!bestaand.length) return NextResponse.json({ error: "Niet gevonden" }, { status: 404 });
 
   const wordtGepubliceerd = parsed.data.gepubliceerd === true && !bestaand[0].gepubliceerd;
+  let nieuweGepubliceerdOp: Date | null = bestaand[0].gepubliceerdOp;
+  if (parsed.data.gepubliceerdOp !== undefined) {
+    nieuweGepubliceerdOp = parsed.data.gepubliceerdOp ? new Date(parsed.data.gepubliceerdOp) : null;
+  } else if (wordtGepubliceerd) {
+    nieuweGepubliceerdOp = new Date();
+  }
+
+  const { gepubliceerdOp: _, ...restData } = parsed.data;
   const [updated] = await db.update(artikelen).set({
-    ...parsed.data,
-    gepubliceerdOp: wordtGepubliceerd ? new Date() : bestaand[0].gepubliceerdOp,
+    ...restData,
+    gepubliceerdOp: nieuweGepubliceerdOp,
     bijgewerktOp: new Date(),
   }).where(eq(artikelen.id, id)).returning();
 
