@@ -4,7 +4,7 @@ import { randomUUID } from "crypto";
 import { db } from "@/lib/db";
 import { gebruikers } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { sendVerificatieEmail, sendNieuwAccountNotificatie } from "@/lib/email";
+import { sendVerificatieEmail, sendNieuwAccountNotificatie, sendInlogcodeEmail } from "@/lib/email";
 import { checkRateLimit } from "@/lib/ratelimit";
 
 export async function POST(req: NextRequest) {
@@ -40,7 +40,13 @@ export async function POST(req: NextRequest) {
       verificatieVerloptOp: verloptOp,
     });
 
-    void sendVerificatieEmail(naam || email, email, code);
+    const emailResult = await sendInlogcodeEmail(naam || email, email, code);
+
+    if (!emailResult.ok) {
+      console.error("[register] verificatie-email niet verstuurd voor:", email, emailResult.error);
+      return NextResponse.json({ error: "Account aangemaakt maar verificatie-email kon niet worden verstuurd. Probeer opnieuw in te loggen." }, { status: 500 });
+    }
+
     void sendNieuwAccountNotificatie(naam || null, email);
 
     return NextResponse.json({ ok: true });
