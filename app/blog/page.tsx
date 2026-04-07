@@ -355,15 +355,16 @@ function ArtikelKaart({ artikel }: ArtikelKaartProps) {
           </div>
         ) : artikel.kaartTitel ? (
           <div style={{
+            aspectRatio: "16/9",
+            overflow: "hidden",
             background: "linear-gradient(135deg, var(--color-primary) 0%, #e8875c 100%)",
-            padding: "28px 22px 20px",
-            minHeight: 90,
             display: "flex",
             alignItems: "flex-end",
+            padding: "24px 22px 20px",
           }}>
             <p style={{
               margin: 0,
-              fontSize: 16,
+              fontSize: 18,
               fontWeight: 500,
               color: "white",
               lineHeight: 1.3,

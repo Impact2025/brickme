@@ -722,14 +722,15 @@ export default function ArtikelEditor({ initieel, artikelId }: ArtikelEditorProp
               />
               {veld.kaartTitel && (
                 <div style={{
+                  aspectRatio: "16/9",
+                  overflow: "hidden",
                   background: "linear-gradient(135deg, var(--color-primary) 0%, #e8875c 100%)",
-                  padding: "18px 16px 14px",
                   borderRadius: 8,
-                  minHeight: 70,
                   display: "flex",
                   alignItems: "flex-end",
+                  padding: "20px 16px 14px",
                 }}>
-                  <p style={{ margin: 0, fontSize: 14, fontWeight: 500, color: "white", lineHeight: 1.3, fontFamily: "var(--font-serif)" }}>
+                  <p style={{ margin: 0, fontSize: 15, fontWeight: 500, color: "white", lineHeight: 1.3, fontFamily: "var(--font-serif)" }}>
                     {veld.kaartTitel}
                   </p>
                 </div>
