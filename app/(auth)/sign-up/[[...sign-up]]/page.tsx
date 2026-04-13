@@ -16,6 +16,7 @@ function SignUpForm() {
   const [fout, setFout] = useState("");
   const [bezig, setBezig] = useState(false);
   const [verzonden, setVerzonden] = useState(false);
+  const [website, setWebsite] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -25,7 +26,7 @@ function SignUpForm() {
     const res = await fetch("/api/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ naam, email }),
+      body: JSON.stringify({ naam, email, website }),
     });
 
     const data = await res.json().catch(() => ({}));
@@ -90,6 +91,17 @@ function SignUpForm() {
         {!verzonden ? (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
+              {/* Honeypot: verborgen voor mensen, bots vullen dit in */}
+              <input
+                type="text"
+                name="website"
+                value={website}
+                onChange={(e) => setWebsite(e.target.value)}
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+                className="absolute -top-[9999px] -left-[9999px] opacity-0 pointer-events-none"
+              />
               <label className="block text-sm text-bricktext mb-1">Naam</label>
               <input
                 type="text"

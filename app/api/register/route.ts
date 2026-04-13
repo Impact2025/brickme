@@ -4,7 +4,7 @@ import { randomUUID } from "crypto";
 import { db } from "@/lib/db";
 import { gebruikers } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { sendVerificatieEmail, sendNieuwAccountNotificatie, sendInlogcodeEmail } from "@/lib/email";
+import { sendInlogcodeEmail } from "@/lib/email";
 import { checkRateLimit } from "@/lib/ratelimit";
 
 export async function POST(req: NextRequest) {
@@ -13,7 +13,9 @@ export async function POST(req: NextRequest) {
   if (!ok) return NextResponse.json({ error: "Te veel pogingen. Probeer later opnieuw." }, { status: 429 });
 
   try {
-    const { naam, email } = await req.json();
+    const { naam, email, website } = await req.json();
+    // Honeypot: bots vullen dit verborgen veld in
+    if (website) return NextResponse.json({ ok: true });
     if (!email) return NextResponse.json({ error: "Vul je e-mailadres in." }, { status: 400 });
 
     const bestaand = await db
@@ -46,8 +48,6 @@ export async function POST(req: NextRequest) {
       console.error("[register] verificatie-email niet verstuurd voor:", email, emailResult.error);
       return NextResponse.json({ error: "Account aangemaakt maar verificatie-email kon niet worden verstuurd. Probeer opnieuw in te loggen." }, { status: 500 });
     }
-
-    void sendNieuwAccountNotificatie(naam || null, email);
 
     return NextResponse.json({ ok: true });
   } catch (err) {

@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { gebruikers } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { authConfig } from "./auth.config";
+import { sendNieuwAccountNotificatie } from "@/lib/email";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
@@ -33,10 +34,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           if (gebruiker.verificatieCode !== token) return null;
           if (!gebruiker.verificatieVerloptOp || gebruiker.verificatieVerloptOp < new Date()) return null;
 
+          const wasNieuw = !gebruiker.actief;
+
           await db
             .update(gebruikers)
             .set({ actief: true, verificatieCode: null, verificatieVerloptOp: null })
             .where(eq(gebruikers.userId, gebruiker.userId));
+
+          // Alleen notificatie bij echte nieuwe registraties (na verificatie)
+          if (wasNieuw) {
+            void sendNieuwAccountNotificatie(gebruiker.naam ?? null, gebruiker.email ?? "");
+          }
 
           return {
             id: gebruiker.userId,
