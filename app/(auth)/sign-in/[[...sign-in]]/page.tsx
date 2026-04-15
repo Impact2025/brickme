@@ -10,7 +10,9 @@ function SignInForm() {
   const router = useRouter();
   const callbackUrl = params.get("callbackUrl") || "/start";
 
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(() =>
+    typeof window !== "undefined" ? (localStorage.getItem("brickme_email") ?? "") : ""
+  );
   const [code, setCode] = useState("");
   const [fout, setFout] = useState("");
   const [bezig, setBezig] = useState(false);
@@ -39,6 +41,7 @@ function SignInForm() {
       return;
     }
 
+    localStorage.setItem("brickme_email", email);
     setVerzonden(true);
     setBezig(false);
   }
