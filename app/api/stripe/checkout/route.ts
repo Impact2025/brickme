@@ -61,6 +61,11 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const checkoutSession = await stripe.checkout.sessions.create(params);
-  return NextResponse.json({ url: checkoutSession.url });
+  try {
+    const checkoutSession = await stripe.checkout.sessions.create(params);
+    return NextResponse.json({ url: checkoutSession.url });
+  } catch (err) {
+    console.error("[stripe/checkout]", err);
+    return NextResponse.json({ error: "Stripe fout" }, { status: 500 });
+  }
 }
