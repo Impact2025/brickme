@@ -266,7 +266,7 @@ export default function HomePage() {
                 num: "01",
                 titel: "Kies je thema",
                 tekst:
-                  "Carrière, liefde, identiteit, verbinding of een kruispunt. Jij bepaalt waar je op dit moment mee zit. Er is geen goed of fout antwoord. Alleen jouw waarheid.",
+                  "Werk & energie, liefde, wie ben ik, verbinding, kruispunt of rouw & verlies. Zes thema's, één eerlijke vraag: waar loop jij mee rond? Er is geen goed of fout antwoord. Alleen jouw waarheid.",
                 accent: false,
               },
               {
@@ -609,10 +609,10 @@ export default function HomePage() {
               <div className="flex items-baseline gap-1 mb-2">
                 <span className="font-serif text-4xl text-bricktext">€&nbsp;14,95</span>
               </div>
-              <p className="text-sm text-muted mb-7">Eenmalig proberen. Geen account nodig, geen verplichtingen.</p>
+              <p className="text-sm text-muted mb-7">Eenmalig proberen. Geen abonnement nodig, geen verplichtingen.</p>
               <ul className="space-y-3 flex-grow mb-8 text-sm text-muted">
                 {[
-                  "Volledige sessie van 30–45 min",
+                  "Volledige sessie van 45–75 min",
                   "Intake op maat",
                   "3 bouwfases met timer",
                   "Claude Vision reflectie per foto",
