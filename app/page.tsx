@@ -615,7 +615,7 @@ export default function HomePage() {
                   "Volledige sessie van 45–75 min",
                   "Intake op maat",
                   "3 bouwfases met timer",
-                  "Claude Vision reflectie per foto",
+                  "Brickme reflectie per sessie",
                   "Persoonlijk PDF-rapport",
                 ].map((f) => (
                   <li key={f} className="flex items-center gap-2.5">
