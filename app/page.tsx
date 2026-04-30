@@ -506,19 +506,28 @@ export default function HomePage() {
               Vincent van Munster · oprichter
             </span>
             <h2 className="font-serif text-4xl md:text-5xl leading-tight text-bricktext mb-8">
-              Ik geloof dat het anders kan.
+              Ik geloof in bouwen<br/>als manier van denken.
             </h2>
             <div className="space-y-5 font-serif text-lg text-muted leading-relaxed">
               <p>
-                Jarenlang werkte ik als bestuurder en directeur aan systemen die mensen moesten helpen.
-                Tot ik merkte dat de échte vragen — wie ben ik, wat wil ik, waarheen — nergens
-                beantwoord werden.
+                Jarenlang werk ik met Serious Play. Met teams die vastzitten, organisaties die willen
+                veranderen, bestuurders die richting zoeken. Niet als coach, maar als iemand die gelooft
+                dat de juiste structuur meer doet dan het beste gesprek.
               </p>
               <p>
-                Dat is waarom ik Brickme bouwde.
+                Wat ik steeds opnieuw zie: zodra mensen iets bouwen met hun handen, komen er antwoorden
+                die anders verborgen blijven. Het is geen truc. Het is methodiek.
+              </p>
+              <p>
+                Op een gegeven moment paste ik het op mezelf toe. Voor mijn eigen situatie, mijn eigen
+                vragen. En het werkte — op dezelfde manier als bij de teams waarmee ik werk.
+              </p>
+              <p>
+                Toen dacht ik: waarom bestaat dit niet voor individuen? Buiten een teamdag, buiten een
+                duur traject, gewoon als jij er klaar voor bent.
               </p>
               <p className="border-l-2 border-primary pl-5 text-bricktext font-medium">
-                "Ik ontwerp geen apps om je online te houden. Ik bouw tools die je helpen offline te leven."
+                Dat is waarom ik Brickme bouwde.
               </p>
               <p className="text-primary font-medium">— Vincent</p>
             </div>
