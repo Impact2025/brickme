@@ -148,9 +148,6 @@ export default async function CouponsPage() {
                         <button
                           type="submit"
                           className="text-xs text-red-400 hover:text-red-600 transition-colors"
-                          onClick={(e) => {
-                            if (!confirm(`Coupon ${c.code} verwijderen?`)) e.preventDefault();
-                          }}
                         >
                           Verwijder
                         </button>
