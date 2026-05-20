@@ -4,6 +4,7 @@ import Image from "next/image";
 export const metadata = {
   title: "Algemene Voorwaarden — Brickme",
   description: "De algemene voorwaarden van Brickme door WeAreImpact B.V.",
+  alternates: { canonical: "https://brickme.nl/voorwaarden" },
 };
 
 export default function VoorwaardenPage() {

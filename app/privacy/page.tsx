@@ -4,6 +4,7 @@ import Image from "next/image";
 export const metadata = {
   title: "Privacyverklaring — Brickme",
   description: "Hoe Brickme omgaat met jouw persoonsgegevens.",
+  alternates: { canonical: "https://brickme.nl/privacy" },
 };
 
 export default function PrivacyPage() {

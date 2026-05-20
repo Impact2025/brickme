@@ -8,6 +8,7 @@ Disallow: /facilitator/
 Disallow: /coach/
 Disallow: /betalen/
 Disallow: /profiel/
-Disallow: /(auth)/
+Disallow: /sign-in
+Disallow: /sign-up
 
 Sitemap: https://brickme.nl/sitemap.xml

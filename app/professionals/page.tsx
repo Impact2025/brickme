@@ -6,6 +6,14 @@ export const metadata = {
   title: "Brickme voor professionals — coaches, LSP-facilitators & HR",
   description:
     "Gebruik Brickme met je cliënten, deelnemers of medewerkers. Dashboard voor coaches, LSP-facilitators en HR-professionals.",
+  alternates: { canonical: "https://brickme.nl/professionals" },
+  openGraph: {
+    title: "Brickme voor professionals — coaches, LSP-facilitators & HR",
+    description:
+      "Gebruik Brickme met je cliënten, deelnemers of medewerkers. Dashboard voor coaches, LSP-facilitators en HR-professionals.",
+    url: "https://brickme.nl/professionals",
+    type: "website",
+  },
 };
 
 export default function ProfessionalsPage() {
