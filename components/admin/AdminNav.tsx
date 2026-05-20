@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, BookOpen, BarChart3, Newspaper } from "lucide-react";
+import { LayoutDashboard, Users, BookOpen, BarChart3, Newspaper, Ticket } from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "Dashboard", Icon: LayoutDashboard },
   { href: "/admin/gebruikers", label: "Gebruikers", Icon: Users },
   { href: "/admin/sessies", label: "Sessies", Icon: BookOpen },
   { href: "/admin/analytics", label: "Analytics", Icon: BarChart3 },
+  { href: "/admin/coupons", label: "Coupons", Icon: Ticket },
   { href: "/admin/blog", label: "Blog", Icon: Newspaper },
 ];
 

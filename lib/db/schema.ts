@@ -102,6 +102,22 @@ export const rapporten = pgTable("rapporten", {
   aangemaktOp: timestamp("aangemakt_op").defaultNow().notNull(),
 });
 
+// ─── Coupons ──────────────────────────────────────────────────────────────────
+
+export const coupons = pgTable("coupons", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  code: text("code").notNull().unique(),
+  kortingPercent: integer("korting_percent").notNull(), // 100 = gratis, 20 = 20% korting
+  beschrijving: text("beschrijving"),
+  maxGebruik: integer("max_gebruik"), // null = onbeperkt
+  gebruikTeller: integer("gebruik_teller").notNull().default(0),
+  actief: boolean("actief").notNull().default(true),
+  verloptOp: timestamp("verloopt_op"), // null = nooit
+  aangemaktOp: timestamp("aangemakt_op").defaultNow().notNull(),
+});
+
+export type Coupon = typeof coupons.$inferSelect;
+
 // ─── Blog ─────────────────────────────────────────────────────────────────────
 
 export type InterneLink = {
