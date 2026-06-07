@@ -652,13 +652,14 @@ export default function HomePage() {
                 <span className="font-serif text-4xl text-white">€&nbsp;9,95</span>
                 <span className="text-sm text-white/70">/ mnd</span>
               </div>
-              <p className="text-sm text-white/70 mb-7">Voor mensen die vaker willen reflecteren en hun groei willen volgen.</p>
+              <p className="text-sm text-white/70 mb-7">Voor mensen die dieper willen gaan en hun groei over tijd willen zien.</p>
               <ul className="space-y-3 flex-grow mb-8 text-sm text-white/90">
                 {[
                   "Onbeperkt sessies",
-                  "Bouwarchief, al je sessies bewaard",
-                  "Stemming voor/na tracking",
-                  "Check-ins na verloop van tijd",
+                  "Je bouwsels naast elkaar — zie je groei in beeld",
+                  "Jouw groeicurve: stemming voor/na over alle sessies",
+                  "Terugkeersessie: bouw opnieuw, zie wat er veranderd is",
+                  "Patrooninzicht na 3 sessies",
                   { label: "Eerste maand gratis", bold: true },
                 ].map((f) => (
                   <li key={typeof f === "string" ? f : f.label} className="flex items-center gap-2.5">

@@ -25,6 +25,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     samenvatting: rapport.samenvattingTekst,
     inzichten: rapport.inzichten,
     eersteStap: rapport.eersteStap,
+    vergelijkingTekst: rapport.vergelijkingTekst,
+    isTerugkeer: !!sessie?.vorigeSessieId,
     fases: fasesData.map((f) => ({
       faseTitel: f.faseTitel,
       fotoBase64: f.fotoBase64,

@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Niet ingelogd" }, { status: 401 });
   }
 
-  const { thema, coupon, type } = await req.json();
+  const { thema, coupon, type, terugkeer } = await req.json();
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
   // Interne gratis coupon check
@@ -36,7 +36,8 @@ export async function POST(req: NextRequest) {
           .update(coupons)
           .set({ gebruikTeller: sql`${coupons.gebruikTeller} + 1` })
           .where(eq(coupons.code, upper));
-        return NextResponse.json({ url: `${appUrl}/sessie/nieuw?thema=${thema}&betaald=1` });
+        const suffix = terugkeer ? `&terugkeer=${terugkeer}` : "";
+        return NextResponse.json({ url: `${appUrl}/sessie/nieuw?thema=${thema}&betaald=1${suffix}` });
       }
     }
   }
@@ -56,11 +57,12 @@ export async function POST(req: NextRequest) {
       metadata: { userId: session.user.id, type: "abonnement" },
     };
   } else {
+    const terugkeerSuffix = terugkeer ? `&terugkeer=${terugkeer}` : "";
     params = {
       mode: "payment",
       line_items: [{ price: process.env.STRIPE_PRICE_ID!, quantity: 1 }],
-      success_url: `${appUrl}/sessie/nieuw?thema=${thema}&betaald=1`,
-      cancel_url: `${appUrl}/betalen?thema=${thema}`,
+      success_url: `${appUrl}/sessie/nieuw?thema=${thema}&betaald=1${terugkeerSuffix}`,
+      cancel_url: `${appUrl}/betalen?thema=${thema}${terugkeer ? `&terugkeer=${terugkeer}` : ""}`,
       metadata: { userId: session.user.id, thema },
     };
 

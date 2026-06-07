@@ -14,6 +14,8 @@ function StartForm() {
   const router = useRouter();
   const params = useSearchParams();
   const themaParam = params.get("thema") as ThemaId | null;
+  const terugkeerParam = params.get("terugkeer");
+  const isTerugkeer = !!terugkeerParam;
   const [geselecteerd, setGeselecteerd] = useState<ThemaId | null>(
     themaParam && THEMAS[themaParam] ? themaParam : null
   );
@@ -22,7 +24,10 @@ function StartForm() {
   async function startSessie() {
     if (!geselecteerd || !isSignedIn) return;
     setBezig(true);
-    router.push(`/betalen?thema=${geselecteerd}`);
+    const url = terugkeerParam
+      ? `/betalen?thema=${geselecteerd}&terugkeer=${terugkeerParam}`
+      : `/betalen?thema=${geselecteerd}`;
+    router.push(url);
   }
 
   const themaLijst = Object.values(THEMAS);
@@ -57,14 +62,22 @@ function StartForm() {
       <div className="max-w-2xl mx-auto px-6 pb-24">
         {/* Hero */}
         <section className="pt-8 pb-12 text-center">
+          {isTerugkeer && (
+            <div className="inline-flex items-center gap-2 mb-6 px-4 py-2.5 rounded-2xl bg-accent/10 border border-accent/20">
+              <span className="text-accent text-sm">↩</span>
+              <span className="text-sm font-medium text-accent">Terugkeersessie — je bouwt opnieuw, Brickme onthoudt wat je eerder vertelde</span>
+            </div>
+          )}
           <div className="w-12 h-12 bg-primary rounded-2xl mx-auto mb-6 flex items-center justify-center">
             <span className="text-2xl">◆</span>
           </div>
           <h2 className="text-4xl font-serif text-bricktext mb-4 leading-tight">
-            Waar loop jij<br />mee rond?
+            {isTerugkeer ? <>Zes weken verder.<br />Bouw opnieuw.</> : <>Waar loop jij<br />mee rond?</>}
           </h2>
           <p className="text-muted text-lg max-w-sm mx-auto leading-relaxed">
-            Kies een thema. De rest gaat vanzelf.
+            {isTerugkeer
+              ? "Hetzelfde thema, maar nu. De reflectie laat zien wat er veranderd is."
+              : "Kies een thema. De rest gaat vanzelf."}
           </p>
         </section>
 
@@ -118,13 +131,13 @@ function StartForm() {
             ) : (
               <div className="space-y-3">
                 <Link
-                  href={`/sign-up?callbackUrl=${encodeURIComponent(`/betalen?thema=${geselecteerd}`)}`}
+                  href={`/sign-up?callbackUrl=${encodeURIComponent(`/betalen?thema=${geselecteerd}${terugkeerParam ? `&terugkeer=${terugkeerParam}` : ""}`)}`}
                   className="btn-primary w-full text-center text-lg py-4 block"
                 >
                   Account aanmaken →
                 </Link>
                 <Link
-                  href={`/sign-in?callbackUrl=${encodeURIComponent(`/betalen?thema=${geselecteerd}`)}`}
+                  href={`/sign-in?callbackUrl=${encodeURIComponent(`/betalen?thema=${geselecteerd}${terugkeerParam ? `&terugkeer=${terugkeerParam}` : ""}`)}`}
                   className="block text-center text-sm text-muted hover:text-bricktext transition-colors py-2"
                 >
                   Al een account? Inloggen

@@ -226,6 +226,105 @@ export async function sendRapportGereedEmail(
   await stuurEmail({ to: email, subject: `Je Brickme rapport — ${themaLabel}`, inhoud });
 }
 
+// ─── Terugkeersessie uitnodiging ──────────────────────────────────────────────
+
+export async function sendTerugkeerEmail(
+  naam: string,
+  email: string,
+  themaLabel: string,
+  eersteStap: string,
+  vorigeSessieId: string,
+  thema: string
+): Promise<void> {
+  const url = `${APP_URL}/start?terugkeer=${vorigeSessieId}&thema=${thema}`;
+
+  const inhoud = `
+    <h1 style="margin:0 0 16px;font-size:26px;font-weight:700;color:#2C1F14;">Zes weken verder</h1>
+    <p style="margin:0 0 8px;font-size:13px;color:#8B7355;text-transform:uppercase;letter-spacing:1px;">${themaLabel}</p>
+    <p style="margin:0 0 24px;font-size:16px;line-height:1.6;color:#2C1F14;">
+      Hoi${naam ? ` ${naam}` : ""},<br/><br/>
+      Zes weken geleden bouwde je iets. Je hebt het toen geformuleerd, gefotografeerd en gereflecteerd.
+      En daarna ben je verder gegaan met je leven.
+    </p>
+    ${eersteStap ? `
+    <div style="padding:20px 24px;background:#F5F0E8;border-radius:8px;margin-bottom:24px;">
+      <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#8B7355;text-transform:uppercase;letter-spacing:1px;">Je eerste stap was</p>
+      <p style="margin:0;font-size:16px;line-height:1.6;color:#2C1F14;font-style:italic;">"${eersteStap}"</p>
+    </div>
+    ` : ""}
+    <p style="margin:0 0 24px;font-size:16px;line-height:1.6;color:#2C1F14;">
+      Bouw het opnieuw. Hetzelfde thema, maar nu. Brickme gebruikt je vorige sessie als context —
+      zodat de reflectie laat zien wat er veranderd is.
+    </p>
+    <p style="margin:0 0 8px;font-size:14px;line-height:1.6;color:#8B7355;">
+      Dit is een terugkeersessie. Alleen beschikbaar voor abonnees.
+    </p>
+    ${knop("Bouw opnieuw →", url)}
+    ${knopTekst("Terugkeersessie starten", url)}
+  `;
+
+  await stuurEmail({ to: email, subject: `Zes weken later — bouw het opnieuw | Brickme`, inhoud });
+}
+
+// ─── Follow-up dag 3 ─────────────────────────────────────────────────────────
+
+export async function sendFollowupDag3Email(
+  naam: string,
+  email: string,
+  themaLabel: string,
+  eersteStap: string
+): Promise<void> {
+  const inhoud = `
+    <h1 style="margin:0 0 16px;font-size:26px;font-weight:700;color:#2C1F14;">Hoe gaat het?</h1>
+    <p style="margin:0 0 8px;font-size:13px;color:#8B7355;text-transform:uppercase;letter-spacing:1px;">${themaLabel}</p>
+    <p style="margin:0 0 24px;font-size:16px;line-height:1.6;color:#2C1F14;">
+      Hoi${naam ? ` ${naam}` : ""},<br/><br/>
+      Je deed een paar dagen geleden een Brickme-sessie. Niet om je iets te verkopen — gewoon even kijken hoe het gaat.
+    </p>
+    ${eersteStap ? `
+    <div style="padding:20px 24px;background:#F5F0E8;border-radius:8px;margin-bottom:24px;">
+      <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#8B7355;text-transform:uppercase;letter-spacing:1px;">Je eerste stap was</p>
+      <p style="margin:0;font-size:16px;line-height:1.6;color:#2C1F14;font-style:italic;">"${eersteStap}"</p>
+    </div>
+    <p style="margin:0;font-size:16px;line-height:1.6;color:#2C1F14;">
+      Is daar iets van in beweging gekomen?
+    </p>
+    ` : `
+    <p style="margin:0;font-size:16px;line-height:1.6;color:#2C1F14;">
+      Is er iets in beweging gekomen?
+    </p>
+    `}
+  `;
+
+  await stuurEmail({ to: email, subject: `Hoe gaat het? — Brickme`, inhoud });
+}
+
+// ─── Follow-up dag 21 ─────────────────────────────────────────────────────────
+
+export async function sendFollowupDag21Email(
+  naam: string,
+  email: string,
+  themaLabel: string
+): Promise<void> {
+  const inhoud = `
+    <h1 style="margin:0 0 16px;font-size:26px;font-weight:700;color:#2C1F14;">Drie weken verder</h1>
+    <p style="margin:0 0 8px;font-size:13px;color:#8B7355;text-transform:uppercase;letter-spacing:1px;">${themaLabel}</p>
+    <p style="margin:0 0 24px;font-size:16px;line-height:1.6;color:#2C1F14;">
+      Hoi${naam ? ` ${naam}` : ""},<br/><br/>
+      Je Brickme-sessie was drie weken geleden. Soms is dat genoeg tijd om te voelen of er iets verschoven is — of juist niet.
+    </p>
+    <p style="margin:0 0 24px;font-size:16px;line-height:1.6;color:#2C1F14;">
+      Als je merkt dat het thema nog steeds speelt — of dat er een nieuw vraagstuk is opgekomen — kan een vervolgsessie helpen om het opnieuw concreet te maken.
+    </p>
+    <p style="margin:0 0 24px;font-size:16px;line-height:1.6;color:#8B7355;">
+      Geen verplichting. Gewoon een uitnodiging.
+    </p>
+    ${knop("Kies een thema →", `${APP_URL}/start`)}
+  `;
+
+  await stuurEmail({ to: email, subject: `Drie weken na je sessie — Brickme`, inhoud });
+}
+
 // ─── Nieuw account notificatie (intern) ──────────────────────────────────────
 
 export async function sendNieuwAccountNotificatie(naam: string | null, email: string): Promise<void> {

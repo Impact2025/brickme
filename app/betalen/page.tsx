@@ -8,6 +8,7 @@ import { ThemaId } from "@/types";
 function BetalenForm() {
   const params = useSearchParams();
   const themaId = (params.get("thema") || "werk") as ThemaId;
+  const terugkeerParam = params.get("terugkeer");
   const thema = THEMAS[themaId];
 
   const [coupon, setCoupon] = useState("");
@@ -41,9 +42,11 @@ function BetalenForm() {
     setBezig(true);
     setFout("");
 
+    const terugkeerSuffix = terugkeerParam ? `&terugkeer=${terugkeerParam}` : "";
+
     if (gratis) {
       // Geen betaling nodig — direct door
-      window.location.href = `/sessie/nieuw?thema=${themaId}&betaald=1`;
+      window.location.href = `/sessie/nieuw?thema=${themaId}&betaald=1${terugkeerSuffix}`;
       return;
     }
 
@@ -53,6 +56,7 @@ function BetalenForm() {
       body: JSON.stringify({
         thema: themaId,
         coupon: couponStatus === "geldig" ? coupon : undefined,
+        terugkeer: terugkeerParam ?? undefined,
       }),
     });
 

@@ -75,6 +75,83 @@ VERLOOP:
 BELANGRIJK: Stuur de JSON pas als je 7+ uitwisselingen hebt gehad en het gesprek een goede diepgang heeft bereikt.`;
 }
 
+// ─── Terugkeer intake prompt ──────────────────────────────────────────────────
+
+export type VorigeSessieContext = {
+  themaLabel: string;
+  eersteStap: string;
+  inzichten: string[];
+  aiSessieContext: string;
+};
+
+export function buildTerugkeerIntakeSystemPrompt(themaId: ThemaId, vorigeSessie: VorigeSessieContext): string {
+  const thema = THEMAS[themaId];
+  const inzichtenTekst = vorigeSessie.inzichten.length > 0
+    ? vorigeSessie.inzichten.map((i, n) => `${n + 1}. ${i}`).join("\n")
+    : "Geen inzichten beschikbaar.";
+
+  return `${LSP_FACILITATOR_KENNIS}
+Je bent een warme, directe gesprekspartner die iemand begeleidt in een TERUGKEERsessie over "${thema.label}" — specifiek: "${thema.ondertitel}".
+
+DIT IS EEN TERUGKEERSESSIE — de persoon deed dit thema eerder:
+Context van vorige sessie: "${vorigeSessie.aiSessieContext}"
+Inzichten uit vorige sessie:
+${inzichtenTekst}
+Eerste stap die ze zichzelf gaven: "${vorigeSessie.eersteStap}"
+
+JOUW TAAK IN DEZE TERUGKEERSESSIE:
+De eerste vraag begint altijd met wat er sindsdien is veranderd:
+"Welkom terug. Je was hier eerder over ${vorigeSessie.themaLabel}. Je gaf jezelf toen als eerste stap: '${vorigeSessie.eersteStap}'. Hoe is dat gegaan?"
+
+Werk daarna toe naar: wat is er nu anders? Wat is er gebleven? Wat heeft zich verdiept of juist opgelost?
+Doe dit in 5-7 uitwisselingen — korter dan een eerste sessie, want je hebt al context.
+
+STIJL: identiek aan eerste sessie — warm, direct, één vraag per bericht, geen jargon.
+
+Stuur aan het einde een JSON-samenvatting:
+{"klaar": true, "context": "Korte samenvatting van 2-3 zinnen. Verwerk expliciet: wat er veranderd is tov de vorige sessie, en wat er nu speelt."}
+
+BELANGRIJK: Stuur de JSON pas na 5+ uitwisselingen en voldoende diepgang.`;
+}
+
+// ─── Vergelijking rapport prompt ──────────────────────────────────────────────
+
+export type VorigeSessieRapport = {
+  themaLabel: string;
+  samenvatting: string;
+  inzichten: string[];
+  eersteStap: string;
+  voltooidOp: string;
+};
+
+export function buildVergelijkingPrompt(
+  huidigeSamenvatting: string,
+  huidigeInzichten: string[],
+  huidigeEersteStap: string,
+  vorigeSessie: VorigeSessieRapport
+): string {
+  return `Je schrijft een kort vergelijkingsblok voor een Brickme terugkeersessie.
+
+VORIGE SESSIE (${vorigeSessie.voltooidOp}):
+Samenvatting: "${vorigeSessie.samenvatting}"
+Inzichten: ${vorigeSessie.inzichten.map((i, n) => `${n + 1}. ${i}`).join(" | ")}
+Eerste stap: "${vorigeSessie.eersteStap}"
+
+HUIDIGE SESSIE:
+Samenvatting: "${huidigeSamenvatting}"
+Inzichten: ${huidigeInzichten.map((i, n) => `${n + 1}. ${i}`).join(" | ")}
+Eerste stap: "${huidigeEersteStap}"
+
+SCHRIJF een vergelijkingstekst van 3-4 zinnen die:
+1. Concreet benoemt wat er veranderd is (niet generiek "je hebt groei gemaakt" maar specifiek)
+2. Iets benoemt dat gebleven is — een patroon, een kracht of een spanning die nog steeds aanwezig is
+3. Eindigt met een observatie over de richting die zichtbaar wordt
+
+STIJL: warm, direct, tweede persoon. Geen jargon. Geen therapeutisch taalgebruik.
+
+Geef alleen de tekst terug, geen opmaak, geen titel.`;
+}
+
 // ─── Reflectie AI prompt ──────────────────────────────────────────────────────
 export type EerdereFase = {
   faseNummer: number;

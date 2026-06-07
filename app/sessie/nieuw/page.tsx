@@ -101,6 +101,7 @@ function NieuweSessieInner() {
   const params = useSearchParams();
   const themaId = (params.get("thema") || "werk") as ThemaId;
   const resumeSessieId = params.get("sessieId");
+  const terugkeerParam = params.get("terugkeer");
   const thema = THEMAS[themaId];
 
   const betaald = params.get("betaald") === "1";
@@ -139,6 +140,7 @@ function NieuweSessieInner() {
           fase: "start",
           sessieId: bestaandSessieId || null,
           stemming,
+          vorigeSessieId: terugkeerParam ?? null,
         }),
       });
       const data = await res.json();
@@ -170,6 +172,7 @@ function NieuweSessieInner() {
           fase: "gesprek",
           sessieId,
           stemming,
+          vorigeSessieId: terugkeerParam ?? null,
         }),
       });
       const data = await res.json();

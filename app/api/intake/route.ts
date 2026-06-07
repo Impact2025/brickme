@@ -2,9 +2,9 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { openai, AI_MODEL, buildIntakeSystemPrompt, THEMAS, ThemaId } from "@/lib/ai";
+import { openai, AI_MODEL, buildIntakeSystemPrompt, buildTerugkeerIntakeSystemPrompt, THEMAS, ThemaId, VorigeSessieContext } from "@/lib/ai";
 import { db } from "@/lib/db";
-import { sessies, fases } from "@/lib/db/schema";
+import { sessies, fases, rapporten } from "@/lib/db/schema";
 import { and, eq } from "drizzle-orm";
 
 export async function POST(req: NextRequest) {
@@ -12,13 +12,42 @@ export async function POST(req: NextRequest) {
   const userId = session?.user?.id;
   if (!userId) return NextResponse.json({ error: "Niet ingelogd" }, { status: 401 });
 
-  const { themaId, berichten, fase, sessieId, stemming } = await req.json();
+  const { themaId, berichten, fase, sessieId, stemming, vorigeSessieId } = await req.json();
   const thema = THEMAS[themaId as ThemaId];
   if (!thema) return NextResponse.json({ error: "Ongeldig thema" }, { status: 400 });
 
+  // Vorige sessie ophalen voor terugkeersessie
+  let vorigeSessieContext: VorigeSessieContext | null = null;
+  if (vorigeSessieId) {
+    const [vorigeSessie] = await db
+      .select({ aiSessieContext: sessies.aiSessieContext, themaLabel: sessies.themaLabel })
+      .from(sessies)
+      .where(and(eq(sessies.id, vorigeSessieId), eq(sessies.userId, userId)))
+      .limit(1);
+    const [vorigeRapport] = await db
+      .select({ eersteStap: rapporten.eersteStap, inzichten: rapporten.inzichten })
+      .from(rapporten)
+      .where(eq(rapporten.sessieId, vorigeSessieId))
+      .limit(1);
+
+    if (vorigeSessie && vorigeRapport) {
+      vorigeSessieContext = {
+        themaLabel: vorigeSessie.themaLabel,
+        eersteStap: vorigeRapport.eersteStap ?? "",
+        inzichten: Array.isArray(vorigeRapport.inzichten) ? vorigeRapport.inzichten as string[] : [],
+        aiSessieContext: vorigeSessie.aiSessieContext ?? "",
+      };
+    }
+  }
+
   // Eerste bericht — maak direct een draft sessie aan in de DB
   if (fase === "start" || berichten.length === 0) {
-    const eersteVraag = `Fijn dat je er bent.\n\nJe hebt gekozen voor "${thema.label}" — ${thema.ondertitel.toLowerCase()}.\n\nNeem even een moment om hier te zijn. Er is geen haast.\n\nWat brengt je hier vandaag?`;
+    let eersteVraag: string;
+    if (vorigeSessieContext) {
+      eersteVraag = `Welkom terug.\n\nJe was hier eerder over ${vorigeSessieContext.themaLabel}. Je gaf jezelf toen als eerste stap: "${vorigeSessieContext.eersteStap}".\n\nHoe is dat gegaan?`;
+    } else {
+      eersteVraag = `Fijn dat je er bent.\n\nJe hebt gekozen voor "${thema.label}" — ${thema.ondertitel.toLowerCase()}.\n\nNeem even een moment om hier te zijn. Er is geen haast.\n\nWat brengt je hier vandaag?`;
+    }
 
     // Bij resume: gebruik bestaande sessie
     if (sessieId) {
@@ -34,6 +63,7 @@ export async function POST(req: NextRequest) {
         themaLabel: thema.label,
         status: "draft",
         stemmingVoor: stemming ?? null,
+        vorigeSessieId: vorigeSessieId ?? null,
         bijgewerktOp: new Date(),
       })
       .returning();
@@ -47,13 +77,17 @@ export async function POST(req: NextRequest) {
     content: b.inhoud,
   }));
 
+  const systemPrompt = vorigeSessieContext
+    ? buildTerugkeerIntakeSystemPrompt(themaId as ThemaId, vorigeSessieContext)
+    : buildIntakeSystemPrompt(themaId as ThemaId);
+
   let response;
   try {
     response = await openai.chat.completions.create({
       model: AI_MODEL,
       max_tokens: 500,
       messages: [
-        { role: "system", content: buildIntakeSystemPrompt(themaId as ThemaId) },
+        { role: "system", content: systemPrompt },
         ...messages,
       ],
     });
@@ -114,6 +148,7 @@ export async function POST(req: NextRequest) {
               aiSessieContext: parsed.context || "",
               intakeAntwoorden,
               stemmingVoor: stemming ?? null,
+              vorigeSessieId: vorigeSessieId ?? null,
               bijgewerktOp: new Date(),
             })
             .returning();

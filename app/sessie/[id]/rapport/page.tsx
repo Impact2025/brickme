@@ -12,6 +12,8 @@ interface RapportData {
   samenvatting?: string;
   inzichten?: string[];
   eersteStap?: string;
+  vergelijkingTekst?: string;
+  isTerugkeer?: boolean;
   fases: Array<{
     faseTitel: string;
     fotoBase64?: string;
@@ -149,6 +151,25 @@ export default function RapportPagina() {
             <p className="font-serif text-bricktext text-lg leading-relaxed">
               {rapport.samenvatting}
             </p>
+          </section>
+        )}
+
+        {/* Vergelijking met vorige sessie */}
+        {rapport.isTerugkeer && rapport.vergelijkingTekst && (
+          <section className="py-8 border-b border-border">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-xs text-accent uppercase tracking-wider font-medium">Terugkeersessie</span>
+              <span className="text-xs text-muted">— vergeleken met je vorige sessie</span>
+            </div>
+            <div className="bg-accent/5 border border-accent/15 rounded-2xl p-6">
+              <div className="flex gap-3 mb-3">
+                <div className="w-1 bg-accent rounded-full flex-shrink-0" />
+                <p className="text-xs text-accent font-medium uppercase tracking-wider">Wat er veranderd is</p>
+              </div>
+              <p className="font-serif text-bricktext leading-relaxed">
+                {rapport.vergelijkingTekst}
+              </p>
+            </div>
           </section>
         )}
 

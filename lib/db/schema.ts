@@ -1,6 +1,7 @@
 import {
   pgTable, text, timestamp, uuid, integer, boolean, jsonb,
 } from "drizzle-orm/pg-core";
+import type { AnyPgColumn } from "drizzle-orm/pg-core";
 
 // ─── Gebruikers & Rollen ──────────────────────────────────────────────────────
 
@@ -70,6 +71,7 @@ export const sessies = pgTable("sessies", {
   stemmingNa: integer("stemming_na"),
   intakeAntwoorden: jsonb("intake_antwoorden"),
   aiSessieContext: text("ai_sessie_context"),
+  vorigeSessieId: uuid("vorige_sessie_id").references((): AnyPgColumn => sessies.id),
   aangemaktOp: timestamp("aangemakt_op").defaultNow().notNull(),
   bijgewerktOp: timestamp("bijgewerkt_op").defaultNow().notNull(),
   voltooidOp: timestamp("voltooid_op"),
@@ -98,6 +100,7 @@ export const rapporten = pgTable("rapporten", {
   samenvattingTekst: text("samenvatting_tekst"),
   eersteStap: text("eerste_stap"),
   inzichten: jsonb("inzichten"),
+  vergelijkingTekst: text("vergelijking_tekst"),
   pdfUrl: text("pdf_url"),
   aangemaktOp: timestamp("aangemakt_op").defaultNow().notNull(),
 });
@@ -151,6 +154,20 @@ export const artikelen = pgTable("artikelen", {
 });
 
 export type Artikel = typeof artikelen.$inferSelect;
+
+// ─── Follow-up e-mails ───────────────────────────────────────────────────────
+
+export const followupEmails = pgTable("followup_emails", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  sessieId: uuid("sessie_id").references(() => sessies.id, { onDelete: "cascade" }).notNull(),
+  userId: text("user_id").notNull(),
+  type: text("type").notNull(), // 'dag3' | 'dag21'
+  geplandVoor: timestamp("gepland_voor").notNull(),
+  verstuurdOp: timestamp("verstuurd_op"),
+  aangemaktOp: timestamp("aangemakt_op").defaultNow().notNull(),
+});
+
+export type FollowupEmail = typeof followupEmails.$inferSelect;
 
 export type Sessie = typeof sessies.$inferSelect;
 export type NieuweSessie = typeof sessies.$inferInsert;
