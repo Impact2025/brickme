@@ -11,6 +11,11 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Niet toegestaan" }, { status: 401 });
   }
 
+  const resultaat = await stuurOpenFollowups();
+  return NextResponse.json(resultaat);
+}
+
+export async function stuurOpenFollowups() {
   const nu = new Date();
   const openstaande = await db
     .select()
@@ -18,6 +23,7 @@ export async function GET(req: NextRequest) {
     .where(and(isNull(followupEmails.verstuurdOp), lte(followupEmails.geplandVoor, nu)));
 
   let verstuurd = 0;
+  let overgeslagen = 0;
 
   for (const followup of openstaande) {
     const [sessie] = await db
@@ -26,15 +32,15 @@ export async function GET(req: NextRequest) {
       .where(eq(sessies.id, followup.sessieId))
       .limit(1);
 
-    if (!sessie) continue;
+    if (!sessie) { overgeslagen++; continue; }
 
     const [gebruiker] = await db
-      .select({ email: gebruikers.email, naam: gebruikers.naam })
+      .select({ email: gebruikers.email, naam: gebruikers.naam, emailsAfgemeld: gebruikers.emailsAfgemeld })
       .from(gebruikers)
       .where(eq(gebruikers.userId, followup.userId))
       .limit(1);
 
-    if (!gebruiker?.email) continue;
+    if (!gebruiker?.email || gebruiker.emailsAfgemeld) { overgeslagen++; continue; }
 
     if (followup.type === "dag3") {
       const [rapport] = await db
@@ -47,13 +53,15 @@ export async function GET(req: NextRequest) {
         gebruiker.naam ?? "",
         gebruiker.email,
         sessie.themaLabel,
-        rapport?.eersteStap ?? ""
+        rapport?.eersteStap ?? "",
+        followup.userId
       );
     } else if (followup.type === "dag21") {
       await sendFollowupDag21Email(
         gebruiker.naam ?? "",
         gebruiker.email,
-        sessie.themaLabel
+        sessie.themaLabel,
+        followup.userId
       );
     } else if (followup.type === "terugkeer") {
       const [rapport] = await db
@@ -68,7 +76,8 @@ export async function GET(req: NextRequest) {
         sessie.themaLabel,
         rapport?.eersteStap ?? "",
         followup.sessieId,
-        sessie.thema
+        sessie.thema,
+        followup.userId
       );
     }
 
@@ -80,5 +89,5 @@ export async function GET(req: NextRequest) {
     verstuurd++;
   }
 
-  return NextResponse.json({ verstuurd, verwerktOp: nu.toISOString() });
+  return { verstuurd, overgeslagen, verwerktOp: nu.toISOString() };
 }

@@ -4,7 +4,22 @@
       "Bash(npm install:*)",
       "Bash(npm run:*)",
       "Bash(ls \"D:/apps/brickme/brickme/brickme/app/\"*.png)",
-      "Bash(ls \"D:/apps/brickme/brickme/brickme/public/favicon\"*)"
+      "Bash(ls \"D:/apps/brickme/brickme/brickme/public/favicon\"*)",
+      "Bash(npx tsx:*)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(vercel env *)",
+      "Bash(vercel --prod)",
+      "Bash(node -e ' *)",
+      "Bash(git commit -m 'Fix: remove onClick event handler from server component in coupons page *)",
+      "Bash(xargs wc -l)",
+      "Bash(npx drizzle-kit *)",
+      "Bash(npx tsc *)",
+      "Bash(npx dotenv *)",
+      "Bash(xargs grep -l \"abonnement\\\\|maand\\\\|pricing\\\\|subscription\\\\|9,95\\\\|9.95\")",
+      "Bash(grep -E \"^pg$|^postgres$\")",
+      "Bash(node -e \"const ws = require\\('@neondatabase/serverless'\\); console.log\\(Object.keys\\(ws\\)\\)\")"
     ]
   }
 }

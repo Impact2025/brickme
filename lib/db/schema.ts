@@ -14,6 +14,7 @@ export const gebruikers = pgTable("gebruikers", {
   actief: boolean("actief").notNull().default(true),
   verificatieCode: text("verificatie_code"),
   verificatieVerloptOp: timestamp("verificatie_verlopt_op"),
+  emailsAfgemeld: boolean("emails_afgemeld").notNull().default(false),
   // Stripe abonnement
   stripeCustomerId: text("stripe_customer_id"),
   stripeSubscriptionId: text("stripe_subscription_id"),

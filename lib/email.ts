@@ -21,7 +21,15 @@ function htmlNaarTekst(html: string): string {
 }
 
 // Gedeelde layout wrapper
-function layout(inhoud: string): string {
+function layout(inhoud: string, afmeldLink?: string): string {
+  const footer = afmeldLink
+    ? `Je ontvangt dit bericht omdat je een account hebt bij Brickme.<br/>
+              <a href="${APP_URL}" style="color:#C8583A;text-decoration:none;">brickme.nl</a>
+              &nbsp;·&nbsp;
+              <a href="${afmeldLink}" style="color:#8B7355;text-decoration:none;">afmelden voor follow-up mails</a>`
+    : `Je ontvangt dit bericht omdat je een account hebt bij Brickme.<br/>
+              <a href="${APP_URL}" style="color:#C8583A;text-decoration:none;">brickme.nl</a>`;
+
   return `<!DOCTYPE html>
 <html lang="nl">
 <head>
@@ -42,8 +50,7 @@ function layout(inhoud: string): string {
         <tr>
           <td style="padding:24px 40px;border-top:1px solid #F0EBE3;">
             <p style="margin:0;font-size:13px;color:#8B7355;">
-              Je ontvangt dit bericht omdat je een account hebt bij Brickme.<br/>
-              <a href="${APP_URL}" style="color:#C8583A;text-decoration:none;">brickme.nl</a>
+              ${footer}
             </p>
           </td>
         </tr>
@@ -52,6 +59,11 @@ function layout(inhoud: string): string {
   </table>
 </body>
 </html>`;
+}
+
+function afmeldUrl(userId: string): string {
+  const token = Buffer.from(userId).toString("base64url");
+  return `${APP_URL}/api/email/afmelden?token=${token}`;
 }
 
 function knop(tekst: string, href: string): string {
@@ -68,9 +80,11 @@ async function stuurEmail(opts: {
   to: string;
   subject: string;
   inhoud: string;
+  afmeldLink?: string;
 }): Promise<EmailResult> {
-  const html = layout(opts.inhoud);
-  const text = htmlNaarTekst(opts.inhoud) + `\n\n—\nJe ontvangt dit bericht omdat je een account hebt bij Brickme.\n${APP_URL}`;
+  const html = layout(opts.inhoud, opts.afmeldLink);
+  const afmeldTekst = opts.afmeldLink ? `\nAfmelden: ${opts.afmeldLink}` : "";
+  const text = htmlNaarTekst(opts.inhoud) + `\n\n—\nJe ontvangt dit bericht omdat je een account hebt bij Brickme.\n${APP_URL}${afmeldTekst}`;
   try {
     const result = await resend.emails.send({ from: FROM, to: opts.to, subject: opts.subject, html, text });
     if (result.error) {
@@ -234,7 +248,8 @@ export async function sendTerugkeerEmail(
   themaLabel: string,
   eersteStap: string,
   vorigeSessieId: string,
-  thema: string
+  thema: string,
+  userId: string
 ): Promise<void> {
   const url = `${APP_URL}/start?terugkeer=${vorigeSessieId}&thema=${thema}`;
 
@@ -263,7 +278,7 @@ export async function sendTerugkeerEmail(
     ${knopTekst("Terugkeersessie starten", url)}
   `;
 
-  await stuurEmail({ to: email, subject: `Zes weken later — bouw het opnieuw | Brickme`, inhoud });
+  await stuurEmail({ to: email, subject: `Zes weken later — bouw het opnieuw | Brickme`, inhoud, afmeldLink: afmeldUrl(userId) });
 }
 
 // ─── Follow-up dag 3 ─────────────────────────────────────────────────────────
@@ -272,7 +287,8 @@ export async function sendFollowupDag3Email(
   naam: string,
   email: string,
   themaLabel: string,
-  eersteStap: string
+  eersteStap: string,
+  userId: string
 ): Promise<void> {
   const inhoud = `
     <h1 style="margin:0 0 16px;font-size:26px;font-weight:700;color:#2C1F14;">Hoe gaat het?</h1>
@@ -296,7 +312,7 @@ export async function sendFollowupDag3Email(
     `}
   `;
 
-  await stuurEmail({ to: email, subject: `Hoe gaat het? — Brickme`, inhoud });
+  await stuurEmail({ to: email, subject: `Hoe gaat het? — Brickme`, inhoud, afmeldLink: afmeldUrl(userId) });
 }
 
 // ─── Follow-up dag 21 ─────────────────────────────────────────────────────────
@@ -304,7 +320,8 @@ export async function sendFollowupDag3Email(
 export async function sendFollowupDag21Email(
   naam: string,
   email: string,
-  themaLabel: string
+  themaLabel: string,
+  userId: string
 ): Promise<void> {
   const inhoud = `
     <h1 style="margin:0 0 16px;font-size:26px;font-weight:700;color:#2C1F14;">Drie weken verder</h1>
@@ -322,7 +339,7 @@ export async function sendFollowupDag21Email(
     ${knop("Kies een thema →", `${APP_URL}/start`)}
   `;
 
-  await stuurEmail({ to: email, subject: `Drie weken na je sessie — Brickme`, inhoud });
+  await stuurEmail({ to: email, subject: `Drie weken na je sessie — Brickme`, inhoud, afmeldLink: afmeldUrl(userId) });
 }
 
 // ─── Nieuw account notificatie (intern) ──────────────────────────────────────
