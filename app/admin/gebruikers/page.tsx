@@ -1,8 +1,9 @@
 import { db } from "@/lib/db";
-import { gebruikers } from "@/lib/db/schema";
-import { desc } from "drizzle-orm";
+import { gebruikers, sessies as sessiesTable } from "@/lib/db/schema";
+import { desc, count } from "drizzle-orm";
 import { RolBadge } from "@/components/admin/RolBadge";
 import { GebruikerRolSelector } from "./GebruikerRolSelector";
+import { GebruikerBewerken } from "./GebruikerBewerken";
 
 export default async function AdminGebruikers({
   searchParams,
@@ -20,8 +21,15 @@ export default async function AdminGebruikers({
     .limit(perPagina)
     .offset(offset);
 
+  const sessieTellingen = await db
+    .select({ userId: sessiesTable.userId, aantal: count() })
+    .from(sessiesTable)
+    .groupBy(sessiesTable.userId);
+
+  const tellingMap = new Map(sessieTellingen.map((s) => [s.userId, Number(s.aantal)]));
+
   return (
-    <div className="p-8 max-w-5xl">
+    <div className="p-8 max-w-6xl">
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="font-serif text-3xl text-[#2C1F14]">Gebruikers</h1>
@@ -54,27 +62,35 @@ export default async function AdminGebruikers({
             <tr className="bg-[#FAF7F2] border-b border-[#E8DDD0]">
               <th className="px-4 py-3 text-left text-xs text-[#8B7355] uppercase tracking-wide">Gebruiker</th>
               <th className="px-4 py-3 text-left text-xs text-[#8B7355] uppercase tracking-wide">Rol</th>
+              <th className="px-4 py-3 text-left text-xs text-[#8B7355] uppercase tracking-wide">Sessies</th>
               <th className="px-4 py-3 text-left text-xs text-[#8B7355] uppercase tracking-wide">Actief</th>
               <th className="px-4 py-3 text-left text-xs text-[#8B7355] uppercase tracking-wide">Aangemeld</th>
-              <th className="px-4 py-3 text-left text-xs text-[#8B7355] uppercase tracking-wide">Actie</th>
+              <th className="px-4 py-3 text-left text-xs text-[#8B7355] uppercase tracking-wide">Rol wijzigen</th>
+              <th className="px-4 py-3 text-left text-xs text-[#8B7355] uppercase tracking-wide">Bewerken</th>
             </tr>
           </thead>
           <tbody>
             {rijen.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-[#8B7355]">
+                <td colSpan={7} className="px-4 py-10 text-center text-[#8B7355]">
                   Geen gebruikers gevonden
                 </td>
               </tr>
             ) : (
               rijen.map((g) => (
-                <tr key={g.userId} className="border-b border-[#E8DDD0] last:border-0 hover:bg-[#FAF7F2] transition-colors">
+                <tr key={g.userId} className="border-b border-[#E8DDD0] last:border-0 hover:bg-[#FAF7F2] transition-colors align-top">
                   <td className="px-4 py-3">
                     <p className="font-medium text-[#2C1F14]">{g.naam ?? "—"}</p>
-                    <p className="text-xs text-[#8B7355] font-mono">{g.userId.slice(0, 20)}…</p>
+                    <p className="text-xs text-[#8B7355]">{g.email ?? ""}</p>
+                    <p className="text-xs text-[#8B7355]/60 font-mono">{g.userId.slice(0, 20)}…</p>
                   </td>
                   <td className="px-4 py-3">
                     <RolBadge rol={g.rol} />
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#F5F0E8] text-xs font-semibold text-[#2C1F14]">
+                      {tellingMap.get(g.userId) ?? 0}
+                    </span>
                   </td>
                   <td className="px-4 py-3">
                     <span className={`inline-block w-2 h-2 rounded-full ${g.actief ? "bg-[#2D4A3E]" : "bg-[#E8DDD0]"}`} />
@@ -84,6 +100,9 @@ export default async function AdminGebruikers({
                   </td>
                   <td className="px-4 py-3">
                     <GebruikerRolSelector userId={g.userId} huidigeRol={g.rol} />
+                  </td>
+                  <td className="px-4 py-3">
+                    <GebruikerBewerken userId={g.userId} huidigEmail={g.email} naam={g.naam} />
                   </td>
                 </tr>
               ))
