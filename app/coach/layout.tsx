@@ -17,7 +17,7 @@ export default async function CoachLayout({ children }: { children: React.ReactN
 
   return (
     <div className="flex h-screen bg-[#FAF7F2] overflow-hidden">
-      <CoachNav />
+      <CoachNav naam={gebruiker.naam} email={gebruiker.email} />
       <main className="flex-1 overflow-y-auto">
         {children}
       </main>

@@ -2,25 +2,42 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users } from "lucide-react";
+import { LayoutDashboard, Users, Settings, LogOut } from "lucide-react";
+import { signOut } from "next-auth/react";
+
+type Props = {
+  naam?: string | null;
+  email?: string | null;
+};
 
 const NAV_ITEMS = [
   { href: "/coach", label: "Dashboard", Icon: LayoutDashboard },
   { href: "/coach/clienten", label: "Cliënten", Icon: Users },
+  { href: "/coach/instellingen", label: "Instellingen", Icon: Settings },
 ];
 
-export function CoachNav() {
+export function CoachNav({ naam, email }: Props) {
   const pathname = usePathname();
+
+  const displayName = naam || (email ? email.split("@")[0] : "Coach");
+  const initials = displayName
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   return (
     <aside className="w-56 flex-shrink-0 bg-[#2D4A3E] flex flex-col h-full">
-      <div className="px-5 py-6 border-b border-white/10">
+      <div className="px-5 py-5 border-b border-white/10">
         <p className="font-serif text-[#F5F0E8] font-semibold text-lg leading-tight">Brickme</p>
-        <p className="text-xs text-white/50 mt-0.5">Coach</p>
+        <p className="text-xs text-white/50 mt-0.5">Coach-omgeving</p>
       </div>
-      <nav className="flex-1 py-4 px-3 flex flex-col gap-1">
+
+      <nav className="flex-1 py-4 px-3 flex flex-col gap-0.5">
         {NAV_ITEMS.map(({ href, label, Icon }) => {
-          const actief = pathname === href || (href !== "/coach" && pathname.startsWith(href));
+          const actief =
+            pathname === href || (href !== "/coach" && pathname.startsWith(href));
           return (
             <Link
               key={href}
@@ -37,10 +54,35 @@ export function CoachNav() {
           );
         })}
       </nav>
-      <div className="px-5 py-4 border-t border-white/10">
-        <Link href="/start" className="text-xs text-white/40 hover:text-white/70 transition-colors">
-          ← Terug naar app
+
+      <div className="px-3 pb-5 space-y-1 border-t border-white/10 pt-4">
+        <Link
+          href="/start"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/40 hover:bg-white/10 hover:text-white/70 transition-colors"
+        >
+          <span className="text-base leading-none">←</span>
+          Terug naar app
         </Link>
+
+        <div className="flex items-center gap-3 px-3 py-2 rounded-lg">
+          <div className="w-7 h-7 rounded-full bg-[#C8583A]/50 flex items-center justify-center flex-shrink-0">
+            <span className="text-[10px] font-bold text-white">{initials}</span>
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-medium text-[#F5F0E8] truncate leading-tight">{displayName}</p>
+            {email && naam && (
+              <p className="text-[10px] text-white/40 truncate leading-tight mt-0.5">{email}</p>
+            )}
+          </div>
+        </div>
+
+        <button
+          onClick={() => signOut({ callbackUrl: "/coach" })}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/50 hover:bg-white/10 hover:text-[#F5F0E8] transition-colors"
+        >
+          <LogOut size={15} />
+          Uitloggen
+        </button>
       </div>
     </aside>
   );
