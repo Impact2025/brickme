@@ -122,6 +122,22 @@ export const coupons = pgTable("coupons", {
 
 export type Coupon = typeof coupons.$inferSelect;
 
+// ─── Betalingen ──────────────────────────────────────────────────────────────
+
+export const betalingen = pgTable("betalingen", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: text("user_id").notNull(),
+  stripeSessionId: text("stripe_session_id").unique(),
+  bedrag: integer("bedrag"), // cents; null = gratis coupon
+  thema: text("thema").notNull(),
+  couponCode: text("coupon_code"),
+  status: text("status").notNull().default("open"), // "open" | "gebruikt" | "terugbetaald"
+  sessieId: uuid("sessie_id").references(() => sessies.id),
+  aangemaktOp: timestamp("aangemakt_op").defaultNow().notNull(),
+});
+
+export type Betaling = typeof betalingen.$inferSelect;
+
 // ─── Blog ─────────────────────────────────────────────────────────────────────
 
 export type InterneLink = {

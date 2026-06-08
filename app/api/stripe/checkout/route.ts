@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import Stripe from "stripe";
 import { db } from "@/lib/db";
-import { coupons } from "@/lib/db/schema";
+import { coupons, betalingen } from "@/lib/db/schema";
 import { eq, sql } from "drizzle-orm";
 
 function getStripe() {
@@ -36,6 +36,13 @@ export async function POST(req: NextRequest) {
           .update(coupons)
           .set({ gebruikTeller: sql`${coupons.gebruikTeller} + 1` })
           .where(eq(coupons.code, upper));
+        await db.insert(betalingen).values({
+          userId: session.user.id,
+          bedrag: 0,
+          thema,
+          couponCode: upper,
+          status: "open",
+        });
         const suffix = terugkeer ? `&terugkeer=${terugkeer}` : "";
         return NextResponse.json({ url: `${appUrl}/sessie/nieuw?thema=${thema}&betaald=1${suffix}` });
       }

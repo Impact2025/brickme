@@ -4,8 +4,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { openai, AI_MODEL, buildIntakeSystemPrompt, buildTerugkeerIntakeSystemPrompt, THEMAS, ThemaId, VorigeSessieContext } from "@/lib/ai";
 import { db } from "@/lib/db";
-import { sessies, fases, rapporten } from "@/lib/db/schema";
-import { and, eq } from "drizzle-orm";
+import { sessies, fases, rapporten, gebruikers, betalingen } from "@/lib/db/schema";
+import { and, eq, asc } from "drizzle-orm";
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -49,9 +49,35 @@ export async function POST(req: NextRequest) {
       eersteVraag = `Fijn dat je er bent.\n\nJe hebt gekozen voor "${thema.label}" — ${thema.ondertitel.toLowerCase()}.\n\nNeem even een moment om hier te zijn. Er is geen haast.\n\nWat brengt je hier vandaag?`;
     }
 
-    // Bij resume: gebruik bestaande sessie
+    // Bij resume: gebruik bestaande sessie (betaling al gedaan)
     if (sessieId) {
       return NextResponse.json({ bericht: eersteVraag, sessieId });
+    }
+
+    // Betaalcheck voor nieuwe sessie
+    let openBetalingId: string | null = null;
+    const [gebr] = await db
+      .select({ abonnementStatus: gebruikers.abonnementStatus })
+      .from(gebruikers)
+      .where(eq(gebruikers.userId, userId))
+      .limit(1);
+
+    if (gebr?.abonnementStatus !== "actief") {
+      const [openBetaling] = await db
+        .select({ id: betalingen.id })
+        .from(betalingen)
+        .where(and(
+          eq(betalingen.userId, userId),
+          eq(betalingen.thema, themaId),
+          eq(betalingen.status, "open")
+        ))
+        .orderBy(asc(betalingen.aangemaktOp))
+        .limit(1);
+
+      if (!openBetaling) {
+        return NextResponse.json({ error: "Geen geldige betaling gevonden" }, { status: 403 });
+      }
+      openBetalingId = openBetaling.id;
     }
 
     // Nieuwe draft sessie aanmaken
@@ -67,6 +93,13 @@ export async function POST(req: NextRequest) {
         bijgewerktOp: new Date(),
       })
       .returning();
+
+    if (openBetalingId) {
+      await db
+        .update(betalingen)
+        .set({ status: "gebruikt", sessieId: draft.id })
+        .where(eq(betalingen.id, openBetalingId));
+    }
 
     return NextResponse.json({ bericht: eersteVraag, sessieId: draft.id });
   }

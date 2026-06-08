@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { db } from "@/lib/db";
-import { gebruikers } from "@/lib/db/schema";
+import { gebruikers, betalingen } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
 export async function POST(req: NextRequest) {
@@ -31,6 +31,19 @@ export async function POST(req: NextRequest) {
           stripeSubscriptionId: session.subscription as string,
           abonnementStatus: "actief",
         }).where(eq(gebruikers.userId, userId));
+      }
+
+      if (session.mode === "payment") {
+        const thema = session.metadata?.thema;
+        if (thema) {
+          await db.insert(betalingen).values({
+            userId,
+            stripeSessionId: session.id,
+            bedrag: session.amount_total ?? 0,
+            thema,
+            status: "open",
+          }).onConflictDoNothing();
+        }
       }
       break;
     }
