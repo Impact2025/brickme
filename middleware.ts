@@ -18,6 +18,7 @@ const publicRoutes = [
   "/privacy",
   "/voorwaarden",
   "/professionals",
+  "/coach",
   "/api/assistent-publiek",
   "/sitemap.xml",
   "/robots.txt",

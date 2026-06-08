@@ -4,12 +4,12 @@ import { coachingRelaties, sessies } from "@/lib/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 import Link from "next/link";
 import { StatCard } from "@/components/admin/StatCard";
-import { redirect } from "next/navigation";
+import { CoachLogin } from "./CoachLogin";
 
 export default async function CoachDashboard() {
   const gebruiker = await getGebruiker();
   if (!gebruiker || (gebruiker.rol !== "coach" && gebruiker.rol !== "superadmin")) {
-    redirect("/coach");
+    return <CoachLogin />;
   }
 
   const relaties = await db
