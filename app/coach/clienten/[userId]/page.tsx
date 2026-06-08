@@ -1,4 +1,5 @@
-import { requireAdminOfRol } from "@/lib/auth";
+import { getGebruiker } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { coachingRelaties, sessies, fases, rapporten, coachNotities } from "@/lib/db/schema";
 import { eq, and, desc } from "drizzle-orm";
@@ -14,7 +15,8 @@ export default async function ClientDetail({
 }: {
   params: Promise<{ userId: string }>;
 }) {
-  const gebruiker = await requireAdminOfRol("coach");
+  const gebruiker = await getGebruiker();
+  if (!gebruiker || (gebruiker.rol !== "coach" && gebruiker.rol !== "superadmin")) redirect("/coach");
   const { userId } = await params;
 
   // Controleer relatie
