@@ -86,6 +86,49 @@ const FAQ_SCHEMA = {
   ],
 };
 
+const HOW_TO_SCHEMA = {
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  name: "Hoe werkt een Brickme-sessie?",
+  description: "Een persoonlijke zelfreflectiesessie in vier stappen op basis van LEGO Serious Play.",
+  totalTime: "PT75M",
+  estimatedCost: { "@type": "MonetaryAmount", currency: "EUR", value: "14.95" },
+  supply: [
+    { "@type": "HowToSupply", name: "LEGO-blokken of ander bouwmateriaal" },
+    { "@type": "HowToSupply", name: "Smartphone of tablet met camera" },
+  ],
+  step: [
+    {
+      "@type": "HowToStep",
+      position: 1,
+      name: "Kies je thema",
+      text: "Kies uit zes levensthema's het thema dat het dichtst bij je zit: Werk & energie, Liefde & relatie, Wie ben ik, Verbinding, Kruispunt, of Rouw & verlies.",
+      url: "https://brickme.nl/#themas",
+    },
+    {
+      "@type": "HowToStep",
+      position: 2,
+      name: "Intakegesprek",
+      text: "Voer een AI-gesprek van 7–10 vragen. Brickme stelt vragen op maat op basis van jouw gekozen thema en situatie.",
+      url: "https://brickme.nl/sessie/nieuw",
+    },
+    {
+      "@type": "HowToStep",
+      position: 3,
+      name: "Bouwen en fotograferen",
+      text: "Bouw vier keer iets met LEGO of ander bouwmateriaal. Fotografeer elk bouwsel en beschrijf wat je ziet — je handen denken anders dan je hoofd.",
+      url: "https://brickme.nl/#hoe-het-werkt",
+    },
+    {
+      "@type": "HowToStep",
+      position: 4,
+      name: "Ontvang je persoonlijk rapport",
+      text: "Ontvang een persoonlijke AI-reflectie op basis van je foto's en antwoorden, plus een PDF-rapport met drie kernthema's en één concrete eerste stap.",
+      url: "https://brickme.nl/#hoe-het-werkt",
+    },
+  ],
+};
+
 const WEBSITE_SCHEMA = {
   "@context": "https://schema.org",
   "@type": "WebSite",
@@ -803,14 +846,9 @@ export default function HomePage() {
         </div>
       </footer>
 
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_SCHEMA) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(WEBSITE_SCHEMA) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_SCHEMA) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(WEBSITE_SCHEMA) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(HOW_TO_SCHEMA) }} />
     </div>
   );
 }

@@ -1,14 +1,17 @@
 {
-  "name": "Brickme",
+  "name": "Brickme — Bouw wat je niet kunt zeggen",
   "short_name": "Brickme",
-  "description": "Bouw wat je niet kunt zeggen",
-  "start_url": "/",
+  "description": "Een persoonlijke reflectiesessie waarbij je bouwt, fotografeert en een AI-reflectie ontvangt.",
+  "start_url": "/?source=pwa",
+  "id": "/?source=pwa",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "background_color": "#F5F0E8",
   "theme_color": "#C8583A",
   "orientation": "portrait-primary",
   "lang": "nl",
-  "categories": ["lifestyle", "health"],
+  "scope": "/",
+  "categories": ["lifestyle", "health", "education"],
   "icons": [
     {
       "src": "/icon.svg",
@@ -21,6 +24,38 @@
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
     }
-  ]
+  ],
+  "shortcuts": [
+    {
+      "name": "Nieuwe sessie",
+      "short_name": "Sessie",
+      "description": "Start een nieuwe Brickme-sessie",
+      "url": "/start",
+      "icons": [{ "src": "/icon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Mijn dashboard",
+      "short_name": "Dashboard",
+      "description": "Bekijk je sessies en voortgang",
+      "url": "/dashboard",
+      "icons": [{ "src": "/icon.svg", "sizes": "any" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/og-image.png",
+      "type": "image/png",
+      "sizes": "1200x630",
+      "form_factor": "wide",
+      "label": "Brickme — start een sessie"
+    }
+  ],
+  "prefer_related_applications": false
 }

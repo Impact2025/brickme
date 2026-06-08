@@ -7,6 +7,36 @@ import { artikelen } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { ViewTracker } from "@/components/blog/ViewTracker";
 
+// Tags → thema mapping voor interne links
+const TAG_NAAR_THEMA: Record<string, { id: string; label: string; sub: string }> = {
+  werk: { id: "werk", label: "Werk & energie", sub: "Ik loop leeg" },
+  energie: { id: "werk", label: "Werk & energie", sub: "Ik loop leeg" },
+  "burn-out": { id: "werk", label: "Werk & energie", sub: "Ik loop leeg" },
+  burnout: { id: "werk", label: "Werk & energie", sub: "Ik loop leeg" },
+  stress: { id: "werk", label: "Werk & energie", sub: "Ik loop leeg" },
+  relatie: { id: "relatie", label: "Liefde & relatie", sub: "Ik voel me niet gezien" },
+  liefde: { id: "relatie", label: "Liefde & relatie", sub: "Ik voel me niet gezien" },
+  partner: { id: "relatie", label: "Liefde & relatie", sub: "Ik voel me niet gezien" },
+  identiteit: { id: "identiteit", label: "Wie ben ik", sub: "Ik weet niet meer wie ik ben" },
+  zelfkennis: { id: "identiteit", label: "Wie ben ik", sub: "Ik weet niet meer wie ik ben" },
+  verbinding: { id: "verbinding", label: "Verbinding", sub: "Ik sta er alleen voor" },
+  eenzaamheid: { id: "verbinding", label: "Verbinding", sub: "Ik sta er alleen voor" },
+  kruispunt: { id: "kruispunt", label: "Kruispunt", sub: "Ik weet niet welke kant ik op moet" },
+  keuze: { id: "kruispunt", label: "Kruispunt", sub: "Ik weet niet welke kant ik op moet" },
+  rouw: { id: "rouw", label: "Rouw & verlies", sub: "Ik weet niet hoe ik verder moet" },
+  verlies: { id: "rouw", label: "Rouw & verlies", sub: "Ik weet niet hoe ik verder moet" },
+  verdriet: { id: "rouw", label: "Rouw & verlies", sub: "Ik weet niet hoe ik verder moet" },
+};
+
+function gerelateerdThema(tags: string[] | null): { id: string; label: string; sub: string } | null {
+  if (!tags) return null;
+  for (const tag of tags) {
+    const t = TAG_NAAR_THEMA[tag.toLowerCase()];
+    if (t) return t;
+  }
+  return null;
+}
+
 export const revalidate = 3600; // hervalideer elk uur
 
 export async function generateStaticParams() {
@@ -180,8 +210,57 @@ export default async function ArtikelPage({ params }: Props) {
             </div>
           </div>
         )}
+        {/* Gerelateerde sessie CTA */}
+        {(() => {
+          const thema = gerelateerdThema(artikel.tags);
+          const href = thema ? `/start?thema=${thema.id}` : "/start";
+          const label = thema ? thema.label : "Brickme";
+          const sub = thema ? `"${thema.sub}"` : "Bouw wat je niet kunt zeggen";
+          return (
+            <div style={{ maxWidth: 760, margin: "0 auto", padding: "0 40px 48px" }}>
+              <div style={{
+                background: "var(--color-accent, #2D4A3E)",
+                borderRadius: 20,
+                padding: "36px 40px",
+                display: "flex",
+                flexDirection: "column",
+                gap: 16,
+              }}>
+                <div>
+                  <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", margin: "0 0 6px" }}>
+                    Begin een sessie over {label}
+                  </p>
+                  <h3 style={{ fontSize: 22, fontWeight: 400, color: "#fff", margin: 0, fontFamily: "var(--font-serif)", lineHeight: 1.25 }}>
+                    {sub}
+                  </h3>
+                </div>
+                <p style={{ fontSize: 14, color: "rgba(255,255,255,0.7)", margin: 0, lineHeight: 1.6 }}>
+                  Brickme helpt je dit thema zichtbaar te maken — niet met praten, maar met bouwen.
+                  45 minuten, LEGO of wat je bij de hand hebt, één concreet inzicht.
+                </p>
+                <Link
+                  href={href}
+                  style={{
+                    display: "inline-block",
+                    alignSelf: "flex-start",
+                    background: "var(--color-primary, #C8583A)",
+                    color: "#fff",
+                    fontSize: 14,
+                    fontWeight: 600,
+                    padding: "11px 24px",
+                    borderRadius: 100,
+                    textDecoration: "none",
+                  }}
+                >
+                  Start mijn sessie →
+                </Link>
+              </div>
+            </div>
+          );
+        })()}
+
         {/* Terug naar blog */}
-        <div style={{ maxWidth: 760, margin: "0 auto", padding: "40px 40px 80px" }}>
+        <div style={{ maxWidth: 760, margin: "0 auto", padding: "0 40px 80px" }}>
           <Link href="/blog" style={{ fontSize: 14, color: "var(--color-primary)", textDecoration: "none", fontWeight: 600 }}>← Terug naar alle artikelen</Link>
         </div>
       </main>

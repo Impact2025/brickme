@@ -4,6 +4,7 @@ import "./globals.css";
 import { SessionProvider } from "next-auth/react";
 import Script from "next/script";
 import AssistentChat from "@/components/AssistentChat";
+import { SwRegistrar } from "@/components/SwRegistrar";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -91,6 +92,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SessionProvider>
           {children}
           <AssistentChat />
+          <SwRegistrar />
         </SessionProvider>
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-647VHR1NK5"

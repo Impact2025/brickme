@@ -17,6 +17,7 @@ const securityHeaders = [
       "img-src 'self' data: blob: https:",
       "connect-src 'self' https://*.neon.tech https://api.stripe.com https://api.resend.com https://www.googletagmanager.com https://www.google-analytics.com https://region1.google-analytics.com",
       "frame-src https://js.stripe.com",
+      "worker-src 'self'",
     ].join("; "),
   },
 ];
