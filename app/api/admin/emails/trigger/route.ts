@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { requireRol } from "@/lib/auth";
-import { stuurOpenFollowups } from "@/app/api/cron/followup/route";
+import { stuurOpenFollowups } from "@/lib/followup";
 
 export async function POST() {
   await requireRol("superadmin");
