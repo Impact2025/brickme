@@ -357,6 +357,35 @@ export async function sendNieuwAccountNotificatie(naam: string | null, email: st
   await stuurEmail({ to: "hello@brickme.nl", subject: `Nieuw account: ${naam ?? email}`, inhoud });
 }
 
+// ─── Coach uitnodiging (wacht op acceptatie cliënt) ──────────────────────────
+
+export async function sendCoachUitnodigingEmail(
+  email: string,
+  naam: string,
+  coachNaam: string | null
+): Promise<void> {
+  const url = `${APP_URL}/dashboard`;
+
+  const inhoud = `
+    <h1 style="margin:0 0 16px;font-size:26px;font-weight:700;color:#2C1F14;">Je hebt een coach-uitnodiging</h1>
+    <p style="margin:0 0 24px;font-size:16px;line-height:1.6;color:#2C1F14;">
+      Hoi${naam ? ` ${naam}` : ""},<br/><br/>
+      ${coachNaam ? `<strong>${coachNaam}</strong> wil` : "Een coach wil"} jou begeleiden via Brickme.
+      Als je akkoord gaat, kan ${coachNaam ? coachNaam : "de coach"} jouw sessies en reflecties inzien.
+    </p>
+    <p style="margin:0 0 24px;font-size:16px;line-height:1.6;color:#8B7355;">
+      Jij bepaalt of je dit wilt. Je kunt de uitnodiging accepteren of weigeren via je dashboard.
+    </p>
+    ${knop("Bekijk uitnodiging →", url)}
+    ${knopTekst("Dashboard openen", url)}
+    <p style="margin:24px 0 0;font-size:13px;line-height:1.6;color:#8B7355;">
+      Heb je hier vragen over? Stuur een mail naar <a href="mailto:hello@brickme.nl" style="color:#C8583A;">hello@brickme.nl</a>
+    </p>
+  `;
+
+  await stuurEmail({ to: email, subject: `Coach-uitnodiging via Brickme`, inhoud });
+}
+
 // ─── Coach koppeling ──────────────────────────────────────────────────────────
 
 export async function sendCoachKoppelingEmail(

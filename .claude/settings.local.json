@@ -19,7 +19,9 @@
       "Bash(npx dotenv *)",
       "Bash(xargs grep -l \"abonnement\\\\|maand\\\\|pricing\\\\|subscription\\\\|9,95\\\\|9.95\")",
       "Bash(grep -E \"^pg$|^postgres$\")",
-      "Bash(node -e \"const ws = require\\('@neondatabase/serverless'\\); console.log\\(Object.keys\\(ws\\)\\)\")"
+      "Bash(node -e \"const ws = require\\('@neondatabase/serverless'\\); console.log\\(Object.keys\\(ws\\)\\)\")",
+      "PowerShell(cd \"D:\\\\apps\\\\brickme_new\"; $env:DOTENV_CONFIG_PATH = \".env.local\"; cmd /c \"echo. | npx dotenv -e .env.local -- drizzle-kit push\" 2>&1)",
+      "Bash(git commit *)"
     ]
   }
 }

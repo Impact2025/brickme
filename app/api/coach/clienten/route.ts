@@ -5,7 +5,7 @@ import { db } from "@/lib/db";
 import { coachingRelaties, sessies, gebruikers } from "@/lib/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { z } from "zod";
-import { sendCoachKoppelingEmail } from "@/lib/email";
+import { sendCoachUitnodigingEmail } from "@/lib/email";
 
 export async function GET() {
   const gebruiker = await requireAdminOfRol("coach");
@@ -45,50 +45,58 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const gebruiker = await requireAdminOfRol("coach");
+  const coach = await requireAdminOfRol("coach");
 
-  const schema = z.object({ clientUserId: z.string().min(1) });
+  const schema = z.object({ email: z.string().email() });
   const body = await req.json();
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Ongeldige invoer" }, { status: 400 });
+    return NextResponse.json({ error: "Vul een geldig e-mailadres in" }, { status: 400 });
   }
 
-  // Voorkom duplicaten
+  // Zoek cliënt op e-mail
+  const [client] = await db
+    .select()
+    .from(gebruikers)
+    .where(eq(gebruikers.email, parsed.data.email))
+    .limit(1);
+
+  if (!client) {
+    return NextResponse.json({ error: "Geen Brickme-account gevonden met dit e-mailadres" }, { status: 404 });
+  }
+
+  if (client.userId === coach.userId) {
+    return NextResponse.json({ error: "Je kunt jezelf niet als cliënt toevoegen" }, { status: 400 });
+  }
+
+  // Voorkom duplicaten (actief of al uitgenodigd)
   const bestaand = await db
     .select()
     .from(coachingRelaties)
     .where(
       and(
-        eq(coachingRelaties.coachId, gebruiker.userId),
-        eq(coachingRelaties.clientUserId, parsed.data.clientUserId),
-        eq(coachingRelaties.status, "actief")
+        eq(coachingRelaties.coachId, coach.userId),
+        eq(coachingRelaties.clientUserId, client.userId)
       )
     )
     .limit(1);
 
   if (bestaand.length > 0) {
-    return NextResponse.json({ error: "Al gekoppeld" }, { status: 409 });
+    const status = bestaand[0].status;
+    if (status === "actief") return NextResponse.json({ error: "Al gekoppeld" }, { status: 409 });
+    if (status === "uitnodiging") return NextResponse.json({ error: "Uitnodiging staat al open" }, { status: 409 });
   }
 
   const [relatie] = await db
     .insert(coachingRelaties)
     .values({
-      coachId: gebruiker.userId,
-      clientUserId: parsed.data.clientUserId,
-      status: "actief",
+      coachId: coach.userId,
+      clientUserId: client.userId,
+      status: "uitnodiging",
     })
     .returning();
 
-  const [client] = await db
-    .select({ email: gebruikers.email, naam: gebruikers.naam })
-    .from(gebruikers)
-    .where(eq(gebruikers.userId, parsed.data.clientUserId))
-    .limit(1);
-
-  if (client?.email) {
-    void sendCoachKoppelingEmail(client.email, client.naam ?? "", gebruiker.naam ?? null);
-  }
+  void sendCoachUitnodigingEmail(client.email!, client.naam ?? "", coach.naam ?? null);
 
   return NextResponse.json({ relatie });
 }

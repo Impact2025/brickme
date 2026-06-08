@@ -1,8 +1,9 @@
 import { redirect } from "next/navigation";
 import { getGebruiker } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { sessies, fases, rapporten } from "@/lib/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { sessies, fases, rapporten, coachingRelaties, gebruikers } from "@/lib/db/schema";
+import { eq, desc, and } from "drizzle-orm";
+import { CoachUitnodigingen } from "@/components/CoachUitnodigingen";
 import Link from "next/link";
 import Image from "next/image";
 import { StatCard } from "@/components/admin/StatCard";
@@ -44,6 +45,23 @@ function formatDatum(d: Date): string {
 export default async function DashboardPage() {
   const gebruiker = await getGebruiker();
   if (!gebruiker) redirect("/sign-in");
+
+  const openUitnodigingen = await db
+    .select({
+      id: coachingRelaties.id,
+      coachId: coachingRelaties.coachId,
+      aangemaktOp: coachingRelaties.aangemaktOp,
+      coachNaam: gebruikers.naam,
+      coachEmail: gebruikers.email,
+    })
+    .from(coachingRelaties)
+    .leftJoin(gebruikers, eq(coachingRelaties.coachId, gebruikers.userId))
+    .where(
+      and(
+        eq(coachingRelaties.clientUserId, gebruiker.userId),
+        eq(coachingRelaties.status, "uitnodiging")
+      )
+    );
 
   const alleSessies = await db
     .select()
@@ -116,6 +134,11 @@ export default async function DashboardPage() {
           </h1>
           <p className="text-[#8B7355] text-sm">Jouw sessies en voortgang op één plek.</p>
         </section>
+
+        {/* Coach uitnodigingen */}
+        {openUitnodigingen.length > 0 && (
+          <CoachUitnodigingen uitnodigingen={openUitnodigingen} />
+        )}
 
         {/* Stats */}
         <section className="grid grid-cols-2 gap-4">
