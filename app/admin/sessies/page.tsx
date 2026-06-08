@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { sessies } from "@/lib/db/schema";
+import { sessies, gebruikers } from "@/lib/db/schema";
 import { desc, eq, and, gte, lte } from "drizzle-orm";
 import { ProgressPipeline } from "@/components/admin/ProgressPipeline";
 import Link from "next/link";
@@ -28,8 +28,19 @@ export default async function AdminSessies({
   if (tot) filters.push(lte(sessies.aangemaktOp, new Date(tot)));
 
   const rijen = await db
-    .select()
+    .select({
+      id: sessies.id,
+      themaLabel: sessies.themaLabel,
+      status: sessies.status,
+      stemmingVoor: sessies.stemmingVoor,
+      stemmingNa: sessies.stemmingNa,
+      aangemaktOp: sessies.aangemaktOp,
+      userId: sessies.userId,
+      gebruikerNaam: gebruikers.naam,
+      gebruikerEmail: gebruikers.email,
+    })
     .from(sessies)
+    .leftJoin(gebruikers, eq(sessies.userId, gebruikers.userId))
     .where(filters.length > 0 ? and(...filters) : undefined)
     .orderBy(desc(sessies.aangemaktOp))
     .limit(perPagina)
@@ -60,6 +71,8 @@ export default async function AdminSessies({
           <option value="">Alle statussen</option>
           <option value="intake">Intake</option>
           <option value="bouwen">Bouwen</option>
+          <option value="reflectie">Reflectie</option>
+          <option value="rapport">Rapport</option>
           <option value="voltooid">Voltooid</option>
         </select>
         <input type="date" name="van" defaultValue={van ?? ""} className="px-3 py-2 rounded-xl border border-[#E8DDD0] bg-white text-sm text-[#2C1F14] focus:outline-none" />
@@ -79,6 +92,7 @@ export default async function AdminSessies({
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-[#FAF7F2] border-b border-[#E8DDD0]">
+              <th className="px-4 py-3 text-left text-xs text-[#8B7355] uppercase tracking-wide">Gebruiker</th>
               <th className="px-4 py-3 text-left text-xs text-[#8B7355] uppercase tracking-wide">Thema</th>
               <th className="px-4 py-3 text-left text-xs text-[#8B7355] uppercase tracking-wide">Voortgang</th>
               <th className="px-4 py-3 text-left text-xs text-[#8B7355] uppercase tracking-wide">Stemming ∆</th>
@@ -89,11 +103,17 @@ export default async function AdminSessies({
           <tbody>
             {rijen.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-[#8B7355]">Geen sessies gevonden</td>
+                <td colSpan={6} className="px-4 py-10 text-center text-[#8B7355]">Geen sessies gevonden</td>
               </tr>
             ) : (
               rijen.map((s) => (
                 <tr key={s.id} className="border-b border-[#E8DDD0] last:border-0 hover:bg-[#FAF7F2] transition-colors">
+                  <td className="px-4 py-3">
+                    <p className="font-medium text-[#2C1F14]">{s.gebruikerNaam ?? "—"}</p>
+                    {s.gebruikerEmail && (
+                      <p className="text-xs text-[#8B7355]">{s.gebruikerEmail}</p>
+                    )}
+                  </td>
                   <td className="px-4 py-3 font-medium text-[#2C1F14]">{s.themaLabel}</td>
                   <td className="px-4 py-3">
                     <ProgressPipeline status={s.status} compact />
