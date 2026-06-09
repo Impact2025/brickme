@@ -1,16 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 import Link from "next/link";
 
 export default function ProfielPage() {
-  const router = useRouter();
   const [naam, setNaam] = useState("");
   const [email, setEmail] = useState("");
   const [bezig, setBezig] = useState(false);
   const [opgeslagen, setOpgeslagen] = useState(false);
   const [fout, setFout] = useState("");
+  const [verwijderStap, setVerwijderStap] = useState<0 | 1 | 2>(0);
+  const [verwijderBezig, setVerwijderBezig] = useState(false);
 
   useEffect(() => {
     fetch("/api/profiel")
@@ -21,6 +22,18 @@ export default function ProfielPage() {
       })
       .catch(() => {});
   }, []);
+
+  async function verwijderAccount() {
+    setVerwijderBezig(true);
+    try {
+      const res = await fetch("/api/profiel", { method: "DELETE" });
+      if (!res.ok) throw new Error();
+      await signOut({ callbackUrl: "/" });
+    } catch {
+      setVerwijderBezig(false);
+      setVerwijderStap(0);
+    }
+  }
 
   async function opslaan(e: React.FormEvent) {
     e.preventDefault();
@@ -93,11 +106,68 @@ export default function ProfielPage() {
 
         <div className="mt-4 text-center">
           <button
-            onClick={() => router.push("/sign-in?uitloggen=1")}
+            onClick={() => signOut({ callbackUrl: "/" })}
             className="text-sm text-[#8B7355] hover:text-[#2C1F14] transition-colors"
           >
             Uitloggen
           </button>
+        </div>
+
+        <div className="mt-8 border-t border-[#E8DDD0] pt-6">
+          {verwijderStap === 0 && (
+            <button
+              onClick={() => setVerwijderStap(1)}
+              className="w-full text-sm text-[#8B7355] hover:text-[#C8583A] transition-colors py-2"
+            >
+              Account verwijderen
+            </button>
+          )}
+
+          {verwijderStap === 1 && (
+            <div className="bg-white rounded-2xl border border-[#E8DDD0] p-5 space-y-4">
+              <p className="text-sm text-[#2C1F14] font-medium">Weet je het zeker?</p>
+              <p className="text-sm text-[#8B7355] leading-relaxed">
+                Al je sessies, foto&apos;s, rapporten en persoonlijke gegevens worden permanent verwijderd. Dit kan niet ongedaan worden gemaakt.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setVerwijderStap(0)}
+                  className="flex-1 text-sm text-[#8B7355] border border-[#E8DDD0] py-2.5 rounded-xl hover:border-[#C8583A] transition-colors"
+                >
+                  Annuleren
+                </button>
+                <button
+                  onClick={() => setVerwijderStap(2)}
+                  className="flex-1 text-sm text-[#C8583A] border border-[#C8583A] py-2.5 rounded-xl hover:bg-[#C8583A] hover:text-white transition-colors"
+                >
+                  Ja, verwijder alles
+                </button>
+              </div>
+            </div>
+          )}
+
+          {verwijderStap === 2 && (
+            <div className="bg-white rounded-2xl border border-[#C8583A] p-5 space-y-4">
+              <p className="text-sm text-[#2C1F14] font-medium">Laatste kans</p>
+              <p className="text-sm text-[#8B7355]">
+                Na bevestiging wordt je account direct verwijderd en word je uitgelogd.
+              </p>
+              <button
+                onClick={verwijderAccount}
+                disabled={verwijderBezig}
+                className="w-full bg-[#C8583A] text-white text-sm font-medium py-3 rounded-xl hover:bg-[#b8482a] transition-colors disabled:opacity-50"
+              >
+                {verwijderBezig ? "Bezig met verwijderen..." : "Account definitief verwijderen"}
+              </button>
+              <button
+                onClick={() => setVerwijderStap(0)}
+                disabled={verwijderBezig}
+                className="w-full text-sm text-[#8B7355] py-2 hover:text-[#2C1F14] transition-colors disabled:opacity-50"
+              >
+                Toch niet
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
