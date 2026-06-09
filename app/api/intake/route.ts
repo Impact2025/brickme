@@ -58,12 +58,12 @@ export async function POST(req: NextRequest) {
     // Betaalcheck voor nieuwe sessie
     let openBetalingId: string | null = null;
     const [gebr] = await db
-      .select({ abonnementStatus: gebruikers.abonnementStatus })
+      .select({ abonnementStatus: gebruikers.abonnementStatus, rol: gebruikers.rol })
       .from(gebruikers)
       .where(eq(gebruikers.userId, userId))
       .limit(1);
 
-    if (gebr?.abonnementStatus !== "actief") {
+    if (gebr?.rol !== "superadmin" && gebr?.abonnementStatus !== "actief") {
       const [openBetaling] = await db
         .select({ id: betalingen.id })
         .from(betalingen)
