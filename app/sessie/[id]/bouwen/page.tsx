@@ -497,7 +497,7 @@ export default function BouwenPage() {
                 onClick={laadProbeVraag}
                 className="btn-primary w-full py-4 text-lg animate-slide-up"
               >
-                AI stelt een vraag →
+                Brickme stelt een vraag →
               </button>
             )}
 
