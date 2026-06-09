@@ -53,13 +53,8 @@ function BetalenForm() {
     setBezig(true);
     setFout("");
 
-    const terugkeerSuffix = terugkeerParam ? `&terugkeer=${terugkeerParam}` : "";
-
-    if (gratis) {
-      window.location.href = `/sessie/nieuw?thema=${themaId}&betaald=1${terugkeerSuffix}`;
-      return;
-    }
-
+    // Altijd via de checkout API — ook bij gratis (100% coupon).
+    // De API maakt de betalingen-record aan zodat de intake-route hem kan vinden.
     const res = await fetch("/api/stripe/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
