@@ -69,8 +69,14 @@ VERLOOP:
 - Ga pas daarna richting: "Hoe lang loop je hier al mee?"
 - Werk naar 6-8 thema's toe, maar volg het gesprek — niet een vaste lijst
 - De laatste vraag is altijd: "Als je terugkijkt op dit gesprek — wat springt er het meest uit?"
-- Stuur aan het einde een JSON-samenvatting in dit formaat:
-  {"klaar": true, "context": "Korte samenvatting van 2-3 zinnen die de kern raakt van wat deze persoon ervaart en zoekt"}
+- Stuur aan het einde een JSON-samenvatting in dit exacte formaat (geen andere tekst eromheen):
+  {
+    "klaar": true,
+    "context": "2-3 zinnen die de kern raken van wat deze persoon ervaart en zoekt",
+    "kern": "De meest centrale spanning of behoefte, in één concrete zin — wat houdt hen echt bezig?",
+    "citaat": "Het meest treffende wat deze persoon letterlijk of bijna-letterlijk zei (max 15 woorden, met aanhalingstekens)",
+    "toon": "één woord uit deze lijst: zwaar / zoekend / vastgelopen / verdrietig / boos / klaar-voor-verandering / verward / moe"
+  }
 
 BELANGRIJK: Stuur de JSON pas als je 7+ uitwisselingen hebt gehad en het gesprek een goede diepgang heeft bereikt.`;
 }
@@ -83,6 +89,33 @@ export type VorigeSessieContext = {
   inzichten: string[];
   aiSessieContext: string;
 };
+
+// ─── Rijke sessiecontext builder ──────────────────────────────────────────────
+export function bouwRijkeSessieContext(
+  context: string,
+  kern: string,
+  citaat: string,
+  toon: string,
+  stemmingVoor: number | null
+): string {
+  const delen: string[] = [];
+
+  if (stemmingVoor !== null) {
+    const label =
+      stemmingVoor <= 2 ? "zeer zwaar" :
+      stemmingVoor <= 4 ? "zwaar" :
+      stemmingVoor <= 6 ? "matig" :
+      stemmingVoor <= 8 ? "redelijk goed" : "goed";
+    delen.push(`Stemming voor sessie: ${stemmingVoor}/10 (${label})`);
+  }
+
+  if (context) delen.push(`Samenvatting: ${context}`);
+  if (kern)    delen.push(`Kern van wat er speelt: ${kern}`);
+  if (citaat)  delen.push(`In eigen woorden: ${citaat}`);
+  if (toon)    delen.push(`Toon van het gesprek: ${toon}`);
+
+  return delen.join("\n");
+}
 
 export function buildTerugkeerIntakeSystemPrompt(themaId: ThemaId, vorigeSessie: VorigeSessieContext): string {
   const thema = THEMAS[themaId];
@@ -108,8 +141,14 @@ Doe dit in 5-7 uitwisselingen — korter dan een eerste sessie, want je hebt al 
 
 STIJL: identiek aan eerste sessie — warm, direct, één vraag per bericht, geen jargon.
 
-Stuur aan het einde een JSON-samenvatting:
-{"klaar": true, "context": "Korte samenvatting van 2-3 zinnen. Verwerk expliciet: wat er veranderd is tov de vorige sessie, en wat er nu speelt."}
+Stuur aan het einde een JSON-samenvatting in dit exacte formaat (geen andere tekst eromheen):
+  {
+    "klaar": true,
+    "context": "2-3 zinnen. Verwerk expliciet: wat er veranderd is tov de vorige sessie, en wat er nu speelt.",
+    "kern": "De meest centrale verschuiving of spanning in één zin — wat is er nu anders of wat blijft hangen?",
+    "citaat": "Het meest treffende wat ze zeiden over wat er nu speelt of veranderd is (max 15 woorden, met aanhalingstekens)",
+    "toon": "één woord uit: zwaar / zoekend / vastgelopen / verdrietig / boos / klaar-voor-verandering / verward / moe / lichter / hoopvol"
+  }
 
 BELANGRIJK: Stuur de JSON pas na 5+ uitwisselingen en voldoende diepgang.`;
 }
@@ -239,6 +278,11 @@ HUIDIGE BOUWOPDRACHT (fase ${faseNummer} — ${faseTitel}): "${bouwvraag}"
 WAT ZE ZELF ZEGGEN OVER HUN BOUWSEL: "${gebruikersBeschrijving}"
 ${probeVraag && probeAntwoord ? `\nALS FACILITATOR VROEG JE: "${probeVraag}"\nHUN ANTWOORD: "${probeAntwoord}"` : ""}
 ${FASE_TAAK[faseType]}
+
+HOE JE DE CONTEXT GEBRUIKT:
+- De "Kern van wat er speelt" en het citaat zijn de meest directe ingang naar wie deze persoon is. Gebruik ze actief — verwijs er specifiek naar, niet generiek.
+- Als de stemming voor de sessie laag is (≤4), wees extra zacht en zorgvuldig in formulering.
+- Maak de reflectie onmiskenbaar voor déze persoon. Iemand anders had deze reflectie niet kunnen krijgen.
 
 STIJL:
 - Schrijf in de tweede persoon ("Je hebt...", "Opvallend is dat...")

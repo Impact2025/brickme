@@ -15,17 +15,16 @@ interface Bericht {
 // ─── Welkom scherm ─────────────────────────────────────────────────────────────
 function WelkomScherm({ themaLabel, betaald, onKlaar }: { themaLabel: string; betaald: boolean; onKlaar: () => void }) {
   return (
-    <main className="min-h-dvh bg-secondary flex flex-col items-center justify-center px-6 py-10">
-      <div className="max-w-md w-full space-y-5">
-        {/* Terug + logo */}
-        <div className="flex items-center justify-between">
-          <a href="/" className="text-sm text-muted hover:text-bricktext transition-colors">← Terug</a>
-          <Image src="/logo.png" alt="Brickme" width={36} height={36} unoptimized />
-        </div>
+    <main className="min-h-dvh bg-secondary flex flex-col">
+      <header className="flex items-center justify-between px-6 py-5 border-b border-border/50">
+        <a href="/" className="text-sm text-muted hover:text-bricktext transition-colors">← Home</a>
+        <Image src="/logo.png" alt="Brickme" width={28} height={28} unoptimized />
+      </header>
 
-        {/* Betaling bevestiging */}
+      <div className="flex-1 flex flex-col px-6 py-8 max-w-md mx-auto w-full">
+
         {betaald && (
-          <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-accent/8 border border-accent/20 animate-slide-up">
+          <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-accent/8 border border-accent/20 animate-slide-up mb-6">
             <div className="w-5 h-5 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
               <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                 <path d="M2 5l2 2 4-4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -35,61 +34,74 @@ function WelkomScherm({ themaLabel, betaald, onKlaar }: { themaLabel: string; be
           </div>
         )}
 
-        {/* Header */}
-        <div>
-          <p className="text-xs text-muted uppercase tracking-wider mb-1">{themaLabel}</p>
-          <h1 className="text-3xl font-serif text-bricktext leading-tight">Welkom bij je Brickme-sessie</h1>
-          <p className="text-muted mt-2 leading-relaxed text-sm">
-            Je gaat werken met LEGO® Serious Play® — een methode die je handen laat denken. Zo werkt het:
+        <div className="flex-1 space-y-6">
+          <div>
+            <p className="text-xs text-muted uppercase tracking-wider mb-1">{themaLabel}</p>
+            <h1 className="text-3xl font-serif text-bricktext leading-tight">
+              Je staat op het punt<br/>iets te ontdekken.
+            </h1>
+            <p className="text-muted text-sm leading-relaxed mt-3">
+              De volgende 45–75 minuten zijn van jou. Geen beoordelingen, geen verwachtingen.
+              Alleen jij, je handen, en wat ze weten.
+            </p>
+          </div>
+
+          {/* Voorbereiding */}
+          <div className="bg-primary/5 border border-primary/10 rounded-2xl p-5">
+            <p className="text-xs font-medium text-primary uppercase tracking-wider mb-3">Zorg dat je klaar bent</p>
+            <ul className="space-y-2">
+              {[
+                "LEGO of huishoudspullen binnen handbereik",
+                "Een rustige plek — minimaal 45 minuten",
+                "Je telefoon bij de hand voor de foto’s",
+                "Goed licht: daglicht of een heldere kamer",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-2.5 text-sm text-bricktext">
+                  <span className="text-primary flex-shrink-0 mt-0.5 text-xs">◆</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Wat er gaat gebeuren */}
+          <div className="space-y-2.5">
+            {[
+              {
+                stap: "01",
+                titel: "Intakegesprek",
+                beschrijving: "7–10 vragen op maat voor jouw thema. Antwoord eerlijk — er is geen goed of fout.",
+              },
+              {
+                stap: "02",
+                titel: "4× bouwen & fotograferen",
+                beschrijving: "Vier bouwfases, elk met een verborgen vraag. Laat je handen het werk doen.",
+              },
+              {
+                stap: "03",
+                titel: "Persoonlijk rapport",
+                beschrijving: "3 inzichten + 1 concrete eerste stap. Iets dat je bewaart.",
+              },
+            ].map(({ stap, titel, beschrijving }) => (
+              <div key={stap} className="flex gap-4 p-4 rounded-2xl bg-surface border border-border">
+                <span className="text-xs font-medium text-primary tabular-nums pt-0.5 flex-shrink-0">{stap}</span>
+                <div>
+                  <p className="font-medium text-bricktext text-sm">{titel}</p>
+                  <p className="text-muted text-sm leading-relaxed mt-0.5">{beschrijving}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="pt-6 space-y-3">
+          <button onClick={onKlaar} className="btn-primary w-full py-4 text-lg">
+            Ik ben klaar →
+          </button>
+          <p className="text-center text-xs text-muted">
+            Je sessie wordt automatisch opgeslagen. Je kunt altijd even pauzeren.
           </p>
         </div>
-
-        {/* Stappen */}
-        <div className="space-y-2.5">
-          {[
-            {
-              stap: "01",
-              titel: "Intakegesprek",
-              beschrijving: "Je beantwoordt een paar vragen. Zo stemmen we de sessie af op jouw situatie. Antwoord eerlijk — er is geen goed of fout.",
-            },
-            {
-              stap: "02",
-              titel: "Bouwen",
-              beschrijving: "Je bouwt vier keer iets met LEGO®-blokken. Laat je handen het werk doen. Geen plan nodig — gewoon beginnen.",
-            },
-            {
-              stap: "03",
-              titel: "Foto's & reflectie",
-              beschrijving: "Na elk bouwsel maak je een foto en vertel je wat je ziet. Zo krijg je aan het einde een persoonlijk rapport.",
-            },
-          ].map(({ stap, titel, beschrijving }) => (
-            <div key={stap} className="flex gap-4 p-4 rounded-2xl bg-surface border border-border">
-              <span className="text-xs font-medium text-primary tabular-nums pt-0.5 flex-shrink-0">{stap}</span>
-              <div>
-                <p className="font-medium text-bricktext text-sm">{titel}</p>
-                <p className="text-muted text-sm leading-relaxed mt-0.5">{beschrijving}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Foto tips */}
-        <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10">
-          <p className="text-xs text-primary uppercase tracking-wider mb-2.5 font-medium">Tips voor de beste foto&apos;s</p>
-          <ul className="text-sm text-bricktext space-y-1.5 leading-relaxed">
-            <li className="flex gap-2"><span className="text-primary flex-shrink-0">·</span>Fotografeer van bovenaf of licht schuin — niet op ooghoogte</li>
-            <li className="flex gap-2"><span className="text-primary flex-shrink-0">·</span>Gebruik daglicht of een heldere kamer</li>
-            <li className="flex gap-2"><span className="text-primary flex-shrink-0">·</span>Houd het bouwsel centraal en vul het frame</li>
-            <li className="flex gap-2"><span className="text-primary flex-shrink-0">·</span>Één bouwsel per foto — minder afleiding, meer betekenis</li>
-          </ul>
-        </div>
-
-        <button
-          onClick={onKlaar}
-          className="btn-primary w-full py-4 text-lg animate-slide-up"
-        >
-          Ik ben klaar om te beginnen →
-        </button>
       </div>
     </main>
   );
@@ -117,6 +129,14 @@ function NieuweSessieInner() {
   const [stemmingFase, setStemmingFase] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const gestart = useRef(false);
+
+  // Helper: kleurklasse voor stemming-knop
+  function stemmingKleur(n: number): string {
+    if (stemming === n) return "border-primary bg-primary text-white scale-105 shadow-md";
+    if (n <= 3) return "border-border bg-surface text-bricktext hover:border-red-300 hover:bg-red-50";
+    if (n <= 6) return "border-border bg-surface text-bricktext hover:border-amber-300 hover:bg-amber-50";
+    return "border-border bg-surface text-bricktext hover:border-green-300 hover:bg-green-50";
+  }
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -209,42 +229,65 @@ function NieuweSessieInner() {
 
   if (stemmingFase) {
     return (
-      <main className="min-h-dvh bg-secondary flex flex-col items-center justify-center px-6">
-        <div className="max-w-md w-full">
-          <button onClick={() => { setStemmingFase(false); setWelkomFase(true); }} className="text-sm text-muted hover:text-bricktext mb-8 block">← Terug</button>
-          <Image src="/logo.png" alt="Brickme" width={40} height={40} unoptimized className="mb-6" />
-          <h2 className="text-3xl font-serif text-bricktext mb-2">Hoe voel je je nu?</h2>
-          <p className="text-muted mb-8">Een schaal van 1 (zwaar) tot 10 (lekker in je vel). Dit meten we ook na de sessie.</p>
+      <main className="min-h-dvh bg-secondary flex flex-col">
+        <header className="flex items-center justify-between px-6 py-5 border-b border-border/50">
+          <button
+            onClick={() => { setStemmingFase(false); setWelkomFase(true); }}
+            className="text-sm text-muted hover:text-bricktext transition-colors"
+          >
+            ← Terug
+          </button>
+          <Image src="/logo.png" alt="Brickme" width={28} height={28} unoptimized />
+        </header>
 
-          <div className="flex gap-2 flex-wrap mb-8">
-            {[1,2,3,4,5,6,7,8,9,10].map((n) => (
+        <div className="flex-1 flex flex-col items-center justify-center px-6">
+          <div className="max-w-md w-full space-y-8">
+            <div>
+              <h2 className="text-3xl font-serif text-bricktext mb-2">
+                Hoe voel je je<br/>op dit moment?
+              </h2>
+              <p className="text-muted text-sm leading-relaxed">
+                Geen goed of fout antwoord. We meten dit aan het einde opnieuw — dan zie je het verschil.
+              </p>
+            </div>
+
+            <div>
+              <div className="flex gap-2 flex-wrap mb-3">
+                {[1,2,3,4,5,6,7,8,9,10].map((n) => (
+                  <button
+                    key={n}
+                    onClick={() => setStemming(n)}
+                    className={cn(
+                      "w-11 h-11 rounded-xl border-2 font-medium transition-all duration-200 text-sm",
+                      stemmingKleur(n)
+                    )}
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
+              <div className="flex justify-between text-xs text-muted px-0.5">
+                <span>Zwaar</span>
+                <span>Lekker in je vel</span>
+              </div>
+            </div>
+
+            {stemming !== null && (
               <button
-                key={n}
-                onClick={() => setStemming(n)}
-                className={cn(
-                  "w-12 h-12 rounded-2xl border-2 font-medium transition-all duration-200",
-                  stemming === n
-                    ? "border-primary bg-primary text-white"
-                    : "border-border bg-surface text-bricktext hover:border-primary"
-                )}
+                onClick={() => setStemmingFase(false)}
+                className="btn-primary w-full py-4 text-lg animate-slide-up"
               >
-                {n}
+                Begin het gesprek →
               </button>
-            ))}
+            )}
           </div>
-
-          {stemming && (
-            <button
-              onClick={() => setStemmingFase(false)}
-              className="btn-primary w-full py-4 text-lg animate-slide-up"
-            >
-              Begin het gesprek →
-            </button>
-          )}
         </div>
       </main>
     );
   }
+
+  const aantalAntwoorden = berichten.filter(b => b.rol === "gebruiker").length;
+  const voortgang = Math.min((aantalAntwoorden / 10) * 100, 95);
 
   return (
     <main className="min-h-dvh bg-secondary flex flex-col">
@@ -252,13 +295,13 @@ function NieuweSessieInner() {
       <header className="flex items-center justify-between px-6 py-4 border-b border-border bg-surface sticky top-0 z-10" style={{ paddingTop: "max(1rem, env(safe-area-inset-top))" }}>
         <div>
           <p className="text-xs text-muted uppercase tracking-wider">{thema.label}</p>
-          <h2 className="font-serif text-bricktext">Intake gesprek</h2>
+          <h2 className="font-serif text-bricktext">Intakegesprek</h2>
         </div>
         <div className="flex items-center gap-3">
           <div className="w-24 h-1 bg-border rounded-full overflow-hidden">
             <div
-              className="h-full bg-primary rounded-full transition-all duration-500"
-              style={{ width: `${Math.min((berichten.filter(b => b.rol === "gebruiker").length / 7) * 100, 100)}%` }}
+              className="h-full bg-primary rounded-full transition-all duration-700"
+              style={{ width: `${voortgang}%` }}
             />
           </div>
           <a href="/dashboard" className="text-xs text-muted hover:text-bricktext transition-colors">Dashboard</a>

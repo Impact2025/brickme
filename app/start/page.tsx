@@ -145,7 +145,7 @@ function StartForm() {
               </div>
             )}
             <p className="text-center text-xs text-muted mt-3">
-              Een sessie duurt 30–45 minuten. Je hebt blokken of huishoudspullen nodig.
+              Een sessie duurt 45–75 minuten. Je hebt LEGO of huishoudspullen nodig.
             </p>
           </div>
         )}

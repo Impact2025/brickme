@@ -395,8 +395,8 @@ export default function HomePage() {
             </p>
             <ul className="space-y-4">
               {[
-                { titel: "Alle foto's van je bouwsels", sub: "Drie fases, drie beelden" },
-                { titel: "Persoonlijke reflectie per fase", sub: "Specifiek op jouw bouwsel, niet generiek" },
+                { titel: "Alle foto's van je bouwsels", sub: "Vier bouwsels, vier beelden" },
+                { titel: "Persoonlijke reflectie per bouwsel", sub: "Specifiek op jouw foto — niet generiek" },
                 { titel: "Drie kernthema's die naar voren kwamen", sub: "Samengesteld uit jouw hele sessie" },
                 { titel: "Jouw stemming voor én na de sessie", sub: "Merk het verschil" },
                 { titel: "Één concrete eerste stap", sub: "Van jezelf, niet van een coach" },
@@ -666,7 +666,7 @@ export default function HomePage() {
                 {[
                   "Volledige sessie van 45–75 min",
                   "Intake op maat",
-                  "3 bouwfases met timer",
+                  "4 bouwfases met timer",
                   "Brickme reflectie per sessie",
                   "Persoonlijk PDF-rapport",
                 ].map((f) => (

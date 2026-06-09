@@ -3,7 +3,7 @@ export const maxDuration = 60;
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import Stripe from "stripe";
-import { openai, AI_MODEL, buildIntakeSystemPrompt, buildTerugkeerIntakeSystemPrompt, THEMAS, ThemaId, VorigeSessieContext } from "@/lib/ai";
+import { openai, AI_MODEL, buildIntakeSystemPrompt, buildTerugkeerIntakeSystemPrompt, bouwRijkeSessieContext, THEMAS, ThemaId, VorigeSessieContext } from "@/lib/ai";
 import { db } from "@/lib/db";
 import { sessies, fases, rapporten, gebruikers, betalingen } from "@/lib/db/schema";
 import { and, eq, asc } from "drizzle-orm";
@@ -180,67 +180,82 @@ export async function POST(req: NextRequest) {
   if (/"klaar"\s*:\s*true/.test(tekst)) {
     klaar = true;
     try {
-      // Strip markdown code fences die Claude soms toevoegt
-      const ontdaan = tekst.replace(/```(?:json)?\s*/gi, "").replace(/```/g, "");
-      const jsonMatch = ontdaan.match(/\{[\s\S]*?"klaar"[\s\S]*?\}/);
-      if (jsonMatch) {
-        const parsed = JSON.parse(jsonMatch[0]);
+      // Strip markdown code fences en whitespace
+      const ontdaan = tekst
+        .replace(/```(?:json)?\s*/gi, "")
+        .replace(/```/g, "")
+        .trim();
 
-        const intakeAntwoorden = berichten
-          .filter((_: unknown, i: number) => i > 0)
-          .reduce((acc: Array<{vraag: string; antwoord: string}>, b: {rol: string; inhoud: string}, i: number, arr: {rol: string; inhoud: string}[]) => {
-            if (b.rol === "gebruiker" && i > 0) {
-              acc.push({ vraag: arr[i - 1]?.inhoud || "", antwoord: b.inhoud });
-            }
-            return acc;
-          }, []);
+      // Probeer eerst een strakke match (geen geneste objecten), dan een brede match
+      const jsonMatch =
+        ontdaan.match(/\{[^{}]*"klaar"\s*:\s*true[^{}]*\}/) ??
+        ontdaan.match(/\{[\s\S]*?"klaar"\s*:\s*true[\s\S]*?\}/);
 
-        zichtbareTekst = `Goed. Ik heb genoeg om mee te werken. Je sessie staat klaar — het is tijd om te gaan bouwen.`;
+      if (!jsonMatch) throw new Error("Geen geldig JSON blok gevonden");
 
-        if (sessieId) {
-          // Update de bestaande draft sessie naar bouwen
-          await db
-            .update(sessies)
-            .set({
-              status: "bouwen",
-              aiSessieContext: parsed.context || "",
-              intakeAntwoorden,
-              stemmingVoor: stemming ?? null,
-              bijgewerktOp: new Date(),
-            })
-            .where(and(eq(sessies.id, sessieId), eq(sessies.userId, userId)));
+      // Herstel veelgemaakte LLM JSON-fouten: trailing commas
+      const jsonStr = jsonMatch[0].replace(/,(\s*[}\]])/g, "$1");
+      const parsed = JSON.parse(jsonStr);
 
-          huidigeSessieId = sessieId;
-        } else {
-          // Fallback: maak nieuwe sessie
-          const [nieuweSessie] = await db
-            .insert(sessies)
-            .values({
-              userId,
-              thema: themaId,
-              themaLabel: thema.label,
-              status: "bouwen",
-              aiSessieContext: parsed.context || "",
-              intakeAntwoorden,
-              stemmingVoor: stemming ?? null,
-              vorigeSessieId: vorigeSessieId ?? null,
-              bijgewerktOp: new Date(),
-            })
-            .returning();
-          huidigeSessieId = nieuweSessie.id;
-        }
+      const intakeAntwoorden = berichten
+        .filter((_: unknown, i: number) => i > 0)
+        .reduce((acc: Array<{vraag: string; antwoord: string}>, b: {rol: string; inhoud: string}, i: number, arr: {rol: string; inhoud: string}[]) => {
+          if (b.rol === "gebruiker" && i > 0) {
+            acc.push({ vraag: arr[i - 1]?.inhoud || "", antwoord: b.inhoud });
+          }
+          return acc;
+        }, []);
 
-        const bouwvragen = thema.bouwvragen;
-        const faseTitels = thema.faseTitels;
+      const sessieContext = bouwRijkeSessieContext(
+        parsed.context || "",
+        parsed.kern   || "",
+        parsed.citaat || "",
+        parsed.toon   || "",
+        stemming ?? null
+      );
+      zichtbareTekst = `Goed. Ik heb genoeg om mee te werken. Je sessie staat klaar — het is tijd om te gaan bouwen.`;
 
-        for (let i = 0; i < 4; i++) {
-          await db.insert(fases).values({
-            sessieId: huidigeSessieId!,
-            faseNummer: i + 1,
-            faseTitel: faseTitels[i],
-            vraag: bouwvragen[i],
-          });
-        }
+      if (sessieId) {
+        await db
+          .update(sessies)
+          .set({
+            status: "bouwen",
+            aiSessieContext: sessieContext,
+            intakeAntwoorden,
+            stemmingVoor: stemming ?? null,
+            bijgewerktOp: new Date(),
+          })
+          .where(and(eq(sessies.id, sessieId), eq(sessies.userId, userId)));
+
+        huidigeSessieId = sessieId;
+      } else {
+        const [nieuweSessie] = await db
+          .insert(sessies)
+          .values({
+            userId,
+            thema: themaId,
+            themaLabel: thema.label,
+            status: "bouwen",
+            aiSessieContext: sessieContext,
+            intakeAntwoorden,
+            stemmingVoor: stemming ?? null,
+            vorigeSessieId: vorigeSessieId ?? null,
+            bijgewerktOp: new Date(),
+          })
+          .returning();
+        huidigeSessieId = nieuweSessie.id;
+      }
+
+      const bouwvragen = thema.bouwvragen;
+      const faseTitels = thema.faseTitels;
+
+      for (let i = 0; i < 4; i++) {
+        await db.insert(fases).values({
+          sessieId: huidigeSessieId!,
+          faseNummer: i + 1,
+          faseTitel: faseTitels[i],
+          vraag: bouwvragen[i],
+        });
       }
     } catch (err) {
       console.error("[intake] sessie aanmaken mislukt:", err);
