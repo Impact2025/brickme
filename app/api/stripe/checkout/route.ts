@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
     params = {
       mode: "payment",
       line_items: [{ price: process.env.STRIPE_PRICE_ID!, quantity: 1 }],
-      success_url: `${appUrl}/sessie/nieuw?thema=${thema}&betaald=1${terugkeerSuffix}`,
+      success_url: `${appUrl}/sessie/nieuw?thema=${thema}&betaald=1&stripe_session_id={CHECKOUT_SESSION_ID}${terugkeerSuffix}`,
       cancel_url: `${appUrl}/betalen?thema=${thema}${terugkeer ? `&terugkeer=${terugkeer}` : ""}`,
       metadata: { userId: session.user.id, thema },
     };

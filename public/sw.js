@@ -46,7 +46,7 @@ self.addEventListener('fetch', (e) => {
       caches.match(request).then((hit) => {
         if (hit) return hit;
         return fetch(request).then((res) => {
-          if (res.ok) caches.open(CACHE).then((c) => c.put(request, res.clone()));
+          if (res.ok) { const cloned = res.clone(); caches.open(CACHE).then((c) => c.put(request, cloned)); }
           return res;
         });
       })
@@ -60,7 +60,7 @@ self.addEventListener('fetch', (e) => {
       caches.match(request).then((hit) => {
         if (hit) return hit;
         return fetch(request).then((res) => {
-          if (res.ok) caches.open(CACHE).then((c) => c.put(request, res.clone()));
+          if (res.ok) { const cloned = res.clone(); caches.open(CACHE).then((c) => c.put(request, cloned)); }
           return res;
         });
       })
@@ -77,7 +77,8 @@ self.addEventListener('fetch', (e) => {
             // Bouwfase pagina's extra agressief cachen (meeste kans op offline)
             const kritiek = url.pathname.includes('/bouwen') || url.pathname === '/offline';
             if (kritiek) {
-              caches.open(CACHE).then((c) => c.put(request, res.clone()));
+              const cloned = res.clone();
+              caches.open(CACHE).then((c) => c.put(request, cloned));
             }
           }
           return res;

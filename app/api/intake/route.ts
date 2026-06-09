@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
+import Stripe from "stripe";
 import { openai, AI_MODEL, buildIntakeSystemPrompt, buildTerugkeerIntakeSystemPrompt, THEMAS, ThemaId, VorigeSessieContext } from "@/lib/ai";
 import { db } from "@/lib/db";
 import { sessies, fases, rapporten, gebruikers, betalingen } from "@/lib/db/schema";
@@ -12,7 +13,7 @@ export async function POST(req: NextRequest) {
   const userId = session?.user?.id;
   if (!userId) return NextResponse.json({ error: "Niet ingelogd" }, { status: 401 });
 
-  const { themaId, berichten, fase, sessieId, stemming, vorigeSessieId } = await req.json();
+  const { themaId, berichten, fase, sessieId, stemming, vorigeSessieId, stripeSessionId } = await req.json();
   const thema = THEMAS[themaId as ThemaId];
   if (!thema) return NextResponse.json({ error: "Ongeldig thema" }, { status: 400 });
 
@@ -75,9 +76,50 @@ export async function POST(req: NextRequest) {
         .limit(1);
 
       if (!openBetaling) {
-        return NextResponse.json({ error: "Geen geldige betaling gevonden" }, { status: 403 });
+        // Webhook may not have fired yet — verify directly with Stripe as fallback
+        if (stripeSessionId) {
+          try {
+            const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+            const stripeSession = await stripe.checkout.sessions.retrieve(stripeSessionId);
+            if (
+              stripeSession.payment_status === "paid" &&
+              stripeSession.mode === "payment" &&
+              stripeSession.metadata?.userId === userId &&
+              stripeSession.metadata?.thema === themaId
+            ) {
+              await db.insert(betalingen).values({
+                userId,
+                stripeSessionId: stripeSession.id,
+                bedrag: stripeSession.amount_total ?? 0,
+                thema: themaId,
+                status: "open",
+              }).onConflictDoNothing();
+              const [inserted] = await db
+                .select({ id: betalingen.id })
+                .from(betalingen)
+                .where(and(
+                  eq(betalingen.userId, userId),
+                  eq(betalingen.thema, themaId),
+                  eq(betalingen.status, "open")
+                ))
+                .limit(1);
+              if (inserted) {
+                openBetalingId = inserted.id;
+              } else {
+                return NextResponse.json({ error: "Geen geldige betaling gevonden" }, { status: 403 });
+              }
+            } else {
+              return NextResponse.json({ error: "Geen geldige betaling gevonden" }, { status: 403 });
+            }
+          } catch {
+            return NextResponse.json({ error: "Geen geldige betaling gevonden" }, { status: 403 });
+          }
+        } else {
+          return NextResponse.json({ error: "Geen geldige betaling gevonden" }, { status: 403 });
+        }
+      } else {
+        openBetalingId = openBetaling.id;
       }
-      openBetalingId = openBetaling.id;
     }
 
     // Nieuwe draft sessie aanmaken

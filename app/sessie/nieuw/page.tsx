@@ -105,6 +105,7 @@ function NieuweSessieInner() {
   const thema = THEMAS[themaId];
 
   const betaald = params.get("betaald") === "1";
+  const stripeSessionId = params.get("stripe_session_id");
 
   const [berichten, setBerichten] = useState<Bericht[]>([]);
   const [invoer, setInvoer] = useState("");
@@ -141,6 +142,7 @@ function NieuweSessieInner() {
           sessieId: bestaandSessieId || null,
           stemming,
           vorigeSessieId: terugkeerParam ?? null,
+          stripeSessionId: stripeSessionId || null,
         }),
       });
       const data = await res.json();
