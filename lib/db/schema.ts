@@ -186,6 +186,20 @@ export const followupEmails = pgTable("followup_emails", {
 
 export type FollowupEmail = typeof followupEmails.$inferSelect;
 
+// ─── Feedback ────────────────────────────────────────────────────────────────
+
+export const feedback = pgTable("feedback", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  sessieId: uuid("sessie_id").references(() => sessies.id, { onDelete: "cascade" }).notNull(),
+  userId: text("user_id").notNull(),
+  score: integer("score").notNull(), // 1–5
+  waardevol: text("waardevol"),
+  verbeterpunt: text("verbeterpunt"),
+  aangemaktOp: timestamp("aangemakt_op").defaultNow().notNull(),
+});
+
+export type Feedback = typeof feedback.$inferSelect;
+
 export type Sessie = typeof sessies.$inferSelect;
 export type NieuweSessie = typeof sessies.$inferInsert;
 export type Fase = typeof fases.$inferSelect;

@@ -27,6 +27,27 @@ export default function RapportPagina() {
   const [rapport, setRapport] = useState<RapportData | null>(null);
   const [laden, setLaden] = useState(true);
   const [genereren, setGenereren] = useState(false);
+  const [fbScore, setFbScore] = useState(0);
+  const [fbHover, setFbHover] = useState(0);
+  const [fbWaardevol, setFbWaardevol] = useState("");
+  const [fbVerbeter, setFbVerbeter] = useState("");
+  const [fbBezig, setFbBezig] = useState(false);
+  const [fbKlaar, setFbKlaar] = useState(false);
+
+  async function stuurFeedback() {
+    if (fbScore === 0) return;
+    setFbBezig(true);
+    try {
+      await fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessieId: id, score: fbScore, waardevol: fbWaardevol, verbeterpunt: fbVerbeter }),
+      });
+      setFbKlaar(true);
+    } finally {
+      setFbBezig(false);
+    }
+  }
 
   useEffect(() => {
     laadRapport();
@@ -265,16 +286,68 @@ export default function RapportPagina() {
         </section>
 
         {/* Feedback */}
-        <section className="py-6 border-t border-border">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-muted">Hoe was je ervaring met Brickme?</p>
-            <a
-              href="mailto:vincent@brickme.nl?subject=Feedback Brickme sessie"
-              className="text-sm text-primary hover:text-primary-dark font-medium transition-colors"
-            >
-              Geef feedback →
-            </a>
-          </div>
+        <section className="py-8 border-t border-border">
+          <p className="text-xs text-muted uppercase tracking-wider mb-5">Jouw feedback</p>
+          {fbKlaar ? (
+            <p className="text-sm text-accent font-medium transition-opacity duration-500">
+              Bedankt — je feedback helpt Brickme beter te worden ✓
+            </p>
+          ) : (
+            <div className="space-y-5">
+              <div>
+                <p className="text-sm text-bricktext mb-3">Hoe waardeer je deze sessie?</p>
+                <div className="flex gap-2">
+                  {[1, 2, 3, 4, 5].map((ster) => (
+                    <button
+                      key={ster}
+                      type="button"
+                      onClick={() => setFbScore(ster)}
+                      onMouseEnter={() => setFbHover(ster)}
+                      onMouseLeave={() => setFbHover(0)}
+                      className="w-10 h-10 rounded-xl border transition-all duration-200 text-lg flex items-center justify-center"
+                      style={{
+                        borderColor: ster <= (fbHover || fbScore) ? "#C8583A" : "#E8DDD0",
+                        background: ster <= (fbHover || fbScore) ? "#C8583A" : "transparent",
+                        color: ster <= (fbHover || fbScore) ? "#F5F0E8" : "#8B7355",
+                      }}
+                    >
+                      ★
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs text-muted uppercase tracking-wider mb-2">Wat vond je waardevol?</label>
+                <textarea
+                  value={fbWaardevol}
+                  onChange={(e) => setFbWaardevol(e.target.value)}
+                  placeholder="Optioneel"
+                  rows={2}
+                  className="w-full px-4 py-3 rounded-xl border border-border bg-white text-bricktext text-sm resize-none focus:outline-none focus:border-primary transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs text-muted uppercase tracking-wider mb-2">Wat kan er beter?</label>
+                <textarea
+                  value={fbVerbeter}
+                  onChange={(e) => setFbVerbeter(e.target.value)}
+                  placeholder="Optioneel"
+                  rows={2}
+                  className="w-full px-4 py-3 rounded-xl border border-border bg-white text-bricktext text-sm resize-none focus:outline-none focus:border-primary transition-colors"
+                />
+              </div>
+
+              <button
+                onClick={stuurFeedback}
+                disabled={fbScore === 0 || fbBezig}
+                className="w-full bg-primary text-white text-sm font-medium py-3 rounded-xl hover:bg-primary-dark transition-colors disabled:opacity-40"
+              >
+                {fbBezig ? "Versturen..." : "Verstuur feedback"}
+              </button>
+            </div>
+          )}
         </section>
 
         {/* Acties */}
